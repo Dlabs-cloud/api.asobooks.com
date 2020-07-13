@@ -15,7 +15,7 @@ export class SignUpRequestDto {
     @IsNotEmpty()
     phoneNumber: string;
     @IsString()
-    businessName: string;
+    associationName: string;
     @IsString()
     @IsNotEmpty()
     password: string;

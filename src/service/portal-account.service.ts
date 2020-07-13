@@ -22,7 +22,7 @@ export class PortalAccountService {
         }
         portalAccount.accountCode = await this.portalAccountSequenceGenerator.next();
         portalAccount.status = GenericStatusConstant.ACTIVE;
-        await entityManager.save(portalAccount);
+      //  await entityManager.save(portalAccount);
         return portalAccount;
     }
 }

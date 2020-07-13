@@ -1,4 +1,4 @@
 export enum PortalAccountTypeConstant {
-    BUSINESS = 'BUSINESS',
-    INDIVIDUAL = 'INDIVIDUAL',
+  ASSOCIATION = 'ASSOCIATION',
+  INDIVIDUAL = 'INDIVIDUAL',
 }
