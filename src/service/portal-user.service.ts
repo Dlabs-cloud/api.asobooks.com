@@ -10,7 +10,7 @@ export class PortalUserService {
 
   async createPortalUser(entityManager: EntityManager, portalUser: PortalUser) {
     portalUser.password = await this.authenticationUtils.hashPassword(portalUser.password);
-    //await entityManager.save(portalUser);
+    await entityManager.save(portalUser);
     return portalUser;
   }
 }
