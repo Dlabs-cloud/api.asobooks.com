@@ -1,8 +1,7 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Connection } from 'typeorm';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { SignUpRequestDto } from '../dto/sign-up-request.dto';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalAccountService } from './portal-account.service';
@@ -12,8 +11,9 @@ import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalUserService } from './portal-user.service';
 import { Membership } from '../domain/entity/membership.entity';
 import { LoginDto } from '../dto/auth/login.dto';
+import { EventBus } from '@nestjs/cqrs';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
-import { MailerService } from '@nestjs-modules/mailer';
+import { NewAccountSignUpEvent } from '../event/new-account-sign-up.event';
 
 @Injectable()
 export class AuthenticationService {
@@ -22,35 +22,25 @@ export class AuthenticationService {
               private readonly connection: Connection,
               private readonly portalUserService: PortalUserService,
               private readonly portalAccountService: PortalAccountService,
-              private readonly mailerService: MailerService) {
+              private readonly eventBus: EventBus) {
 
   }
 
   public signUpUser(signUpRequestDto: SignUpRequestDto): Promise<PortalUser> {
 
     return this.connection.transaction(async (entityManager) => {
-
-      let portalAccount: PortalAccount = null;
       const accountName = signUpRequestDto.associationName ?? `${signUpRequestDto.email}`;
-      const existingPortalAccount = await entityManager
-        .getCustomRepository(PortalAccountRepository)
-        .findOneItem({
-          name: accountName,
-        });
 
-      if (existingPortalAccount) {
-        throw new ConflictException(`Account Name with ${accountName} already exist`);
-      }
-
-      portalAccount = new PortalAccount();
+      let portalAccount = new PortalAccount();
+      portalAccount.name = accountName;
       portalAccount.type = PortalAccountTypeConstant.INDIVIDUAL;
       if (Some<string>(signUpRequestDto.associationName).hasValue) {
         portalAccount.type = PortalAccountTypeConstant.ASSOCIATION;
       }
-      portalAccount.name = accountName;
+
       portalAccount = await this.portalAccountService.createPortalAccount(entityManager, portalAccount);
       portalAccount.status = GenericStatusConstant.IN_ACTIVE;
-      // await entityManager.save(portalAccount);
+      await entityManager.save(portalAccount);
 
       const portalUser = new PortalUser();
       portalUser.firstName = signUpRequestDto.firstName;
@@ -65,24 +55,12 @@ export class AuthenticationService {
       const membership = new Membership();
       membership.portalUser = portalUser;
       membership.portalAccount = portalAccount;
-      // await entityManager.save(membership);
+      membership.status = GenericStatusConstant.IN_ACTIVE;
+      await entityManager.save(membership);
 
       delete portalUser.password;
-      this.mailerService.sendMail({
-        to: portalUser.email,
-        subject: `${accountName} account activation email`,
-        template: 'admin-signup',
-        context: {
-          firstName: portalUser.firstName,
-          callbackUrl: 'https://punchng.com',
-        },
-      }).then((success) => {
-        console.log(success);
-      }).catch((err) => {
-        console.log(err);
-      });
+      this.eventBus.publish(new NewAccountSignUpEvent(portalAccount));
       return portalUser;
-
     });
   }
 
