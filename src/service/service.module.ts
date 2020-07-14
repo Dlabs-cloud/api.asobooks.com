@@ -8,25 +8,42 @@ import { PortalUserService } from './portal-user.service';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { PortalAccountService } from './portal-account.service';
 import { CqrsModule } from '@nestjs/cqrs';
+import { MembershipService } from './membership.service';
+import { UserManagementService } from './user-management.service';
+import { ValidationService } from './validation-service';
+
+
+
+const emailValidationProvider = {
+  provide: 'EMAIL_VALIDATION_SERVICE',
+  useClass: ValidationService,
+};
+
 
 @Module({
   imports: [
     CoreModule,
     DaoModule,
     CommonModule,
-    CqrsModule
+    CqrsModule,
   ],
   exports: [
     SettingService,
     AuthenticationService,
     PortalUserService,
     PortalAccountService,
+    MembershipService,
+    UserManagementService,
+    emailValidationProvider,
   ],
   providers: [
     SettingService,
     AuthenticationService,
     PortalUserService,
     PortalAccountService,
+    UserManagementService,
+    MembershipService,
+    emailValidationProvider,
   ],
 })
 export class ServiceModule {

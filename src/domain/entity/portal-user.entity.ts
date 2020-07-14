@@ -1,5 +1,5 @@
 import {Column, Entity, JoinColumn, ObjectID, ObjectIdColumn, OneToOne, PrimaryGeneratedColumn} from 'typeorm';
-import {BaseEntity} from './base.entity';
+import {BaseEntity} from '../../common/base.entity';
 import {GenderConstant} from '../enums/gender-constant';
 
 @Entity()

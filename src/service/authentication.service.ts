@@ -14,7 +14,6 @@ import { LoginDto } from '../dto/auth/login.dto';
 import { EventBus } from '@nestjs/cqrs';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { NewAccountSignUpEvent } from '../event/new-account-sign-up.event';
-import { MailerService } from '@nestjs-modules/mailer';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { IllegalArgumentException } from '../exception/IllegalArgumentException';
 
@@ -68,14 +67,13 @@ export class AuthenticationService {
   }
 
 
-  public verifyUserBearerToken(bearerToken: string): Promise<PortalUser> {
+  public verifyUserBearerToken(bearerToken: string, userStatus: GenericStatusConstant = GenericStatusConstant.ACTIVE): Promise<PortalUser> {
     return this.authenticationUtils
       .verifyBearerToken(bearerToken)
       .then((decoded: { sub: string }) => {
         return this.connection.getCustomRepository(PortalUserRepository).findOneItem({
           id: Number(decoded.sub),
-          status: GenericStatusConstant.ACTIVE,
-        });
+        }, GenericStatusConstant.IN_ACTIVE);
       }).then((portalUser: PortalUser) => {
         if (!portalUser) {
           throw new UnauthorizedException('User is not active');
@@ -90,6 +88,7 @@ export class AuthenticationService {
         if (error instanceof UnauthorizedException) {
           throw new IllegalArgumentException('Portal user is not authorised to login');
         }
+        console.log(error);
         throw  error;
       });
   }

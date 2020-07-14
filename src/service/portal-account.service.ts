@@ -26,4 +26,13 @@ export class PortalAccountService {
     await entityManager.save(portalAccount);
     return portalAccount;
   }
+
+  public async activatePortalAccount(entityManager: EntityManager, portalAccount: PortalAccount) {
+    portalAccount.status = GenericStatusConstant.ACTIVE;
+    portalAccount.updatedAt = new Date();
+    await entityManager.save(portalAccount);
+    return portalAccount;
+
+
+  }
 }
