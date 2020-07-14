@@ -1,5 +1,5 @@
 import {Column, Entity, Generated, JoinColumn, ManyToOne, ObjectID, ObjectIdColumn, OneToOne, PrimaryGeneratedColumn} from 'typeorm';
-import {BaseEntity} from './base.entity';
+import {BaseEntity} from '../../common/base.entity';
 import {PortalAccountTypeConstant} from '../enums/portal-account-type-constant';
 
 @Entity()

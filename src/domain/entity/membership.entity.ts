@@ -1,5 +1,5 @@
 import {Column, Entity, JoinColumn, ManyToOne} from 'typeorm';
-import {BaseEntity} from './base.entity';
+import {BaseEntity} from '../../common/base.entity';
 import {PortalAccount} from './portal-account.entity';
 import {PortalUser} from './portal-user.entity';
 

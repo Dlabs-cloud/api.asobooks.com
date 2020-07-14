@@ -1,4 +1,4 @@
-import {GenericStatusConstant} from '../enums/generic-status-constant';
+import {GenericStatusConstant} from '../domain/enums/generic-status-constant';
 import {Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn} from 'typeorm';
 
 export class BaseEntity {

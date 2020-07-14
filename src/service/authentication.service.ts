@@ -14,8 +14,8 @@ import { LoginDto } from '../dto/auth/login.dto';
 import { EventBus } from '@nestjs/cqrs';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { NewAccountSignUpEvent } from '../event/new-account-sign-up.event';
-import { IllegalArgumentException } from '../exception/IllegalArgumentException';
 import { TokenExpiredError } from 'jsonwebtoken';
+import { IllegalArgumentException } from '../exception/IllegalArgumentException';
 
 @Injectable()
 export class AuthenticationService {
@@ -64,6 +64,33 @@ export class AuthenticationService {
       this.eventBus.publish(new NewAccountSignUpEvent(portalAccount));
       return portalUser;
     });
+  }
+
+
+  public verifyUserBearerToken(bearerToken: string, userStatus: GenericStatusConstant = GenericStatusConstant.ACTIVE): Promise<PortalUser> {
+    return this.authenticationUtils
+      .verifyBearerToken(bearerToken)
+      .then((decoded: { sub: string }) => {
+        return this.connection.getCustomRepository(PortalUserRepository).findOneItem({
+          id: Number(decoded.sub),
+        }, GenericStatusConstant.IN_ACTIVE);
+      }).then((portalUser: PortalUser) => {
+        if (!portalUser) {
+          throw new UnauthorizedException('User is not active');
+        }
+        delete portalUser.password;
+        return Promise.resolve(portalUser);
+      }).catch((error) => {
+        if (error instanceof TokenExpiredError) {
+          const tokenError = error as TokenExpiredError;
+          throw new IllegalArgumentException(tokenError.message);
+        }
+        if (error instanceof UnauthorizedException) {
+          throw new IllegalArgumentException('Portal user is not authorised to login');
+        }
+        console.log(error);
+        throw  error;
+      });
   }
 
   public async loginUser(loginDto: LoginDto): Promise<string> {
