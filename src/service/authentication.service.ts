@@ -14,6 +14,8 @@ import { LoginDto } from '../dto/auth/login.dto';
 import { EventBus } from '@nestjs/cqrs';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { NewAccountSignUpEvent } from '../event/new-account-sign-up.event';
+import { IllegalArgumentException } from '../exception/IllegalArgumentException';
+import { TokenExpiredError } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthenticationService {
