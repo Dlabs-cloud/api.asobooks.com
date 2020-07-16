@@ -11,12 +11,18 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { MembershipService } from './membership.service';
 import { UserManagementService } from './user-management.service';
 import { ValidationService } from './validation-service';
-
+import { BEARER_TOKEN_SERVICE } from '../contracts/bearer-token-service';
+import { BearerTokenServiceImpl } from './bearer-token-service-impl';
 
 
 const emailValidationProvider = {
   provide: 'EMAIL_VALIDATION_SERVICE',
   useClass: ValidationService,
+};
+
+const bearerTokenServiceProvider = {
+  provide: BEARER_TOKEN_SERVICE,
+  useClass: BearerTokenServiceImpl,
 };
 
 
@@ -35,6 +41,7 @@ const emailValidationProvider = {
     MembershipService,
     UserManagementService,
     emailValidationProvider,
+    bearerTokenServiceProvider,
   ],
   providers: [
     SettingService,
@@ -44,6 +51,7 @@ const emailValidationProvider = {
     UserManagementService,
     MembershipService,
     emailValidationProvider,
+    bearerTokenServiceProvider,
   ],
 })
 export class ServiceModule {

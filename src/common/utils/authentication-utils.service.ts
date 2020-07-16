@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { compare, genSalt, hash } from 'bcryptjs';
 import { sign, verify, VerifyCallback, VerifyErrors } from 'jsonwebtoken';
+import { TokenTypeConstant } from '../../domain/enums/token-type-constant';
+import { JwtPayload } from '../../dto/JwtPayload';
 
 @Injectable()
 export class AuthenticationUtils {
@@ -15,9 +17,11 @@ export class AuthenticationUtils {
     return compare(password, hashedPassword);
   }
 
-  public generateToken(userId: number): Promise<string> {
+
+  public generateGenericToken(payload: object): Promise<string> {
+
     return new Promise((resolve, reject) => {
-      const token: string = sign({ sub: userId }, process.env.AUTH_SECRET, {
+      const token: string = sign(payload, process.env.AUTH_SECRET, {
         issuer: process.env.PROJECT_NAME,
       });
       if (token) {
@@ -26,7 +30,6 @@ export class AuthenticationUtils {
         reject('Token cannot be generated');
       }
     });
-
   }
 
   private verifyToken(bearerToken: string, cb: VerifyCallback) {
@@ -37,7 +40,7 @@ export class AuthenticationUtils {
       cb);
   }
 
-  public verifyBearerToken(token: string) {
+  public verifyBearerToken(token: string): Promise<string | object> {
     return new Promise((resolve, reject) => {
       this.verifyToken(token, (err: VerifyErrors, decoded: object | string) => {
         if (err) {
