@@ -9,14 +9,14 @@ import { PortalUser } from '../../../domain/entity/portal-user.entity';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { Principal } from '../principal';
 import { AuthenticationUtils } from '../../../common/utils/authentication-utils.service';
+import { AuthenticationService } from '../../../service/authentication.service';
+import { InValidTokenException } from '../../../exception/InValidTokenException';
 
 @Injectable()
 export class AccessConstraintInterceptor implements NestInterceptor {
 
   constructor(private readonly reflector: Reflector,
-              private readonly principal: Principal,
-              private readonly authenticationUtils: AuthenticationUtils,
-              private readonly  connection: Connection) {
+              private readonly authenticationService: AuthenticationService) {
   }
 
   // @ts-ignore
@@ -39,33 +39,19 @@ export class AccessConstraintInterceptor implements NestInterceptor {
     if (splicedAuthorisationToken.length === 2 && splicedAuthorisationToken[0] !== 'Bearer') {
       throw new UnauthorizedException('Authorization header is not valid');
     }
-    await this.authenticationUtils
-      .verifyBearerToken(authorisationToken[1])
-      .then((decoded: { sub: string }) => {
-        return this.connection.getCustomRepository(PortalUserRepository).findOneItem({
-          id: Number(decoded.sub),
-          status: GenericStatusConstant.ACTIVE,
-        });
-      }).then((portalUser: PortalUser) => {
-        if (!portalUser) {
-          throw new UnauthorizedException('User is not active');
-        }
-        delete portalUser.password;
-        this.principal.portalUser = portalUser;
-        return Promise.resolve();
-      }).catch((error) => {
-        if (error instanceof TokenExpiredError) {
-          const tokenError = error as TokenExpiredError;
-          throw new UnauthorizedException(tokenError.message);
-        }
-        if (error instanceof UnauthorizedException) {
-          throw new UnauthorizedException('Portal user is not authorised to login');
-        }
+    try {
+      let portalUser = await this.authenticationService.verifyUserBearerToken(splicedAuthorisationToken[1]);
+      delete portalUser.password;
+      return next.handle();
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw new UnauthorizedException('Portal user is not authorised to login');
+      }
+      throw  error;
+    }
 
-        throw  error;
-      });
 
-    return next.handle();
   }
+
 
 }

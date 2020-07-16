@@ -16,6 +16,7 @@ import { AuthenticationUtils } from '../common/utils/authentication-utils.servic
 import { NewAccountSignUpEvent } from '../event/new-account-sign-up.event';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { IllegalArgumentException } from '../exception/IllegalArgumentException';
+import { InValidTokenException } from '../exception/InValidTokenException';
 
 @Injectable()
 export class AuthenticationService {
@@ -82,13 +83,11 @@ export class AuthenticationService {
         return Promise.resolve(portalUser);
       }).catch((error) => {
         if (error instanceof TokenExpiredError) {
-          const tokenError = error as TokenExpiredError;
-          throw new IllegalArgumentException(tokenError.message);
+          throw new InValidTokenException('Token is not valid');
         }
         if (error instanceof UnauthorizedException) {
           throw new IllegalArgumentException('Portal user is not authorised to login');
         }
-        console.log(error);
         throw  error;
       });
   }

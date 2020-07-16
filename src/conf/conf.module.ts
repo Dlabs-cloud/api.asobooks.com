@@ -14,6 +14,7 @@ import { TypeOrmDatasource } from './data-source/type-orm-datasource';
 import { Principal } from './security/principal';
 import { EmailService } from './email/email.service';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { ServiceModule } from '../service/service.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
     CoreModule,
     CommonModule,
     DaoModule,
+    ServiceModule,
     WinstonModule.forRoot({
       transports: [
         new winston.transports.Console({ format: winston.format.json() }),
