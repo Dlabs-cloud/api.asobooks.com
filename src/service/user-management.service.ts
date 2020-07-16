@@ -7,7 +7,7 @@ import { PortalAccountService } from './portal-account.service';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { MembershipRepository } from '../dao/membership.repository';
 import { MembershipService } from './membership.service';
-import { IllegalArgumentException } from '../exception/IllegalArgumentException';
+import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 
 @Injectable()
 export class UserManagementService {

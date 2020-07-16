@@ -15,8 +15,8 @@ import { EventBus } from '@nestjs/cqrs';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { NewAccountSignUpEvent } from '../event/new-account-sign-up.event';
 import { TokenExpiredError } from 'jsonwebtoken';
-import { IllegalArgumentException } from '../exception/IllegalArgumentException';
-import { InValidTokenException } from '../exception/InValidTokenException';
+import { IllegalArgumentException } from '../exception/illegal-argument.exception';
+import { InvalidtokenException } from '../exception/invalidtoken.exception';
 
 @Injectable()
 export class AuthenticationService {
@@ -83,7 +83,7 @@ export class AuthenticationService {
         return Promise.resolve(portalUser);
       }).catch((error) => {
         if (error instanceof TokenExpiredError) {
-          throw new InValidTokenException('Token is not valid');
+          throw new InvalidtokenException('Token is not valid');
         }
         if (error instanceof UnauthorizedException) {
           throw new IllegalArgumentException('Portal user is not authorised to login');

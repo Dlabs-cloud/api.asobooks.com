@@ -10,7 +10,7 @@ import { TokenExpiredError } from 'jsonwebtoken';
 import { Principal } from '../principal';
 import { AuthenticationUtils } from '../../../common/utils/authentication-utils.service';
 import { AuthenticationService } from '../../../service/authentication.service';
-import { InValidTokenException } from '../../../exception/InValidTokenException';
+import { InvalidtokenException } from '../../../exception/invalidtoken.exception';
 
 @Injectable()
 export class AccessConstraintInterceptor implements NestInterceptor {

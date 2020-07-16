@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Redirect } from '@nestjs/common';
 import { UserManagementService } from '../service/user-management.service';
 import { ApiResponseDto } from '../dto/api-response.dto';
-import { IllegalArgumentException } from '../exception/IllegalArgumentException';
+import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { Public } from '../conf/security/annotations/public';
 
 
