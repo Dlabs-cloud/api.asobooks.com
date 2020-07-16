@@ -1,22 +1,23 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor, UnauthorizedException } from '@nestjs/common';
+import {
+  CallHandler,
+  ExecutionContext,
+  Inject,
+  Injectable,
+  NestInterceptor,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { AccessTypes } from '../accessTypes/access-types';
 import { Reflector } from '@nestjs/core';
-import { Connection } from 'typeorm';
-import { PortalUserRepository } from '../../../dao/portal-user.repository';
+import { TokenTypeConstant } from '../../../domain/enums/token-type-constant';
+import { BEARER_TOKEN_SERVICE, BearerTokenService } from '../../../contracts/bearer-token-service';
 import { GenericStatusConstant } from '../../../domain/enums/generic-status-constant';
-import { PortalUser } from '../../../domain/entity/portal-user.entity';
-import { TokenExpiredError } from 'jsonwebtoken';
-import { Principal } from '../principal';
-import { AuthenticationUtils } from '../../../common/utils/authentication-utils.service';
-import { AuthenticationService } from '../../../service/authentication.service';
-import { InvalidtokenException } from '../../../exception/invalidtoken.exception';
 
 @Injectable()
 export class AccessConstraintInterceptor implements NestInterceptor {
 
   constructor(private readonly reflector: Reflector,
-              private readonly authenticationService: AuthenticationService) {
+              @Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: BearerTokenService) {
   }
 
   // @ts-ignore
@@ -40,7 +41,9 @@ export class AccessConstraintInterceptor implements NestInterceptor {
       throw new UnauthorizedException('Authorization header is not valid');
     }
     try {
-      let portalUser = await this.authenticationService.verifyUserBearerToken(splicedAuthorisationToken[1]);
+      const tokenPayload = await this.bearerTokenService
+        .verifyBearerToken(splicedAuthorisationToken[1], TokenTypeConstant.LOGIN, GenericStatusConstant.ACTIVE);
+      const portalUser = tokenPayload.portalUser;
       delete portalUser.password;
       return next.handle();
     } catch (error) {

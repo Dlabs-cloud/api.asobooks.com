@@ -1,4 +1,4 @@
-import { EntityRepository } from 'typeorm';
+import { Brackets, EntityRepository } from 'typeorm';
 import { BaseRepository } from '../common/BaseRepository';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
@@ -9,32 +9,26 @@ import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 export class PortalUserRepository extends BaseRepository<PortalUser> {
 
 
-  public findFirstByPortalAccount(portalAccount: PortalAccount, status: GenericStatusConstant = GenericStatusConstant.ACTIVE): Promise<PortalUser> {
-    return this.createQueryBuilder('portalUser')
-      .select()
-      .innerJoin(Membership, 'membership', 'membership.portalUser=portalUser.id')
-      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount=portalAccount.id')
-      .where('portalAccount.id=:portalAccountId')
-      .andWhere('portalAccount.status=:status')
-      .andWhere('portalUser.status=:status')
-      .andWhere('membership.status=:status')
-      .addOrderBy('portalUser.createdAt', 'ASC')
-      .setParameter('portalAccountId', portalAccount.id)
-      .setParameter('status', status)
-      .getOne();
-  }
 
-  public findByUserNameOrEmailOrPhoneNumber(usernameOrEmailOrPhone: string) {
-    return this
+  public findByUserNameOrEmailOrPhoneNumberAndStatus(usernameOrEmailOrPhone: string, ...status: GenericStatusConstant[]) {
+    const portalUserSelectQueryBuilder = this
       .createQueryBuilder('portalUser')
       .select()
       .orWhere('portalUser.username = :username')
       .orWhere('portalUser.email = :username')
-      .orWhere('portalUser.phoneNumber = :username')
-      .where('portalUser.status = :status')
-      .setParameter('status', GenericStatusConstant.ACTIVE)
+      .orWhere('portalUser.phoneNumber = :username');
+    portalUserSelectQueryBuilder.andWhere(new Brackets((qb => {
+      status.forEach((value, index) => {
+        const param = {};
+        param[`status${index}`] = value;
+        qb.orWhere(`status=:status${index}`, param);
+      });
+    })));
+    return portalUserSelectQueryBuilder
       .setParameter('username', usernameOrEmailOrPhone)
       .distinct()
       .getOne();
   }
+
+
 }
