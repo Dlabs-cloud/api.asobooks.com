@@ -7,6 +7,7 @@ import { PortalAccountService } from './portal-account.service';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { MembershipRepository } from '../dao/membership.repository';
 import { MembershipService } from './membership.service';
+import { IllegalArgumentException } from '../exception/IllegalArgumentException';
 
 @Injectable()
 export class UserManagementService {
@@ -20,6 +21,7 @@ export class UserManagementService {
 
   public async validatePrincipalUser(callbackToken: string) {
     let portalUser = await this.emailValidationService.validateEmailCallBackToken(callbackToken);
+
 
     return this.connection.transaction(async entityManager => {
       portalUser.status = GenericStatusConstant.ACTIVE;

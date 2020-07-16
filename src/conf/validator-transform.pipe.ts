@@ -2,7 +2,7 @@ import {
   ArgumentMetadata,
   BadRequestException,
   CallHandler,
-  ExecutionContext,
+  ExecutionContext, HttpException, HttpStatus,
   Injectable,
   NestInterceptor,
   PipeTransform,
@@ -14,25 +14,43 @@ import { validate, ValidationError } from 'class-validator';
 export class ValidatorTransformPipe implements PipeTransform<any> {
 
   async transform(value: any, metadata: ArgumentMetadata): Promise<any> {
-    const classObject = plainToClass(metadata.metatype, value);
-    if (typeof classObject === 'string') {
-      return value;
-    }
-    const validationErrors = await validate(classObject);
-    if (validationErrors.length > 0) {
-      throw new BadRequestException(this.createValidationMessage(validationErrors[0]));
+    if (!value) {
+      throw new BadRequestException('No data submitted');
     }
 
+
+    const { metatype } = metadata;
+    if (!metatype || !this.toValidate(metatype)) {
+      return value;
+    }
+    const object = plainToClass(metatype, value);
+    const errors = await validate(object);
+    if (errors.length > 0) {
+      throw new HttpException({
+        message: 'Input data validation failed',
+        errors: this.buildError(errors),
+      }, HttpStatus.BAD_REQUEST);
+    }
     return value;
 
   }
 
-  private createValidationMessage(validationError: ValidationError) {
-    const property = validationError.property, constraints: { [p: string]: string } = validationError.constraints;
-    return {
-      'property-name': property,
-      'errors': Object.values(constraints),
-    };
+
+  private buildError(errors) {
+    const result = {};
+    errors.forEach(el => {
+      let prop = el.property;
+      Object.entries(el.constraints).forEach(constraint => {
+        result[prop] = `${constraint[1]}`;
+      });
+    });
+    return result;
+  }
+
+
+  private toValidate(metatype): boolean {
+    const types = [String, Boolean, Number, Array, Object];
+    return !types.find((type) => metatype === type);
   }
 }
 
