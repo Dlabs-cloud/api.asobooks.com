@@ -5,7 +5,7 @@ import { Some } from 'optional-typescript';
 
 export class TestUtils {
 
-  static async init(entityManager: EntityManager) {
+  static async init(entityManager?: EntityManager) {
 
     const setting = await getConnection().getCustomRepository(SettingRepository).findOneItem({
       label: 'trusted_ip_address',

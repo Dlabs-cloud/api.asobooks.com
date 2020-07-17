@@ -8,7 +8,6 @@ import { ApiResponseDto } from '../dto/api-response.dto';
 import { ChangePasswordDto } from '../dto/auth/request/change-password.dto';
 import { PasswordResetDto } from '../dto/auth/request/password-reset.dto';
 import { PortalUserRepository } from '../dao/portal-user.repository';
-import { Some } from 'optional-typescript';
 import { UserManagementService } from '../service/user-management.service';
 import { Connection } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
