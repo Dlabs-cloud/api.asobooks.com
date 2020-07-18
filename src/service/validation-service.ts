@@ -11,21 +11,20 @@ import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 @Injectable()
 export class ValidationService implements EmailValidationService<PortalUser, PortalAccount, TokenPayload> {
 
-  constructor(@Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: BearerTokenService) {
+  constructor(@Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: BearerTokenService<TokenPayload>) {
   }
 
-  public async createCallBackToken(portalUser: PortalUser, type: TokenTypeConstant, portalAccount?: PortalAccount): Promise<string> {
-    const payload: JwtPayload = {
-      sub: portalUser.id,
-      portalAccountId: portalAccount?.id,
-      type,
+  public async createCallBackToken(receiver: PortalUser, type: TokenTypeConstant, portalAccount?: PortalAccount): Promise<string> {
+    const payload: TokenPayload = {
+      portalUser: receiver,
+      portalAccount: portalAccount,
     };
-    const token = await this.bearerTokenService.generateBearerToken(payload);
+    const token = await this.bearerTokenService.generateBearerToken(payload, type);
     return Buffer.from(token).toString('base64');
   }
 
   public async validateEmailCallBackToken(token: string, type: TokenTypeConstant): Promise<TokenPayload> {
     let generatedToken = Buffer.from(token, 'base64').toString();
-    return this.bearerTokenService.verifyBearerToken(generatedToken, type, GenericStatusConstant.PENDING, GenericStatusConstant.IN_ACTIVE);
+    return this.bearerTokenService.verifyBearerToken(generatedToken, type);
   }
 }

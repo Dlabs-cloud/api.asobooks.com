@@ -30,7 +30,6 @@ export class ForgotPasswordHandler implements IEventHandler<ForgotPasswordEvent>
     const callBackUrl = `${urlSetting.value}/password/reset/${callBackToken}`;
     const projectName = this.configService.get<string>('PROJECT_NAME', 'Socialite.io');
 
-    console.log(callBackUrl);
     await this.mailerService.sendMail({
       to: portalUser.email,
       subject: `${projectName} Password Reset`,

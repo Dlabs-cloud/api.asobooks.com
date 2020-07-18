@@ -13,26 +13,42 @@ import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { Some } from 'optional-typescript';
+import { PortalUser } from '../domain/entity/portal-user.entity';
 
 @Injectable()
-export class BearerTokenServiceImpl implements BearerTokenService {
+export class BearerTokenServiceImpl implements BearerTokenService<TokenPayload> {
 
   constructor(private readonly authenticationUtils: AuthenticationUtils,
               private readonly connection: Connection) {
   }
 
-  generateBearerToken(payload: JwtPayload): Promise<string> {
-    return this.authenticationUtils.generateGenericToken(payload);
+  generateBearerToken(payload: TokenPayload, type: TokenTypeConstant): Promise<string> {
+    const jwtPayload: JwtPayload = {
+      sub: payload.portalUser.id,
+      email: payload.portalUser.email,
+      subStatus: payload.portalUser.status,
+      accountId: payload.portalAccount?.id,
+      accountStatus: payload.portalAccount?.status,
+      type,
+    };
+    return this.authenticationUtils.generateGenericToken(jwtPayload);
   }
 
-  async verifyBearerToken(bearerToken: string, tokenType: TokenTypeConstant, ...status: GenericStatusConstant[]): Promise<TokenPayload> {
+
+  async verifyBearerToken(bearerToken: string, tokenType: TokenTypeConstant): Promise<TokenPayload> {
     try {
       let bearerTokenPayload: JwtPayload = (await this.authenticationUtils.verifyBearerToken(bearerToken)) as JwtPayload;
       const portalUserId = bearerTokenPayload.sub;
-      const portalAccountId = bearerTokenPayload.portalAccountId;
+      const portalUserStatus = bearerTokenPayload.subStatus;
+      const portalAccountId = bearerTokenPayload.accountId;
+      const accountStatus = bearerTokenPayload.accountStatus;
+      const type = bearerTokenPayload.type;
+      if (type !== tokenType) {
+        throw new InvalidtokenException('Token is not valid');
+      }
       const portalUser = await this.connection
         .getCustomRepository(PortalUserRepository)
-        .findByIdAndStatus(portalUserId, ...status);
+        .findByIdAndStatus(portalUserId, portalUserStatus);
       if (!portalUser) {
         throw new InvalidtokenException('Token is not valid');
       }
@@ -40,13 +56,17 @@ export class BearerTokenServiceImpl implements BearerTokenService {
         portalUser: portalUser,
       };
 
-
       if (Some(portalAccountId).hasValue) {
-        tokenPayload.portalAccount = await this.connection
+        const portalAccount = await this.connection
           .getCustomRepository(PortalAccountRepository)
           .findOneItem({
             id: portalAccountId,
-          }, ...status);
+          }, accountStatus);
+
+        Some(portalAccount).ifNone(() => {
+          throw new InvalidtokenException('Invalid token');
+        });
+        tokenPayload.portalAccount = portalAccount;
       }
       return tokenPayload;
     } catch (e) {

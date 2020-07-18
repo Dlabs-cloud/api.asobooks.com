@@ -46,7 +46,7 @@ export class UserManagementService {
       await this.portalAccountService.activatePortalAccount(entityManager, portalAccount);
       let membership = await entityManager
         .getCustomRepository(MembershipRepository)
-        .findByPortalAccountAndPortalUser(portalUser, portalAccount, GenericStatusConstant.PENDING);
+        .findByPortalAccountAndPortalUser(portalUser, portalAccount, GenericStatusConstant.PENDING_ACTIVATION);
       await this.membershipService.activateMembership(entityManager, membership);
       return portalUser;
     });

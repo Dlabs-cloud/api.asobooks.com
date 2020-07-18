@@ -54,7 +54,7 @@ export class AuthenticationController {
   public async passwordReset(@Body() passwordResetDto: PasswordResetDto) {
     let portalUser = await this.connection
       .getCustomRepository(PortalUserRepository)
-      .findByUserNameOrEmailOrPhoneNumberAndStatus(passwordResetDto.email, GenericStatusConstant.ACTIVE, GenericStatusConstant.PENDING);
+      .findByUserNameOrEmailOrPhoneNumberAndStatus(passwordResetDto.email, GenericStatusConstant.ACTIVE, GenericStatusConstant.IN_ACTIVE);
     if (portalUser) {
       await this.userManagementService.resetPassword(portalUser);
     }

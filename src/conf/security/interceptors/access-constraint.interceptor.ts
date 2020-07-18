@@ -12,12 +12,13 @@ import { Reflector } from '@nestjs/core';
 import { TokenTypeConstant } from '../../../domain/enums/token-type-constant';
 import { BEARER_TOKEN_SERVICE, BearerTokenService } from '../../../contracts/bearer-token-service';
 import { GenericStatusConstant } from '../../../domain/enums/generic-status-constant';
+import { TokenPayload } from '../../../dto/TokenPayload';
 
 @Injectable()
 export class AccessConstraintInterceptor implements NestInterceptor {
 
   constructor(private readonly reflector: Reflector,
-              @Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: BearerTokenService) {
+              @Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: BearerTokenService<TokenPayload>) {
   }
 
   // @ts-ignore
@@ -41,8 +42,8 @@ export class AccessConstraintInterceptor implements NestInterceptor {
       throw new UnauthorizedException('Authorization header is not valid');
     }
     try {
-      const tokenPayload = await this.bearerTokenService
-        .verifyBearerToken(splicedAuthorisationToken[1], TokenTypeConstant.LOGIN, GenericStatusConstant.ACTIVE);
+      const tokenPayload: TokenPayload = await this.bearerTokenService
+        .verifyBearerToken(splicedAuthorisationToken[1], TokenTypeConstant.LOGIN);
       const portalUser = tokenPayload.portalUser;
       delete portalUser.password;
       return next.handle();

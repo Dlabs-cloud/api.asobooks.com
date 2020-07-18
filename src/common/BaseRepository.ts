@@ -21,13 +21,16 @@ export abstract class BaseRepository<T extends BaseEntity> extends Repository<T>
     const selectQueryBuilder = this.createQueryBuilder()
       .select()
       .where('id =:id', { id });
-    selectQueryBuilder.andWhere(new Brackets((qb => {
-      status.forEach((value, index) => {
-        const param = {};
-        param[`status${index}`] = value;
-        qb.orWhere(`status=:status${index}`, param);
-      });
-    })));
+    if (status.length > 0) {
+      selectQueryBuilder.andWhere(new Brackets((qb => {
+        status.forEach((value, index) => {
+          const param = {};
+          param[`status${index}`] = value;
+          qb.orWhere(`status=:status${index}`, param);
+        });
+      })));
+    }
+ 
 
     return selectQueryBuilder.getOne();
 

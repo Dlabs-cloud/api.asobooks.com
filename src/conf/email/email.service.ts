@@ -25,7 +25,7 @@ export class EmailService {
         },
       },
       defaults: {
-        from: this.configService.get<string>('EMAIL_SENDER', '"Socialite.io" <no-reply@socialite.io>'),
+        from: this.configService.get<string>('EMAIL_SENDER', '"Socialite.io" <no-reply@dlabs.cloud>'),
       },
       template: {
         dir: process.cwd() + '/view/email/',

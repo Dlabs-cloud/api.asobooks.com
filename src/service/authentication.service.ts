@@ -17,12 +17,13 @@ import { NewUserAccountSignUpEvent } from '../event/new-user-account-sign-up.eve
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { JwtPayload } from '../dto/JwtPayload';
 import { BEARER_TOKEN_SERVICE, BearerTokenService } from '../contracts/bearer-token-service';
+import { TokenPayload } from '../dto/TokenPayload';
 
 @Injectable()
 export class AuthenticationService {
 
   constructor(private readonly authenticationUtils: AuthenticationUtils,
-              @Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: BearerTokenService,
+              @Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: BearerTokenService<TokenPayload>,
               private readonly connection: Connection,
               private readonly portalUserService: PortalUserService,
               private readonly portalAccountService: PortalAccountService,
@@ -42,7 +43,7 @@ export class AuthenticationService {
         portalAccount.type = PortalAccountTypeConstant.ASSOCIATION;
       });
       portalAccount = await this.portalAccountService.createPortalAccount(entityManager, portalAccount);
-      portalAccount.status = GenericStatusConstant.PENDING;
+      portalAccount.status = GenericStatusConstant.PENDING_ACTIVATION;
       await entityManager.save(portalAccount);
 
       const portalUser = new PortalUser();
@@ -52,13 +53,13 @@ export class AuthenticationService {
       portalUser.password = signUpRequestDto.password;
       portalUser.email = signUpRequestDto.email.toLowerCase();
       portalUser.phoneNumber = signUpRequestDto.phoneNumber;
-      portalUser.status = GenericStatusConstant.PENDING;
+      portalUser.status = GenericStatusConstant.PENDING_ACTIVATION;
       await this.portalUserService.createPortalUser(entityManager, portalUser);
 
       const membership = new Membership();
       membership.portalUser = portalUser;
       membership.portalAccount = portalAccount;
-      membership.status = GenericStatusConstant.PENDING;
+      membership.status = GenericStatusConstant.PENDING_ACTIVATION;
       await entityManager.save(membership);
 
       delete portalUser.password;
@@ -78,11 +79,10 @@ export class AuthenticationService {
           const isTrue = await this.authenticationUtils
             .comparePassword(loginDto.password, portalUserValue.password);
           if (isTrue) {
-            const payload: JwtPayload = {
-              sub: portalUserValue.id,
-              type: TokenTypeConstant.LOGIN,
+            const payload: TokenPayload = {
+              portalUser: portalUserValue,
             };
-            const token = this.bearerTokenService.generateBearerToken(payload);
+            const token = this.bearerTokenService.generateBearerToken(payload, TokenTypeConstant.LOGIN);
             return Promise.resolve(token);
           }
         }
