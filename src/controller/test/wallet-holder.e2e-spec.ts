@@ -20,7 +20,7 @@ describe('Wallet holder controller', () => {
     });
 
     it('Test that a w wallet holder can be created with a wallet', async () => {
-        // const bank = await factory().create<Bank>(Bank);
+        // const bank = await factory().create<BankEntity>(BankEntity);
         const wallerHolderData = {
             bank_account_number: faker.finance.account(),
             email: faker.internet.email(),

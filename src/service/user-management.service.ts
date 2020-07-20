@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { Connection, EntityManager } from 'typeorm';
-import { EmailValidationService } from '../contracts/email-validation-service';
+import { IEmailValidationService } from '../contracts/i-email-validation-service';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalAccountService } from './portal-account.service';
 import { MembershipRepository } from '../dao/membership.repository';
@@ -13,7 +13,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { ForgotPasswordEvent } from '../event/forgot-password.event';
 import { ChangePasswordDto } from '../dto/auth/request/change-password.dto';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { TokenPayload } from '../dto/TokenPayload';
+import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { InvalidtokenException } from '../exception/invalidtoken.exception';
 
@@ -26,7 +26,7 @@ export class UserManagementService {
               private readonly membershipRepository: MembershipRepository,
               private readonly membershipService: MembershipService,
               private readonly eventBus: EventBus,
-              @Inject('EMAIL_VALIDATION_SERVICE') private emailValidationService: EmailValidationService<PortalUser, PortalAccount, TokenPayload>) {
+              @Inject('EMAIL_VALIDATION_SERVICE') private emailValidationService: IEmailValidationService<PortalUser, PortalAccount, TokenPayloadDto>) {
   }
 
 

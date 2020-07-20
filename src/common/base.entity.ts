@@ -3,7 +3,7 @@ import {Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn} from
 
 export class BaseEntity {
     @PrimaryGeneratedColumn()
-    id: number;
+    id?: number;
 
     @Column({
         type: 'enum',
@@ -11,15 +11,15 @@ export class BaseEntity {
         default: GenericStatusConstant.ACTIVE
 
     })
-    status: GenericStatusConstant;
+    status?: GenericStatusConstant;
 
     @CreateDateColumn({
         type: 'timestamp',
     })
-    createdAt: Date;
+    createdAt?: Date;
 
     @UpdateDateColumn({
         type: 'timestamp',
     })
-    updatedAt: Date;
+    updatedAt?: Date;
 }

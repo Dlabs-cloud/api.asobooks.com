@@ -10,15 +10,16 @@ import { Observable } from 'rxjs';
 import { AccessTypes } from '../accessTypes/access-types';
 import { Reflector } from '@nestjs/core';
 import { TokenTypeConstant } from '../../../domain/enums/token-type-constant';
-import { BEARER_TOKEN_SERVICE, BearerTokenService } from '../../../contracts/bearer-token-service';
+import { BEARER_TOKEN_SERVICE, IBearerTokenService } from '../../../contracts/i-bearer-token-service';
 import { GenericStatusConstant } from '../../../domain/enums/generic-status-constant';
-import { TokenPayload } from '../../../dto/TokenPayload';
+import { TokenPayloadDto } from '../../../dto/token-payload.dto';
+import { RequestPrincipal } from '../request-principal.service';
 
 @Injectable()
 export class AccessConstraintInterceptor implements NestInterceptor {
 
   constructor(private readonly reflector: Reflector,
-              @Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: BearerTokenService<TokenPayload>) {
+              @Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: IBearerTokenService<TokenPayloadDto>) {
   }
 
   // @ts-ignore
@@ -42,10 +43,13 @@ export class AccessConstraintInterceptor implements NestInterceptor {
       throw new UnauthorizedException('Authorization header is not valid');
     }
     try {
-      const tokenPayload: TokenPayload = await this.bearerTokenService
+      const tokenPayload: TokenPayloadDto = await this.bearerTokenService
         .verifyBearerToken(splicedAuthorisationToken[1], TokenTypeConstant.LOGIN);
       const portalUser = tokenPayload.portalUser;
       delete portalUser.password;
+      const principal = new RequestPrincipal();
+      principal.portalUser = portalUser;
+      request.requestPrincipal = principal;
       return next.handle();
     } catch (error) {
       if (error instanceof UnauthorizedException) {

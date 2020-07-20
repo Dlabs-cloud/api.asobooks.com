@@ -1,9 +1,9 @@
-import { BearerTokenService } from '../contracts/bearer-token-service';
+import { IBearerTokenService } from '../contracts/i-bearer-token-service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtPayload } from '../dto/JwtPayload';
+import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { TokenPayload } from '../dto/TokenPayload';
+import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { Connection } from 'typeorm';
 import { InvalidtokenException } from '../exception/invalidtoken.exception';
@@ -16,14 +16,14 @@ import { Some } from 'optional-typescript';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 
 @Injectable()
-export class BearerTokenServiceImpl implements BearerTokenService<TokenPayload> {
+export class BearerTokenService implements IBearerTokenService<TokenPayloadDto> {
 
   constructor(private readonly authenticationUtils: AuthenticationUtils,
               private readonly connection: Connection) {
   }
 
-  generateBearerToken(payload: TokenPayload, type: TokenTypeConstant): Promise<string> {
-    const jwtPayload: JwtPayload = {
+  generateBearerToken(payload: TokenPayloadDto, type: TokenTypeConstant): Promise<string> {
+    const jwtPayload: JwtPayloadDto = {
       sub: payload.portalUser.id,
       email: payload.portalUser.email,
       subStatus: payload.portalUser.status,
@@ -35,9 +35,9 @@ export class BearerTokenServiceImpl implements BearerTokenService<TokenPayload> 
   }
 
 
-  async verifyBearerToken(bearerToken: string, tokenType: TokenTypeConstant): Promise<TokenPayload> {
+  async verifyBearerToken(bearerToken: string, tokenType: TokenTypeConstant): Promise<TokenPayloadDto> {
     try {
-      let bearerTokenPayload: JwtPayload = (await this.authenticationUtils.verifyBearerToken(bearerToken)) as JwtPayload;
+      let bearerTokenPayload: JwtPayloadDto = (await this.authenticationUtils.verifyBearerToken(bearerToken)) as JwtPayloadDto;
       const portalUserId = bearerTokenPayload.sub;
       const portalUserStatus = bearerTokenPayload.subStatus;
       const portalAccountId = bearerTokenPayload.accountId;
@@ -52,7 +52,7 @@ export class BearerTokenServiceImpl implements BearerTokenService<TokenPayload> 
       if (!portalUser) {
         throw new InvalidtokenException('Token is not valid');
       }
-      const tokenPayload: TokenPayload = {
+      const tokenPayload: TokenPayloadDto = {
         portalUser: portalUser,
       };
 

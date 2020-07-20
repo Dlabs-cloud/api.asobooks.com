@@ -4,6 +4,6 @@ import {PortalUser} from '../../domain/entity/portal-user.entity';
 @Injectable({
     scope: Scope.REQUEST
 })
-export class Principal {
+export class RequestPrincipal {
    portalUser: PortalUser;
 }

@@ -1,4 +1,5 @@
 export enum GenderConstant {
-    MALE = 'MALE',
-    FEMALE = 'FEMALE',
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+  OTHER = 'OTHER'
 }

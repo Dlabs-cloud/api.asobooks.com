@@ -2,7 +2,7 @@ import { Module, Provider } from '@nestjs/common';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { AuthenticationUtils } from './utils/authentication-utils.service';
-import { EmailService } from '../conf/email/email.service';
+import { EmailMailerConfiguration } from '../conf/email/email.conf';
 
 
 @Module({
@@ -13,8 +13,8 @@ import { EmailService } from '../conf/email/email.service';
       ],
     }),
   ],
-  exports: [WinstonModule, AuthenticationUtils, EmailService],
-  providers: [AuthenticationUtils, EmailService],
+  exports: [WinstonModule, AuthenticationUtils, EmailMailerConfiguration],
+  providers: [AuthenticationUtils, EmailMailerConfiguration],
 })
 export class CommonModule {
 }

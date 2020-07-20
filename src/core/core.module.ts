@@ -1,14 +1,16 @@
-import {Module} from '@nestjs/common';
-import {TypeOrmModule} from '@nestjs/typeorm';
-import {PortalAccountSequence} from './sequenceGenerators/portal-account.sequence';
+import { Module } from '@nestjs/common';
+import { PortalAccountSequence } from './sequenceGenerators/portal-account.sequence';
+import { BankUploadStartup } from './start-ups/bank-upload.startup';
 
 @Module({
-    exports: [
-        PortalAccountSequence,
-    ],
-    providers: [
-        PortalAccountSequence,
-    ],
+  exports: [
+    PortalAccountSequence,
+    BankUploadStartup,
+  ],
+  providers: [
+    PortalAccountSequence,
+    BankUploadStartup,
+  ],
 })
 
 export class CoreModule {

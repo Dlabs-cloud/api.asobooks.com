@@ -8,6 +8,7 @@ import { AuthenticationController } from './authentication.controller';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseTransformInterceptor } from './response-transform.interceptor';
 import { UserManagementController } from './user-management.controller';
+import { AssociationController } from './association.controller';
 
 @Module({
   imports: [
@@ -20,10 +21,12 @@ import { UserManagementController } from './user-management.controller';
     TestController,
     AuthenticationController,
     UserManagementController,
+    AssociationController,
   ],
   providers: [
     ResponseTransformInterceptor,
     {
+
       provide: APP_INTERCEPTOR,
       useExisting: ResponseTransformInterceptor,
     },

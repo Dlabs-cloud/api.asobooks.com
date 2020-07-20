@@ -4,11 +4,11 @@ import { SettingRepository } from '../dao/setting.repository';
 import { Connection } from 'typeorm';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Inject } from '@nestjs/common';
-import { EmailValidationService } from '../contracts/email-validation-service';
+import { IEmailValidationService } from '../contracts/i-email-validation-service';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { ConfigService } from '@nestjs/config';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { TokenPayload } from '../dto/TokenPayload';
+import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { error } from 'winston';
 
@@ -18,7 +18,7 @@ export class ForgotPasswordHandler implements IEventHandler<ForgotPasswordEvent>
   constructor(private readonly connection: Connection,
               private readonly mailerService: MailerService,
               private readonly configService: ConfigService,
-              @Inject('EMAIL_VALIDATION_SERVICE') private emailValidationService: EmailValidationService<PortalUser, PortalAccount, TokenPayload>) {
+              @Inject('EMAIL_VALIDATION_SERVICE') private emailValidationService: IEmailValidationService<PortalUser, PortalAccount, TokenPayloadDto>) {
   }
 
   async handle(event: ForgotPasswordEvent) {

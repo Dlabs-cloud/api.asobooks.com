@@ -32,7 +32,6 @@ export class PortalAccountService {
     portalAccount.updatedAt = new Date();
     await entityManager.save(portalAccount);
     return portalAccount;
-
-
   }
+
 }

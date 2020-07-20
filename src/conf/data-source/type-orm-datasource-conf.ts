@@ -1,7 +1,7 @@
 import {TypeOrmModuleOptions} from '@nestjs/typeorm';
 import {ConfigService} from '@nestjs/config';
 
-export class TypeOrmDatasource {
+export class TypeOrmDatasourceConf {
 
     constructor(private configService: ConfigService) {
     }

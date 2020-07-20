@@ -5,11 +5,11 @@ import { PortalUserRepository } from '../dao/portal-user.repository';
 import { MailerService } from '@nestjs-modules/mailer';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Inject } from '@nestjs/common';
-import { EmailValidationService } from '../contracts/email-validation-service';
+import { IEmailValidationService } from '../contracts/i-email-validation-service';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { SettingRepository } from '../dao/setting.repository';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { TokenPayload } from '../dto/TokenPayload';
+import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 
 
@@ -18,7 +18,7 @@ export class NewUserAccountSignUpHandler implements IEventHandler<NewUserAccount
 
   constructor(private readonly connection: Connection,
               private readonly mailerService: MailerService,
-              @Inject('EMAIL_VALIDATION_SERVICE') private emailValidationService: EmailValidationService<PortalUser, PortalAccount, TokenPayload>) {
+              @Inject('EMAIL_VALIDATION_SERVICE') private emailValidationService: IEmailValidationService<PortalUser, PortalAccount, TokenPayloadDto>) {
   }
 
   async handle(event: NewUserAccountSignUpEvent) {

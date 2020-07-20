@@ -5,14 +5,16 @@ import { SettingService } from './setting.service';
 import { AuthenticationService } from './authentication.service';
 import { CommonModule } from '../common/common.module';
 import { PortalUserService } from './portal-user.service';
-import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { PortalAccountService } from './portal-account.service';
 import { CqrsModule } from '@nestjs/cqrs';
 import { MembershipService } from './membership.service';
 import { UserManagementService } from './user-management.service';
 import { ValidationService } from './validation-service';
-import { BEARER_TOKEN_SERVICE } from '../contracts/bearer-token-service';
-import { BearerTokenServiceImpl } from './bearer-token-service-impl';
+import { BEARER_TOKEN_SERVICE } from '../contracts/i-bearer-token-service';
+import { BearerTokenService } from './bearer-token.service';
+import { AssociationService } from './association.service';
+import { FILE_SERVICE } from '../contracts/i-file-service';
+import { AmazonS3FileService } from './amazon-s3-file.service';
 
 
 const emailValidationProvider = {
@@ -22,7 +24,12 @@ const emailValidationProvider = {
 
 const bearerTokenServiceProvider = {
   provide: BEARER_TOKEN_SERVICE,
-  useClass: BearerTokenServiceImpl,
+  useClass: BearerTokenService,
+};
+
+const fileServiceProvider = {
+  provide: FILE_SERVICE,
+  useClass: AmazonS3FileService,
 };
 
 
@@ -40,8 +47,10 @@ const bearerTokenServiceProvider = {
     PortalAccountService,
     MembershipService,
     UserManagementService,
+    AssociationService,
     emailValidationProvider,
     bearerTokenServiceProvider,
+    fileServiceProvider,
   ],
   providers: [
     SettingService,
@@ -50,8 +59,10 @@ const bearerTokenServiceProvider = {
     PortalAccountService,
     UserManagementService,
     MembershipService,
+    AssociationService,
     emailValidationProvider,
     bearerTokenServiceProvider,
+    fileServiceProvider,
   ],
 })
 export class ServiceModule {

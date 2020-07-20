@@ -10,11 +10,13 @@ import { CommonModule } from '../common/common.module';
 import { DaoModule } from '../dao/dao.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TypeOrmDatasource } from './data-source/type-orm-datasource';
-import { Principal } from './security/principal';
-import { EmailService } from './email/email.service';
+import { TypeOrmDatasourceConf } from './data-source/type-orm-datasource-conf';
+import { RequestPrincipal } from './security/request-principal.service';
+import { EmailMailerConfiguration } from './email/email.conf';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ServiceModule } from '../service/service.module';
+import { S3Module } from 'nestjs-s3';
+import { AmazonSesConfig } from './file/amazon-ses.config';
 
 @Module({
   imports: [
@@ -22,16 +24,24 @@ import { ServiceModule } from '../service/service.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        let emailConfiguration = new EmailService(configService);
+        let emailConfiguration = new EmailMailerConfiguration(configService);
         return emailConfiguration.getEmailConfig();
+      },
+    }),
+    S3Module.forRootAsync({
+      imports: [ConfModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const amazonSesConfig = new AmazonSesConfig(configService);
+        return amazonSesConfig.getConfig();
       },
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const typeOrmDatasource = new TypeOrmDatasource(configService);
-        return typeOrmDatasource.getTypeOrmConfig();
+        const ormConfig = new TypeOrmDatasourceConf(configService);
+        return ormConfig.getTypeOrmConfig();
       },
     }),
     CoreModule,
@@ -43,9 +53,9 @@ import { ServiceModule } from '../service/service.module';
         new winston.transports.Console({ format: winston.format.json() }),
       ],
     })],
-  exports: [Principal],
+  exports: [RequestPrincipal],
   providers: [
-    Principal,
+    RequestPrincipal,
     {
       provide: APP_INTERCEPTOR,
       useExisting: AccessConstraintInterceptor,

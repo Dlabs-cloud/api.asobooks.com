@@ -1,21 +1,21 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PortalUser } from '../domain/entity/portal-user.entity';
-import { EmailValidationService } from '../contracts/email-validation-service';
+import { IEmailValidationService } from '../contracts/i-email-validation-service';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { BEARER_TOKEN_SERVICE, BearerTokenService } from '../contracts/bearer-token-service';
+import { BEARER_TOKEN_SERVICE, IBearerTokenService } from '../contracts/i-bearer-token-service';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { TokenPayload } from '../dto/TokenPayload';
-import { JwtPayload } from '../dto/JwtPayload';
+import { TokenPayloadDto } from '../dto/token-payload.dto';
+import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 
 @Injectable()
-export class ValidationService implements EmailValidationService<PortalUser, PortalAccount, TokenPayload> {
+export class ValidationService implements IEmailValidationService<PortalUser, PortalAccount, TokenPayloadDto> {
 
-  constructor(@Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: BearerTokenService<TokenPayload>) {
+  constructor(@Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: IBearerTokenService<TokenPayloadDto>) {
   }
 
   public async createCallBackToken(receiver: PortalUser, type: TokenTypeConstant, portalAccount?: PortalAccount): Promise<string> {
-    const payload: TokenPayload = {
+    const payload: TokenPayloadDto = {
       portalUser: receiver,
       portalAccount: portalAccount,
     };
@@ -23,7 +23,7 @@ export class ValidationService implements EmailValidationService<PortalUser, Por
     return Buffer.from(token).toString('base64');
   }
 
-  public async validateEmailCallBackToken(token: string, type: TokenTypeConstant): Promise<TokenPayload> {
+  public async validateEmailCallBackToken(token: string, type: TokenTypeConstant): Promise<TokenPayloadDto> {
     let generatedToken = Buffer.from(token, 'base64').toString();
     return this.bearerTokenService.verifyBearerToken(generatedToken, type);
   }

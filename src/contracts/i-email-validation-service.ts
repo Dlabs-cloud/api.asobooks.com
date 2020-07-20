@@ -1,8 +1,8 @@
 import { BaseEntity } from '../common/base.entity';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
-import { TokenPayload } from '../dto/TokenPayload';
+import { TokenPayloadDto } from '../dto/token-payload.dto';
 
-export interface EmailValidationService<T extends BaseEntity, DATA, PAYLOAD> {
+export interface IEmailValidationService<T extends BaseEntity, DATA, PAYLOAD> {
   createCallBackToken(receiver: T, type: TokenTypeConstant, payload?: DATA): Promise<string>
 
   validateEmailCallBackToken(token: string, type: TokenTypeConstant): Promise<PAYLOAD>

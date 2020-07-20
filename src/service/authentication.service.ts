@@ -15,15 +15,14 @@ import { EventBus } from '@nestjs/cqrs';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { NewUserAccountSignUpEvent } from '../event/new-user-account-sign-up.event';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
-import { JwtPayload } from '../dto/JwtPayload';
-import { BEARER_TOKEN_SERVICE, BearerTokenService } from '../contracts/bearer-token-service';
-import { TokenPayload } from '../dto/TokenPayload';
+import { BEARER_TOKEN_SERVICE, IBearerTokenService } from '../contracts/i-bearer-token-service';
+import { TokenPayloadDto } from '../dto/token-payload.dto';
 
 @Injectable()
 export class AuthenticationService {
 
   constructor(private readonly authenticationUtils: AuthenticationUtils,
-              @Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: BearerTokenService<TokenPayload>,
+              @Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: IBearerTokenService<TokenPayloadDto>,
               private readonly connection: Connection,
               private readonly portalUserService: PortalUserService,
               private readonly portalAccountService: PortalAccountService,
@@ -79,7 +78,7 @@ export class AuthenticationService {
           const isTrue = await this.authenticationUtils
             .comparePassword(loginDto.password, portalUserValue.password);
           if (isTrue) {
-            const payload: TokenPayload = {
+            const payload: TokenPayloadDto = {
               portalUser: portalUserValue,
             };
             const token = this.bearerTokenService.generateBearerToken(payload, TokenTypeConstant.LOGIN);
