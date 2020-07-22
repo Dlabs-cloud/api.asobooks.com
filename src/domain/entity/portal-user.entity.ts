@@ -8,9 +8,7 @@ export class PortalUser extends BaseEntity {
   firstName: string;
   @Column()
   lastName: string;
-  @Column({
-    unique: true,
-  })
+  @Column()
   username: string;
   @Column({
     type: 'enum',
@@ -20,9 +18,7 @@ export class PortalUser extends BaseEntity {
   gender: GenderConstant;
   @Column()
   password: string;
-  @Column({
-    unique: true,
-  })
+  @Column()
   email: string;
   @Column()
   phoneNumber: string;

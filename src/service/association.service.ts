@@ -39,7 +39,6 @@ export class AssociationService {
       association.name = associationDto.name;
       association.address = address;
       association.type = associationDto.type;
-      association.portalAccount = portalAccount;
       if (associationDto.logo) {
         association.logo = await this.fileService.upload(entityManager, associationDto.logo);
       }

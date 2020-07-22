@@ -1,9 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { NewUserAccountSignUpEvent } from '../event/new-user-account-sign-up.event';
 import { Connection } from 'typeorm';
-import { PortalUserRepository } from '../dao/portal-user.repository';
 import { MailerService } from '@nestjs-modules/mailer';
-import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Inject } from '@nestjs/common';
 import { IEmailValidationService } from '../contracts/i-email-validation-service';
 import { PortalUser } from '../domain/entity/portal-user.entity';
@@ -23,27 +21,26 @@ export class NewUserAccountSignUpHandler implements IEventHandler<NewUserAccount
 
   async handle(event: NewUserAccountSignUpEvent) {
     const portalAccount = event.portalAccount;
-    const portalUser = event.portalUser
-
-    console.log(portalUser);
+    const portalUser = event.portalUser;
     let urlSetting = await this.connection
       .getCustomRepository(SettingRepository)
       .findByLabel('front_end_url', 'http://localhost:3000/api/v1');
     let callBackToken = await this.emailValidationService.createCallBackToken(portalUser, TokenTypeConstant.PRINCIPAL_USER_SIGN_UP, portalAccount);
     const callBackUrl = `${urlSetting.value}/validate-principal/${callBackToken}`;
-    console.log(callBackUrl);
+    try {
+      const response = await this.mailerService.sendMail({
+        to: portalUser.email,
+        subject: `Welcome to socialite.io`,
+        template: 'admin-signup',
+        context: {
+          firstName: portalUser.firstName,
+          callbackUrl: callBackUrl,
+        },
+      });
 
-    this.mailerService.sendMail({
-      to: portalUser.email,
-      subject: `Welcome to socialite.io`,
-      template: 'admin-signup',
-      context: {
-        firstName: portalUser.firstName,
-        callbackUrl: callBackUrl,
-      },
-    }).catch((error) => {
-      console.log(error);
-    });
+    } catch (e) {
+      console.log(e);
+    }
 
   }
 

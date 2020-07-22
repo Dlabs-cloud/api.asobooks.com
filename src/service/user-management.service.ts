@@ -25,20 +25,12 @@ export class UserManagementService {
               private readonly portalAccountService: PortalAccountService,
               private readonly membershipRepository: MembershipRepository,
               private readonly membershipService: MembershipService,
-              private readonly eventBus: EventBus,
-              @Inject('EMAIL_VALIDATION_SERVICE') private emailValidationService: IEmailValidationService<PortalUser, PortalAccount, TokenPayloadDto>) {
+              private readonly eventBus: EventBus) {
   }
 
 
-  public async validatePrincipalUser(callbackToken: string) {
-    const payload = await this.emailValidationService
-      .validateEmailCallBackToken(callbackToken, TokenTypeConstant.PRINCIPAL_USER_SIGN_UP);
+  public async validatePrincipalUser(portalUser: PortalUser, portalAccount: PortalAccount) {
 
-    const portalUser = payload.portalUser;
-    const portalAccount = payload.portalAccount;
-    if (!portalAccount) {
-      throw new InvalidtokenException('token is not valid');
-    }
     return this.connection.transaction(async entityManager => {
       portalUser.status = GenericStatusConstant.ACTIVE;
       portalUser.updatedAt = new Date();
@@ -62,14 +54,13 @@ export class UserManagementService {
     });
   }
 
-  public async changePassword(callbackToken: string, changePasswordDto: ChangePasswordDto) {
-    let payload = await this.emailValidationService.validateEmailCallBackToken(callbackToken, TokenTypeConstant.FORGOT_PASSWORD);
+  public async changePortalUserPassword(portalUser: PortalUser, changePasswordDto: ChangePasswordDto) {
     return this.connection.transaction(async entityManager => {
       let userUpdateDto = new UserUpdateDto();
       userUpdateDto.password = await this.authenticationUtils.hashPassword(changePasswordDto.password);
       userUpdateDto.status = GenericStatusConstant.ACTIVE;
-      await this.updateUser(entityManager, payload.portalUser, userUpdateDto);
-      return payload.portalUser;
+      await this.updateUser(entityManager, portalUser, userUpdateDto);
+      return portalUser;
     });
   }
 

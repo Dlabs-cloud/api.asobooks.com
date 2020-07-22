@@ -14,7 +14,7 @@ export class LoggerInterceptor implements NestInterceptor {
 
   // @ts-ignore
   async intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    console.log('there is a problem fam!!!');
+
     let annotations = this.reflector.getAllAndMerge(AccessTypes.LOG, [
       context.getClass(), context.getHandler(),
     ]);

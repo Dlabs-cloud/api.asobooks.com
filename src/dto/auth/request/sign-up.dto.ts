@@ -1,4 +1,5 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsString, MIN_LENGTH, MinLength } from 'class-validator';
+import { AssociationTypeConstant } from '../../../domain/enums/association-type-constant';
 
 export class SignUpDto {
   @IsString()
@@ -12,12 +13,18 @@ export class SignUpDto {
   @IsEmail()
   email: string;
   @IsString()
-  @IsNotEmpty()
-  phoneNumber: string;
+  phoneNumber?: string;
   @IsString()
-    // Todo Add Validation (Two active account with same name should not exist
+  @IsNotEmpty()
   associationName: string;
   @IsString()
   @IsNotEmpty()
+  @MinLength(6, {
+    'message': 'Password can only be minimum of six',
+  })
   password: string;
+  @IsEnum(AssociationTypeConstant, {
+    message: 'Association myst be provider',
+  })
+  associationType: AssociationTypeConstant;
 }

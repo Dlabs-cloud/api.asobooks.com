@@ -18,7 +18,7 @@ export const ImageUploadInterceptor = (fileName: string, maxImageSize: number = 
 };
 
 export const generateSavableFileName = (fileName: string): string => {
-  console.log(fileName);
+
   const fileExtName = extname(fileName);
   let name = fileName.split(fileExtName)[0];
   name = name.split(/\s/).join('');

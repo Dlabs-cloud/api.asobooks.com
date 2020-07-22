@@ -18,11 +18,8 @@ export class Association extends BaseEntity {
 
   @OneToOne(() => Address)
   @JoinColumn({ name: 'addressId' })
-  address: Address;
-  @OneToOne(() => PortalAccount)
-  @JoinColumn()
-  portalAccount: PortalAccount;
+  address?: Address;
   @OneToOne(() => File)
   @JoinColumn({ name: 'logo' })
-  logo: File;
+  logo?: File;
 }

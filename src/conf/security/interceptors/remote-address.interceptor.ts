@@ -36,7 +36,7 @@ export class RemoteAddressInterceptor implements NestInterceptor {
             const whiteListedIp = (await settingRepository.findInLabels(...annotations)).map(setting => {
                 return setting.value.split(',');
             }).flat();
-            console.log(whiteListedIp);
+
             if (whiteListedIp.includes(ipAddress)) {
                 return next.handle();
             }

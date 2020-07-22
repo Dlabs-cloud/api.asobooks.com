@@ -5,11 +5,10 @@ import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalAccountService } from './portal-account.service';
-import { Some } from 'optional-typescript';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalUserService } from './portal-user.service';
-import { Membership } from '../domain/entity/membership.entity';
+import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
 import { LoginDto } from '../dto/auth/request/login.dto';
 import { EventBus } from '@nestjs/cqrs';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
@@ -17,6 +16,8 @@ import { NewUserAccountSignUpEvent } from '../event/new-user-account-sign-up.eve
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { BEARER_TOKEN_SERVICE, IBearerTokenService } from '../contracts/i-bearer-token-service';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
+import { Association } from '../domain/entity/association.entity';
+import { AssociationService } from './association.service';
 
 @Injectable()
 export class AuthenticationService {
@@ -25,22 +26,33 @@ export class AuthenticationService {
               @Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: IBearerTokenService<TokenPayloadDto>,
               private readonly connection: Connection,
               private readonly portalUserService: PortalUserService,
+              private readonly associationService: AssociationService,
               private readonly portalAccountService: PortalAccountService,
               private readonly eventBus: EventBus) {
 
   }
 
-  public signUpUser(signUpRequestDto: SignUpDto): Promise<PortalUser> {
+  public signPrincipalUser(signUpRequestDto: SignUpDto): Promise<PortalUserAccount> {
 
     return this.connection.transaction(async (entityManager) => {
-      const accountName = signUpRequestDto.associationName ?? `${signUpRequestDto.email}`;
+
+
+      let association = new Association();
+      association.name = signUpRequestDto.associationName;
+      association.type = signUpRequestDto.associationType;
+      association.status = GenericStatusConstant.PENDING_ACTIVATION;
+
+      association = await entityManager.save(association);
+
+
+
+      let accountName = signUpRequestDto.associationName ?? `${signUpRequestDto.email}`;
+
+      accountName = `${accountName} Excos Account`;
 
       let portalAccount = new PortalAccount();
       portalAccount.name = accountName;
-      portalAccount.type = PortalAccountTypeConstant.INDIVIDUAL;
-      Some(signUpRequestDto.associationName).ifPresent((value) => {
-        portalAccount.type = PortalAccountTypeConstant.ASSOCIATION;
-      });
+      portalAccount.type = PortalAccountTypeConstant.EXECUTIVE_ACCOUNT;
       portalAccount = await this.portalAccountService.createPortalAccount(entityManager, portalAccount);
       portalAccount.status = GenericStatusConstant.PENDING_ACTIVATION;
       await entityManager.save(portalAccount);
@@ -55,16 +67,18 @@ export class AuthenticationService {
       portalUser.status = GenericStatusConstant.PENDING_ACTIVATION;
       await this.portalUserService.createPortalUser(entityManager, portalUser);
 
-      const membership = new Membership();
-      membership.portalUser = portalUser;
-      membership.portalAccount = portalAccount;
-      membership.status = GenericStatusConstant.PENDING_ACTIVATION;
-      await entityManager.save(membership);
+      const portalUserAccount = new PortalUserAccount();
+      portalUserAccount.portalUser = portalUser;
+      portalUserAccount.portalAccount = portalAccount;
+      portalUserAccount.status = GenericStatusConstant.PENDING_ACTIVATION;
+      portalUserAccount.association = association;
+      await entityManager.save(portalUserAccount);
+
 
       delete portalUser.password;
 
       this.eventBus.publish(new NewUserAccountSignUpEvent(portalAccount, portalUser));
-      return portalUser;
+      return portalUserAccount;
     });
   }
 

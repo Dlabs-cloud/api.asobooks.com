@@ -2,21 +2,21 @@ import { Brackets, EntityRepository } from 'typeorm';
 import { BaseRepository } from '../common/BaseRepository';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { Membership } from '../domain/entity/membership.entity';
+import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 
 @EntityRepository(PortalUser)
 export class PortalUserRepository extends BaseRepository<PortalUser> {
 
 
+  public findByUserNameOrEmailOrPhoneNumberAndNotDeleted(usernameOrEmailOrPhone: string) {
+    return this.getPortalUserNameOrEmailOrPhoneNumberSelectQueryBuilder(usernameOrEmailOrPhone)
+      .andWhere('status != :status', { 'status': GenericStatusConstant.DELETED })
+      .getOne();
+  }
 
   public findByUserNameOrEmailOrPhoneNumberAndStatus(usernameOrEmailOrPhone: string, ...status: GenericStatusConstant[]) {
-    const portalUserSelectQueryBuilder = this
-      .createQueryBuilder('portalUser')
-      .select()
-      .orWhere('portalUser.username = :username')
-      .orWhere('portalUser.email = :username')
-      .orWhere('portalUser.phoneNumber = :username');
+    const portalUserSelectQueryBuilder = this.getPortalUserNameOrEmailOrPhoneNumberSelectQueryBuilder(usernameOrEmailOrPhone);
     portalUserSelectQueryBuilder.andWhere(new Brackets((qb => {
       status.forEach((value, index) => {
         const param = {};
@@ -25,10 +25,19 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
       });
     })));
     return portalUserSelectQueryBuilder
-      .setParameter('username', usernameOrEmailOrPhone)
+
       .distinct()
       .getOne();
   }
 
 
+  private getPortalUserNameOrEmailOrPhoneNumberSelectQueryBuilder(usernameOrEmailOrPhone: string) {
+    return this
+      .createQueryBuilder('portalUser')
+      .select()
+      .orWhere('portalUser.username = :username')
+      .orWhere('portalUser.email = :username')
+      .orWhere('portalUser.phoneNumber = :username')
+      .setParameter('username', usernameOrEmailOrPhone);
+  }
 }

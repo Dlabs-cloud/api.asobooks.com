@@ -13,14 +13,6 @@ export class PortalAccountService {
   }
 
   public async createPortalAccount(entityManager: EntityManager, portalAccount: PortalAccount): Promise<PortalAccount> {
-    const existingPortalAccount = await entityManager.getCustomRepository(PortalAccountRepository)
-      .findOneItem({
-        name: portalAccount.name,
-      });
-
-    if (existingPortalAccount) {
-      throw new ConflictException(`Account with  ${existingPortalAccount.name} already exist`);
-    }
     portalAccount.accountCode = await this.portalAccountSequenceGenerator.next();
     portalAccount.status = GenericStatusConstant.ACTIVE;
     await entityManager.save(portalAccount);

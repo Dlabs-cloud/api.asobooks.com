@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import { AuthenticationService } from '../service/authentication.service';
 import { Public } from '../conf/security/annotations/public';
@@ -11,6 +11,13 @@ import { PortalUserRepository } from '../dao/portal-user.repository';
 import { UserManagementService } from '../service/user-management.service';
 import { Connection } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { TokenPayloadDto } from '../dto/token-payload.dto';
+import { TokenTypeConstant } from '../domain/enums/token-type-constant';
+import { IEmailValidationService } from '../contracts/i-email-validation-service';
+import { PortalUser } from '../domain/entity/portal-user.entity';
+import { PortalAccount } from '../domain/entity/portal-account.entity';
+import { IllegalArgumentException } from '../exception/illegal-argument.exception';
+import { InvalidtokenException } from '../exception/invalidtoken.exception';
 
 @Public()
 @Controller()
@@ -18,19 +25,32 @@ export class AuthenticationController {
 
   constructor(private readonly authenticationService: AuthenticationService,
               private readonly userManagementService: UserManagementService,
+              @Inject('EMAIL_VALIDATION_SERVICE') private emailValidationService: IEmailValidationService<PortalUser, PortalAccount, TokenPayloadDto>,
               private readonly connection: Connection) {
   }
 
 
   @Post('sign-up')
   async signUp(@Body() signUpRequestDto: SignUpDto) {
-    const portalUser = await this.authenticationService.signUpUser(signUpRequestDto);
-    return new ApiResponseDto(portalUser, 201);
+    const existingIngPortalUser = await this.connection.getCustomRepository(PortalUserRepository)
+      .findByUserNameOrEmailOrPhoneNumberAndNotDeleted(signUpRequestDto.email);
+
+    if (existingIngPortalUser) {
+      throw new IllegalArgumentException('portal user with email or user name is already existing');
+    }
+    const membership = await this.authenticationService.signPrincipalUser(signUpRequestDto);
+    return new ApiResponseDto(membership.portalUser, 201);
   }
 
   @Get('/validate-principal/:token')
   public async principalSetUp(@Param('token') token: string) {
-    await this.userManagementService.validatePrincipalUser(token);
+
+    const payload: TokenPayloadDto = await this.emailValidationService
+      .validateEmailCallBackToken(token, TokenTypeConstant.PRINCIPAL_USER_SIGN_UP);
+    if (!payload.portalAccount) {
+      throw new InvalidtokenException('Token is not valid');
+    }
+    await this.userManagementService.validatePrincipalUser(payload.portalUser, payload.portalAccount);
     return new ApiResponseDto();
   }
 
@@ -46,7 +66,9 @@ export class AuthenticationController {
   @Post('/password/reset/:token')
   public async onPasswordReset(@Param('token') token: string,
                                @Body() passwordResetDto: ChangePasswordDto) {
-    await this.userManagementService.changePassword(token, passwordResetDto);
+    let payload = await this.emailValidationService.validateEmailCallBackToken(token, TokenTypeConstant.FORGOT_PASSWORD);
+
+    await this.userManagementService.changePortalUserPassword(payload.portalUser, passwordResetDto);
     return new ApiResponseDto();
   }
 

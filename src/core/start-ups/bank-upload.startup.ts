@@ -28,14 +28,12 @@ export class BankUploadStartup implements OnApplicationBootstrap {
           name: value.name,
           code: value.code,
         };
-
-
         const bankRepository = getConnection()
           .getCustomRepository(BankRepository);
 
         bankRepository.findOneItem({
           code: bank.code,
-        }).then(existingBank => {
+        }).then((existingBank) => {
           if (existingBank) {
             existingBank.name = bank.name;
             existingBank.payStackCode = bank.payStackCode;
@@ -59,7 +57,7 @@ export class BankUploadStartup implements OnApplicationBootstrap {
     fileStream.pipe(jsonStream);
     jsonStream.pipe(processingStream);
 
-    processingStream.on('finish', () => console.log('All done'));
+    processingStream.on('finish', () => console.log('All done!! On to the nest start up action!!'));
   }
 
 }
