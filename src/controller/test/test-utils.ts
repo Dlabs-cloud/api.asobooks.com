@@ -14,6 +14,9 @@ import { factory } from './factory';
 import { Association } from '../../domain/entity/association.entity';
 import { PortalAccount } from '../../domain/entity/portal-account.entity';
 import { PortalUserAccount } from '../../domain/entity/portal-user-account.entity';
+import { AuthenticationUtils } from '../../common/utils/authentication-utils.service';
+import { JwtPayloadDto } from '../../dto/jwt-payload.dto';
+import { TokenTypeConstant } from '../../domain/enums/token-type-constant';
 
 
 export const init = async (entityManager?: EntityManager) => {
@@ -69,7 +72,7 @@ export const mockNewSignUpUser = async (authenticationService: AuthenticationSer
   return newUser;
 };
 
-export const getUserByStatus = async (status: GenericStatusConstant) => {
+export const getTestUser = async (status: GenericStatusConstant, portalUser?: PortalUser) => {
   const association = await factory().upset(Association).use(association => {
     association.status = status;
     return association;
@@ -78,7 +81,7 @@ export const getUserByStatus = async (status: GenericStatusConstant) => {
     portalAccount.status = status;
     return portalAccount;
   }).create();
-  const portalUser = await factory().upset(PortalUser).use(portalUser => {
+  portalUser = portalUser ?? await factory().upset(PortalUser).use(portalUser => {
     portalUser.status = status;
     return portalUser;
   }).create();
@@ -92,14 +95,18 @@ export const getUserByStatus = async (status: GenericStatusConstant) => {
 
 };
 
-export const getLoginUser = async (authenticationService: AuthenticationService): Promise<string> => {
+export const getLoginUser = async (status: GenericStatusConstant, portalUser?: PortalUser): Promise<string> => {
 
-  const portalUser = await mockNewSignUpUser(authenticationService);
-  return authenticationService.loginUser({
-    username: portalUser.email,
-    password: portalUser.password,
-  });
+  const portalUserAccount = await getTestUser(status, portalUser);
 
+  const jwtPayload: JwtPayloadDto = {
+    sub: portalUserAccount.portalUser.id,
+    email: portalUserAccount.portalUser.email,
+    subStatus: portalUserAccount.portalUser.status,
+    type: TokenTypeConstant.LOGIN,
+  };
+
+  return this.authenticationUtils.generateGenericToken(jwtPayload);
 };
 
 
