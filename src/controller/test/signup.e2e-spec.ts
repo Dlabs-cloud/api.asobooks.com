@@ -8,7 +8,7 @@ import { Connection } from 'typeorm/connection/Connection';
 import { MailerService } from '@nestjs-modules/mailer';
 import { AuthenticationService } from '../../service/authentication.service';
 import { ServiceModule } from '../../service/service.module';
-import { getUserByStatus, mockNewSignUpUser, mockSendEmail } from './test-utils';
+import { getTestUser, mockNewSignUpUser, mockSendEmail } from './test-utils';
 import { SignUpDto } from '../../dto/auth/request/sign-up.dto';
 import * as faker from 'faker';
 import { AssociationTypeConstant } from '../../domain/enums/association-type-constant';
@@ -20,7 +20,7 @@ import { TokenPayloadDto } from '../../../dist/src/dto/token-payload.dto';
 import { TokenTypeConstant } from '../../domain/enums/token-type-constant';
 import { PortalUserRepository } from '../../dao/portal-user.repository';
 
-describe('AuthController', () => {
+describe('SignUp ', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
   let authenticationService: AuthenticationService;
@@ -74,7 +74,7 @@ describe('AuthController', () => {
   });
 
   it('test that a user can activate is account using the token sent to email', async () => {
-    const portalUserAccount = await getUserByStatus(GenericStatusConstant.PENDING_ACTIVATION);
+    const portalUserAccount = await getTestUser(GenericStatusConstant.PENDING_ACTIVATION);
     const token = await emailValidationService.createCallBackToken(portalUserAccount.portalUser, TokenTypeConstant.PRINCIPAL_USER_SIGN_UP, portalUserAccount.portalAccount);
     const url = `/validate-principal/${token}`;
     await request(applicationContext.getHttpServer())
@@ -91,7 +91,7 @@ describe('AuthController', () => {
   });
 
   it('test activating action will make it active', async () => {
-    const portalUserAccount1 = await getUserByStatus(GenericStatusConstant.PENDING_ACTIVATION);
+    const portalUserAccount1 = await getTestUser(GenericStatusConstant.PENDING_ACTIVATION);
     const token = await emailValidationService.createCallBackToken(portalUserAccount1.portalUser, TokenTypeConstant.PRINCIPAL_USER_SIGN_UP, portalUserAccount1.portalAccount);
     const url = `/validate-principal/${token}`;
     await request(applicationContext.getHttpServer())

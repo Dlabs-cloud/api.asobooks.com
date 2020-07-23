@@ -8,7 +8,7 @@ export interface JwtPayloadDto {
   subStatus: GenericStatusConstant,
   accountId?: number,
   accountStatus?: GenericStatusConstant,
-  type,
+  type: TokenTypeConstant,
 }
 
 
