@@ -6,7 +6,7 @@ import {getConnection} from 'typeorm';
 import {TestUtils} from './test-utils';
 import {factory} from './factory';
 import {Setting} from '../../domain/entity/setting.entity';
-import {SettingModelFactory} from '../../factories/factory/setting-model-factory';
+import {SettingModelFactory} from '../../factories/factory/setting-model.factory';
 
 async function test200Response(applicationContext: INestApplication, endpoint: string) {
     return request(applicationContext.getHttpServer())

@@ -26,7 +26,7 @@ export class AssociationService {
       const addressDto = new AddressDto();
       addressDto.name = associationDto.address;
       addressDto.country = await entityManager.getCustomRepository(CountryRepository)
-        .findOneItem({ code: associationDto.countryCode });
+        .findOneItemByStatus({ code: associationDto.countryCode });
       const address = await entityManager
         .getCustomRepository(AddressRepository)
         .saveAddress(entityManager, addressDto);

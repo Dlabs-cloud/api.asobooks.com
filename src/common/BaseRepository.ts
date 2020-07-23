@@ -11,7 +11,7 @@ export abstract class BaseRepository<T extends BaseEntity> extends Repository<T>
     });
   }
 
-  public findOneItem(findOptions: FindConditions<T>, status: GenericStatusConstant = GenericStatusConstant.ACTIVE): Promise<T> {
+  public findOneItemByStatus(findOptions: FindConditions<T>, status: GenericStatusConstant = GenericStatusConstant.ACTIVE): Promise<T> {
     return this.findOne({
       where: { ...findOptions, ...{ status } },
     });

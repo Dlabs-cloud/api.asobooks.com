@@ -30,7 +30,7 @@ export class NewUserAccountSignUpHandler implements IEventHandler<NewUserAccount
     try {
       const response = await this.mailerService.sendMail({
         to: portalUser.email,
-        subject: `Welcome to socialite.io`,
+        subject: `Welcome to AsoBooks`,
         template: 'admin-signup',
         context: {
           firstName: portalUser.firstName,

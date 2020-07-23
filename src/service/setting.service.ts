@@ -8,7 +8,7 @@ export class SettingService {
     }
 
     async getValue(label: string) {
-        const setting = await this.settingsRepository.findOneItem({
+        const setting = await this.settingsRepository.findOneItemByStatus({
             label
         });
         return setting?.label;

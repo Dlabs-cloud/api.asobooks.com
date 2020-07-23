@@ -9,7 +9,6 @@ export class SettingModelFactory implements FactoryHelper<Setting> {
         setting.label = faker.name.lastName() + '_' + faker.name.firstName();
         setting.value = faker.internet.ip();
         return setting;
-
     }
 
 }

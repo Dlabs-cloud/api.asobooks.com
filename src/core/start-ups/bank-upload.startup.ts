@@ -31,7 +31,7 @@ export class BankUploadStartup implements OnApplicationBootstrap {
         const bankRepository = getConnection()
           .getCustomRepository(BankRepository);
 
-        bankRepository.findOneItem({
+        bankRepository.findOneItemByStatus({
           code: bank.code,
         }).then((existingBank) => {
           if (existingBank) {

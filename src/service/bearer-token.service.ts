@@ -59,7 +59,7 @@ export class BearerTokenService implements IBearerTokenService<TokenPayloadDto> 
       if (Some(portalAccountId).hasValue) {
         const portalAccount = await this.connection
           .getCustomRepository(PortalAccountRepository)
-          .findOneItem({
+          .findOneItemByStatus({
             id: portalAccountId,
           }, accountStatus);
 
@@ -70,10 +70,9 @@ export class BearerTokenService implements IBearerTokenService<TokenPayloadDto> 
       }
       return tokenPayload;
     } catch (e) {
-      if (e instanceof UnauthorizedException) {
-        throw new InvalidtokenException('Token is not valid');
-      }
-      throw  e;
+
+      throw new InvalidtokenException('Token is not valid');
+
     }
 
   }

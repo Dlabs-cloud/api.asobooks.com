@@ -7,7 +7,7 @@ export class TestController {
     @Get()
     @Public()
     index() {
-        return 'socialite.io';
+        return 'AsoBooks';
     }
 
 }
