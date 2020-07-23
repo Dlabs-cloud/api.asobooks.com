@@ -19,7 +19,7 @@ export class TypeOrmDatasourceConf {
       password: this.configService.get<string>('DB_PASSWORD', 'postgres'),
       username: this.configService.get('DB_USERNAME', 'postgres'),
       database: this.configService.get('DB_DATABASE', 'postgres'),
-      logging: true,
+      logging: false,
       //  logging: this.configService.get('SHOW_LOG', false) === 'true',
       entities: [__dirname + '/../../domain/entity/*.entity{.js,.ts}'],
       synchronize: true,

@@ -82,12 +82,12 @@ describe('SignUp ', () => {
       .send(signedUpUser).expect(200);
   });
 
-  it('test that a user with invalid token cannot sign up', async () => {
+  it('test that a user with invalid token cannot validate  sign up', async () => {
     const token = faker.random.uuid();
     const url = `/validate-principal/${token}`;
     await request(applicationContext.getHttpServer())
       .get(url)
-      .send(signedUpUser).expect(201);
+      .send(signedUpUser).expect(401);
   });
 
   it('test activating action will make it active', async () => {
