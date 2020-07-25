@@ -28,10 +28,11 @@ jobs:
           node-version: '12'
           check-latest: true
       - name: Get npm cache directory
-        id: npm-cache
+        id: npm-cache-dir-path
         run: |
           echo "::set-output name=dir::$(npm config get cache)"
-        uses: actions/cache@v2
+      - uses: actions/cache@v2
+        id: npm-cache
         with:
           path: ${{ steps.npm-cache.outputs.dir }}
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
