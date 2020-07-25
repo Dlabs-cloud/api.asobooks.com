@@ -1,14 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppService } from '../app.service';
-import { AppModule } from '../app.module';
+import { TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { getConnection } from 'typeorm';
 import { Connection } from 'typeorm/connection/Connection';
-import { MailerService } from '@nestjs-modules/mailer';
 import { AuthenticationService } from '../service/authentication.service';
 import { ServiceModule } from '../service/service.module';
-import { baseTestingModule, getTestUser, mockNewSignUpUser, mockSendEmail } from './test-utils';
+import { baseTestingModule, getTestUser, mockNewSignUpUser } from './test-utils';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import * as faker from 'faker';
 import { AssociationTypeConstant } from '../domain/enums/association-type-constant';
@@ -16,11 +13,11 @@ import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { IEmailValidationService } from '../contracts/i-email-validation-service';
-import { TokenPayloadDto } from '../../dist/src/dto/token-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { PortalUserAccountRepository } from '../dao/portal-user-account.repository';
+import { TokenPayloadDto } from '../dto/token-payload.dto';
 
 describe('SignUp ', () => {
   let applicationContext: INestApplication;
