@@ -3,4 +3,4 @@ coverage:
     patch:
       default:
         target: 100%
-        threshold: 1%  # the leniency in hitting the target
+#        threshold: 1%  # the leniency in hitting the target
