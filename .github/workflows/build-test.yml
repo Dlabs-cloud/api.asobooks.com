@@ -28,8 +28,8 @@ jobs:
         with:
           node-version: '12'
           check-latest: true
-      - name: bahmutov/npm-install@v1
-        run: npm t
+      - name: Install all node modules
+        run: npm install
       - name: Build for test
         run: npm build
 
