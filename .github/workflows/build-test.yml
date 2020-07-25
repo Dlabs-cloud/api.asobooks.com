@@ -5,8 +5,8 @@ name: Aso Books CI
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the develop branch
 on:
-  push:
-    branches: [ develop ]
+#  push:
+#    branches: [ develop ]
   pull_request:
     branches: [ develop ]
 
