@@ -31,6 +31,6 @@ jobs:
       - name: Install all node modules
         run: npm install
       - name: Build for test
-        run: npm build
+        run: npm run build
 
 
