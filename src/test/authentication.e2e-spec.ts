@@ -4,7 +4,6 @@ import { AuthenticationService } from '../service/authentication.service';
 import { IEmailValidationService } from '../contracts/i-email-validation-service';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { TokenPayloadDto } from '../../dist/src/dto/token-payload.dto';
 import { TestingModule } from '@nestjs/testing';
 import { ServiceModule } from '../service/service.module';
 import { baseTestingModule, getTestUser } from './test-utils';
@@ -20,6 +19,7 @@ import { PasswordResetDto } from '../dto/auth/request/password-reset.dto';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { ChangePasswordDto } from '../dto/auth/request/change-password.dto';
+import { TokenPayloadDto } from '../dto/token-payload.dto';
 
 describe('AuthController', () => {
   let applicationContext: INestApplication;
