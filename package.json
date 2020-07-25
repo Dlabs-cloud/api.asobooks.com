@@ -16,9 +16,9 @@
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "ENV=test jest",
     "test:watch": "ENV=test jest --watch",
-    "test:cov": "ENV=test jest --coverage",
+    "test:cov": "ENV=test jest --coverage --runInBand",
     "test:debug": "ENV=test node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "ENV=test jest --detectOpenHandles --runInBand  --config  src/test/jest-e2e.json"
+    "test:e2e": "ENV=test jest --runInBand  --config  src/test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^1.5.1",
