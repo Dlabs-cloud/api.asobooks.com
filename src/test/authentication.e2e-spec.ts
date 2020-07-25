@@ -1,28 +1,25 @@
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
-import { AuthenticationService } from '../../service/authentication.service';
-import { IEmailValidationService } from '../../contracts/i-email-validation-service';
-import { PortalUser } from '../../domain/entity/portal-user.entity';
-import { PortalAccount } from '../../domain/entity/portal-account.entity';
-import { TokenPayloadDto } from '../../../dist/src/dto/token-payload.dto';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../../app.module';
-import { ServiceModule } from '../../service/service.module';
-import { AppService } from '../../app.service';
-import { MailerService } from '@nestjs-modules/mailer';
-import { getTestUser, mockSendEmail } from './test-utils';
+import { AuthenticationService } from '../service/authentication.service';
+import { IEmailValidationService } from '../contracts/i-email-validation-service';
+import { PortalUser } from '../domain/entity/portal-user.entity';
+import { PortalAccount } from '../domain/entity/portal-account.entity';
+import { TokenPayloadDto } from '../../dist/src/dto/token-payload.dto';
+import { TestingModule } from '@nestjs/testing';
+import { ServiceModule } from '../service/service.module';
+import { baseTestingModule, getTestUser } from './test-utils';
 import { getConnection } from 'typeorm';
-import { GenericStatusConstant } from '../../domain/enums/generic-status-constant';
-import { PortalUserAccount } from '../../domain/entity/portal-user-account.entity';
+import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
 import * as request from 'supertest';
-import { LoginDto } from '../../dto/auth/request/login.dto';
+import { LoginDto } from '../dto/auth/request/login.dto';
 import { factory } from './factory';
-import { AuthenticationUtils } from '../../common/utils/authentication-utils.service';
+import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import * as faker from 'faker';
-import { PasswordResetDto } from '../../dto/auth/request/password-reset.dto';
-import { PortalUserRepository } from '../../dao/portal-user.repository';
-import { TokenTypeConstant } from '../../domain/enums/token-type-constant';
-import { ChangePasswordDto } from '../../dto/auth/request/change-password.dto';
+import { PasswordResetDto } from '../dto/auth/request/password-reset.dto';
+import { PortalUserRepository } from '../dao/portal-user.repository';
+import { TokenTypeConstant } from '../domain/enums/token-type-constant';
+import { ChangePasswordDto } from '../dto/auth/request/change-password.dto';
 
 describe('AuthController', () => {
   let applicationContext: INestApplication;
@@ -33,16 +30,7 @@ describe('AuthController', () => {
 
 
   beforeAll(async () => {
-    const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, ServiceModule],
-      providers: [AppService],
-    }).overrideProvider(MailerService)
-      .useValue({
-        sendMail: mockSendEmail(),
-      })
-      .compile();
-
-
+    const moduleRef: TestingModule = await baseTestingModule().compile();
     applicationContext = moduleRef.createNestApplication();
     await applicationContext.init();
 
@@ -158,8 +146,10 @@ describe('AuthController', () => {
 
   });
 
+
   afterAll(async () => {
     await connection.close();
     await applicationContext.close();
   });
-});
+})
+;

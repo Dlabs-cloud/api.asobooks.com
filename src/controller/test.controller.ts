@@ -1,7 +1,7 @@
 import {Controller, Get} from '@nestjs/common';
 import {Public} from '../conf/security/annotations/public';
 
-@Controller('/test')
+@Controller('test')
 export class TestController {
 
     @Get()

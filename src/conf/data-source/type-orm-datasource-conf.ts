@@ -11,6 +11,12 @@ export class TypeOrmDatasourceConf {
     return mode === 'PROD';
   }
 
+  public refreshSchema() {
+
+    const mode = this.configService.get('ENV', 'DEV');
+    return mode === 'test';
+  }
+
   public getTypeOrmConfig(): TypeOrmModuleOptions {
     return {
       type: 'postgres',
@@ -19,8 +25,8 @@ export class TypeOrmDatasourceConf {
       password: this.configService.get<string>('DB_PASSWORD', 'postgres'),
       username: this.configService.get('DB_USERNAME', 'postgres'),
       database: this.configService.get('DB_DATABASE', 'postgres'),
-      logging: false,
-      //  logging: this.configService.get('SHOW_LOG', false) === 'true',
+      dropSchema: this.refreshSchema(),
+      logging: this.configService.get('SHOW_LOG', false) === 'true',
       entities: [__dirname + '/../../domain/entity/*.entity{.js,.ts}'],
       synchronize: true,
       ssl: this.isProduction(),

@@ -5,13 +5,17 @@ import { Writable } from 'stream';
 import { Connection, getConnection } from 'typeorm';
 import { Bank } from '../../domain/entity/bank.entity';
 import StreamArray = require('stream-json/streamers/StreamArray');
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class BankUploadStartup implements OnApplicationBootstrap {
-  constructor(private readonly connection: Connection) {
+  constructor(private readonly connection: Connection,
+              private configService: ConfigService) {
   }
 
   async onApplicationBootstrap() {
+
+    console.log('hello maam');
     const totalBanks = await this.connection.getCustomRepository(BankRepository).count();
     if (!totalBanks) {
       this.uploadBanks();

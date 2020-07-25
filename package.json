@@ -8,7 +8,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \\\"src/**/*.ts\\\" \\\"view/test/**/*.ts\\\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -18,7 +18,7 @@
     "test:watch": "ENV=test jest --watch",
     "test:cov": "ENV=test jest --coverage",
     "test:debug": "ENV=test node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "ENV=test jest  --config ./src/controller/test/jest-e2e.json"
+    "test:e2e": "ENV=test jest --detectOpenHandles --runInBand  --config  src/test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^1.5.1",
