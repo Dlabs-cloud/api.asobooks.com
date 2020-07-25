@@ -1,24 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppService } from '../../app.service';
-import { AppModule } from '../../app.module';
+import { AppService } from '../app.service';
+import { AppModule } from '../app.module';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { getConnection } from 'typeorm';
 import { Connection } from 'typeorm/connection/Connection';
 import { MailerService } from '@nestjs-modules/mailer';
-import { AuthenticationService } from '../../service/authentication.service';
-import { ServiceModule } from '../../service/service.module';
-import { getTestUser, mockNewSignUpUser, mockSendEmail } from './test-utils';
-import { SignUpDto } from '../../dto/auth/request/sign-up.dto';
+import { AuthenticationService } from '../service/authentication.service';
+import { ServiceModule } from '../service/service.module';
+import { baseTestingModule, getTestUser, mockNewSignUpUser, mockSendEmail } from './test-utils';
+import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import * as faker from 'faker';
-import { AssociationTypeConstant } from '../../domain/enums/association-type-constant';
-import { PortalAccount } from '../../domain/entity/portal-account.entity';
-import { PortalUser } from '../../domain/entity/portal-user.entity';
-import { GenericStatusConstant } from '../../domain/enums/generic-status-constant';
-import { IEmailValidationService } from '../../contracts/i-email-validation-service';
-import { TokenPayloadDto } from '../../../dist/src/dto/token-payload.dto';
-import { TokenTypeConstant } from '../../domain/enums/token-type-constant';
-import { PortalUserRepository } from '../../dao/portal-user.repository';
+import { AssociationTypeConstant } from '../domain/enums/association-type-constant';
+import { PortalAccount } from '../domain/entity/portal-account.entity';
+import { PortalUser } from '../domain/entity/portal-user.entity';
+import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { IEmailValidationService } from '../contracts/i-email-validation-service';
+import { TokenPayloadDto } from '../../dist/src/dto/token-payload.dto';
+import { TokenTypeConstant } from '../domain/enums/token-type-constant';
+import { PortalUserRepository } from '../dao/portal-user.repository';
+import { PortalAccountRepository } from '../dao/portal-account.repository';
+import { PortalUserAccountRepository } from '../dao/portal-user-account.repository';
 
 describe('SignUp ', () => {
   let applicationContext: INestApplication;
@@ -29,15 +31,7 @@ describe('SignUp ', () => {
 
 
   beforeAll(async () => {
-    const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, ServiceModule],
-      providers: [AppService],
-    }).overrideProvider(MailerService)
-      .useValue({
-        sendMail: mockSendEmail(),
-      }).compile();
-
-
+    const moduleRef: TestingModule = await baseTestingModule().compile();
     applicationContext = moduleRef.createNestApplication();
     await applicationContext.init();
 
@@ -82,12 +76,28 @@ describe('SignUp ', () => {
       .send(signedUpUser).expect(200);
   });
 
-  it('test that a user with invalid token cannot sign up', async () => {
+  it('test that portalUser Account and users are active after signup', async () => {
+    const portalUserAccount = await getTestUser(GenericStatusConstant.PENDING_ACTIVATION);
+    const token = await emailValidationService.createCallBackToken(portalUserAccount.portalUser, TokenTypeConstant.PRINCIPAL_USER_SIGN_UP, portalUserAccount.portalAccount);
+    const url = `/validate-principal/${token}`;
+    await request(applicationContext.getHttpServer())
+      .get(url)
+      .send(signedUpUser).expect(200);
+    const portalUser = await connection.getCustomRepository(PortalUserRepository).findOneItemByStatus({ id: portalUserAccount.portalUser.id });
+    expect(portalUser.status).toEqual(GenericStatusConstant.ACTIVE);
+    const portalAccount = await connection.getCustomRepository(PortalAccountRepository).findOneItemByStatus({ id: portalUserAccount.portalAccount.id });
+    expect(portalAccount.status).toEqual(GenericStatusConstant.ACTIVE);
+    const existingPortalUserAccount = await connection.getCustomRepository(PortalUserAccountRepository).findByPortalAccountAndPortalUser(portalUserAccount.portalUser, portalUserAccount.portalAccount);
+    expect(existingPortalUserAccount.status).toEqual(GenericStatusConstant.ACTIVE);
+
+  });
+
+  it('test that a user with invalid token cannot validate  sign up', async () => {
     const token = faker.random.uuid();
     const url = `/validate-principal/${token}`;
     await request(applicationContext.getHttpServer())
       .get(url)
-      .send(signedUpUser).expect(201);
+      .send(signedUpUser).expect(401);
   });
 
   it('test activating action will make it active', async () => {

@@ -15,6 +15,8 @@ import { Country } from '../domain/entity/country.entity';
 import { CountryModelFactory } from './factory/country-model.factory';
 import { Association } from '../domain/entity/association.entity';
 import { AssociationModelFactory } from './factory/association-model.factory';
+import { Bank } from '../domain/entity/bank.entity';
+import { BankFactory } from './factory/bank.factory';
 
 export class ModelFactoryRoster {
   static register(modelFactory: ModelFactory) {
@@ -26,5 +28,6 @@ export class ModelFactoryRoster {
     modelFactory.register(Address, AddressModelFactory);
     modelFactory.register(Country, CountryModelFactory);
     modelFactory.register(Association, AssociationModelFactory);
+    modelFactory.register(Bank, BankFactory);
   }
 }

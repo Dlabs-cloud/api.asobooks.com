@@ -30,9 +30,6 @@ export abstract class BaseRepository<T extends BaseEntity> extends Repository<T>
         });
       })));
     }
- 
-
     return selectQueryBuilder.getOne();
-
   }
 }

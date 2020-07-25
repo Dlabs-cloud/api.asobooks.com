@@ -7,7 +7,7 @@ import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 
 
 @EntityRepository(PortalUserAccount)
-export class MembershipRepository extends BaseRepository<PortalUserAccount> {
+export class PortalUserAccountRepository extends BaseRepository<PortalUserAccount> {
 
   public findByPortalAccountAndPortalUser(portalUser: PortalUser,
                                           portalAccount: PortalAccount,

@@ -38,12 +38,12 @@ export class EntityConstraintValidator implements ValidatorConstraintInterface {
 
 }
 
-export function IsEntityExist(param: EntityConstraintParam, validationOptions?: ValidationOptions) {
+export function IsEntityExist(param: EntityConstraintParam, options?: ValidationOptions) {
   return function(object: Object, propertyName: string) {
     registerDecorator({
       constraints: [param],
-      options: validationOptions,
-      propertyName: propertyName,
+      options,
+      propertyName,
       target: object.constructor,
       validator: EntityConstraintValidator,
 

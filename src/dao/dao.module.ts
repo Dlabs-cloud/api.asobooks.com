@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
 import { SettingRepository } from './setting.repository';
 import { PortalAccountRepository } from './portal-account.repository';
-import { MembershipRepository } from './membership.repository';
 import { PortalUserRepository } from './portal-user.repository';
 import { AddressRepository } from './address.repository';
 import { CountryRepository } from './country.repository';
 import { FileRepository } from './file.repository';
 import { AssociationRepository } from './association.repository';
 import { BankRepository } from './bank.repository';
+import { PortalUserAccountRepository } from './portal-user-account.repository';
+import { AssociationFileRepository } from './association.file.repository';
 
 @Module({
   providers: [
@@ -18,17 +19,19 @@ import { BankRepository } from './bank.repository';
     CountryRepository,
     FileRepository,
     AssociationRepository,
-    MembershipRepository,
+    PortalUserAccountRepository,
+    AssociationFileRepository,
     BankRepository,
   ],
   exports: [
     SettingRepository,
-    MembershipRepository,
+    PortalUserAccountRepository,
     BankRepository,
     PortalUserRepository,
     AddressRepository,
     FileRepository,
     AssociationRepository,
+    AssociationFileRepository,
     CountryRepository,
     PortalAccountRepository],
 })

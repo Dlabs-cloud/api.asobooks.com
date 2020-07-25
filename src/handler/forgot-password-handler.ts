@@ -41,8 +41,6 @@ export class ForgotPasswordHandler implements IEventHandler<ForgotPasswordEvent>
           callbackUrl: callBackUrl,
         },
       });
-      console.log(response);
-
     } catch (e) {
       console.log(e);
     }

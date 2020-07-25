@@ -1,10 +1,9 @@
 import { BaseEntity } from '../../common/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { AssociationTypeConstant } from '../enums/association-type-constant';
-import { PortalAccountTypeConstant } from '../enums/portal-account-type-constant';
 import { Address } from './address.entity';
-import { PortalAccount } from './portal-account.entity';
 import { File } from './file.entity';
+import { Bank } from './bank.entity';
 
 @Entity()
 export class Association extends BaseEntity {
@@ -19,7 +18,10 @@ export class Association extends BaseEntity {
   @OneToOne(() => Address)
   @JoinColumn({ name: 'addressId' })
   address?: Address;
-  @OneToOne(() => File)
-  @JoinColumn({ name: 'logo' })
-  logo?: File;
+  @ManyToOne(() => Bank)
+  bank: Bank;
+  @Column({
+    nullable: true,
+  })
+  accountNumber: string;
 }

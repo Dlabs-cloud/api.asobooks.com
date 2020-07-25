@@ -4,7 +4,6 @@ import { Connection, EntityManager } from 'typeorm';
 import { IEmailValidationService } from '../contracts/i-email-validation-service';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalAccountService } from './portal-account.service';
-import { MembershipRepository } from '../dao/membership.repository';
 import { MembershipService } from './membership.service';
 import { UserUpdateDto } from '../dto/user/user-update.dto';
 import { Some } from 'optional-typescript';
@@ -16,6 +15,7 @@ import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { InvalidtokenException } from '../exception/invalidtoken.exception';
+import { PortalUserAccountRepository } from '../dao/portal-user-account.repository';
 
 @Injectable()
 export class UserManagementService {
@@ -23,7 +23,7 @@ export class UserManagementService {
   constructor(private readonly connection: Connection,
               private readonly authenticationUtils: AuthenticationUtils,
               private readonly portalAccountService: PortalAccountService,
-              private readonly membershipRepository: MembershipRepository,
+              private readonly portalUserAccountRepository: PortalUserAccountRepository,
               private readonly membershipService: MembershipService,
               private readonly eventBus: EventBus) {
   }
@@ -37,7 +37,7 @@ export class UserManagementService {
       await entityManager.save(portalUser);
       await this.portalAccountService.activatePortalAccount(entityManager, portalAccount);
       let membership = await entityManager
-        .getCustomRepository(MembershipRepository)
+        .getCustomRepository(PortalUserAccountRepository)
         .findByPortalAccountAndPortalUser(portalUser, portalAccount, GenericStatusConstant.PENDING_ACTIVATION);
       await this.membershipService.activateMembership(entityManager, membership);
       return portalUser;

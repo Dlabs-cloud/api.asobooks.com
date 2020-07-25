@@ -12,6 +12,11 @@ import { FILE_SERVICE, IFileService } from '../contracts/i-file-service';
 import { File } from '../domain/entity/file.entity';
 import { AssociationRepository } from '../dao/association.repository';
 import { Some } from 'optional-typescript';
+import { BankRepository } from '../dao/bank.repository';
+import { AssociationFileRepository } from '../dao/association.file.repository';
+import { AssociationFileTypeConstant } from '../domain/enums/association-file-type.constant';
+import { AssociationFile } from '../domain/entity/association.file';
+import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 
 
 @Injectable()
@@ -39,10 +44,42 @@ export class AssociationService {
       association.name = associationDto.name;
       association.address = address;
       association.type = associationDto.type;
-      if (associationDto.logo) {
-        association.logo = await this.fileService.upload(entityManager, associationDto.logo);
+      if (associationDto.bankCode && associationDto.accountNumber) {
+        association.bank = await this.connection
+          .getCustomRepository(BankRepository)
+          .findByCode(associationDto.bankCode);
+        association.accountNumber = associationDto.accountNumber;
       }
-      return entityManager.save(association);
+      await entityManager.save(association);
+
+      if (!association.name && !association.type) {
+        throw new IllegalArgumentException('Association must always have name and type');
+      }
+
+      if (association.name && association.type && associationDto.activateAssociation) {
+        association.status = GenericStatusConstant.ACTIVE;
+      }
+
+      await entityManager.save(association);
+
+      if (associationDto.logo) {
+        let associationFile = await this.connection
+          .getCustomRepository(AssociationFileRepository)
+          .findOneByAssociationAndCode(association, AssociationFileTypeConstant.LOGO);
+        if (associationFile) {
+          association.status = GenericStatusConstant.IN_ACTIVE;
+          await entityManager.save(associationFile);
+        } else {
+          let newAssociationFile = new AssociationFile();
+          newAssociationFile.file = await this.fileService.upload(entityManager, associationDto.logo);
+          newAssociationFile.association = association;
+          newAssociationFile.type = AssociationFileTypeConstant.LOGO;
+          await entityManager.save(newAssociationFile);
+        }
+      }
+
+      return association;
+
     });
 
   }

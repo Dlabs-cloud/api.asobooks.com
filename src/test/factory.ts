@@ -1,8 +1,8 @@
 import {getConnection} from 'typeorm';
 import * as faker from 'faker';
-import {ModelFactoryImpl} from '../../common/test-starter/orm-faker/ModelFactoryImpl';
-import {OrmAdapter} from '../../common/test-starter/orm-faker/contracts/OrmAdapter';
-import {ModelFactoryRoster} from '../../factories/ModelFactoryRoster';
+import {ModelFactoryImpl} from '../common/test-starter/orm-faker/ModelFactoryImpl';
+import {OrmAdapter} from '../common/test-starter/orm-faker/contracts/OrmAdapter';
+import {ModelFactoryRoster} from '../factories/ModelFactoryRoster';
 
 export function factory() {
     const typeOrmAdapter: OrmAdapter = {

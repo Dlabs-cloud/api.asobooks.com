@@ -1,22 +1,29 @@
-import { Setting } from '../../domain/entity/setting.entity';
+import { Setting } from '../domain/entity/setting.entity';
 import { EntityManager, getConnection } from 'typeorm';
-import { SettingRepository } from '../../dao/setting.repository';
+import { SettingRepository } from '../dao/setting.repository';
 import { Some } from 'optional-typescript';
 import { ISendMailOptions } from '@nestjs-modules/mailer/dist/interfaces/send-mail-options.interface';
-import { SignUpDto } from '../../dto/auth/request/sign-up.dto';
-import { AuthenticationService } from '../../service/authentication.service';
+import { SignUpDto } from '../dto/auth/request/sign-up.dto';
+import { AuthenticationService } from '../service/authentication.service';
 import * as faker from 'faker';
-import { LoginDto } from '../../dto/auth/request/login.dto';
-import { AssociationTypeConstant } from '../../domain/enums/association-type-constant';
-import { GenericStatusConstant } from '../../domain/enums/generic-status-constant';
-import { PortalUser } from '../../domain/entity/portal-user.entity';
+import { LoginDto } from '../dto/auth/request/login.dto';
+import { AssociationTypeConstant } from '../domain/enums/association-type-constant';
+import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { PortalUser } from '../domain/entity/portal-user.entity';
 import { factory } from './factory';
-import { Association } from '../../domain/entity/association.entity';
-import { PortalAccount } from '../../domain/entity/portal-account.entity';
-import { PortalUserAccount } from '../../domain/entity/portal-user-account.entity';
-import { AuthenticationUtils } from '../../common/utils/authentication-utils.service';
-import { JwtPayloadDto } from '../../dto/jwt-payload.dto';
-import { TokenTypeConstant } from '../../domain/enums/token-type-constant';
+import { Association } from '../domain/entity/association.entity';
+import { PortalAccount } from '../domain/entity/portal-account.entity';
+import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
+import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
+import { JwtPayloadDto } from '../dto/jwt-payload.dto';
+import { TokenTypeConstant } from '../domain/enums/token-type-constant';
+import { Test } from '@nestjs/testing';
+import { AppModule } from '../app.module';
+import { ServiceModule } from '../service/service.module';
+import { AppService } from '../app.service';
+import { MailerService } from '@nestjs-modules/mailer';
+import { BankUploadStartup } from '../core/start-ups/bank-upload.startup';
+import { BankUploadStartupMock } from './mocks/bank-upload-startup.mock';
 
 
 export const init = async (entityManager?: EntityManager) => {
@@ -113,3 +120,15 @@ export const getLoginUser = async (status: GenericStatusConstant, portalUser?: P
 export const mockSendEmail = () => jest.fn().mockImplementation((sendEmailOptions: ISendMailOptions) => {
   return Promise.resolve('Email has been sent successfully');
 });
+
+export function baseTestingModule() {
+  return Test.createTestingModule({
+    imports: [AppModule, ServiceModule],
+    providers: [AppService],
+  }).overrideProvider(MailerService)
+    .useValue({
+      sendMail: mockSendEmail(),
+    })
+    .overrideProvider(BankUploadStartup)
+    .useClass(BankUploadStartupMock);
+}
