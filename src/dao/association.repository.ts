@@ -8,7 +8,7 @@ import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
 @EntityRepository(Association)
 export class AssociationRepository extends BaseRepository<Association> {
 
-  findByPortalAccount(portalAccount: PortalAccount) {
+  findByPortalAccount(portalAccount: PortalAccount, status: GenericStatusConstant = GenericStatusConstant.ACTIVE) {
     return this.createQueryBuilder('association')
       .select()
       .innerJoin(PortalUserAccount, 'portalUserAccount', 'portalUserAccount.association=association.id')
@@ -16,6 +16,7 @@ export class AssociationRepository extends BaseRepository<Association> {
       .andWhere('portalUserAccount.status=:status')
       .andWhere('portalUserAccount.portalAccount=:portalAccountId')
       .setParameter('portalAccountId', portalAccount.id)
+      .setParameter('status', status)
       .getOne();
   }
 
