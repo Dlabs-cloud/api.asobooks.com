@@ -5,7 +5,7 @@ import { ModelFactory } from '../../common/test-starter/orm-faker/contracts/Mode
 export class CountryModelFactory implements FactoryHelper<Country> {
   apply(faker: Faker.FakerStatic, modelFactory: ModelFactory): Promise<Country> {
     const country = new Country();
-    country.code = faker.random.alphaNumeric();
+    country.code = Date.now() + faker.random.alphaNumeric();
     country.name = faker.address.country();
     return Promise.resolve(country);
 

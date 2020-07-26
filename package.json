@@ -14,7 +14,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "test": "ENV=test jest",
+    "test": "ENV=test jest --runInBand",
     "test:watch": "ENV=test jest --watch",
     "test:cov": "ENV=test jest --coverage --runInBand",
     "test:debug": "ENV=test node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -91,7 +91,6 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "coverageDirectory": "../coverage",
-    "collectCoverage": true,
     "testEnvironment": "node"
   }
 }

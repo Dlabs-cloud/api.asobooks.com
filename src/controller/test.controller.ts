@@ -1,13 +1,18 @@
-import {Controller, Get} from '@nestjs/common';
-import {Public} from '../conf/security/annotations/public';
+import { Controller, Get } from '@nestjs/common';
+import { Public } from '../conf/security/annotations/public';
 
 @Controller('test')
 export class TestController {
 
-    @Get()
-    @Public()
-    index() {
-        return 'AsoBooks';
-    }
+  @Get()
+  @Public()
+  index() {
+    return 'AsoBooks';
+  }
+
+  @Get('login')
+  login() {
+    return 'Login Successfully';
+  }
 
 }

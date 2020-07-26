@@ -6,7 +6,7 @@ import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { TestingModule } from '@nestjs/testing';
 import { ServiceModule } from '../service/service.module';
-import { baseTestingModule, getTestUser } from './test-utils';
+import { baseTestingModule, getLoginUser, getTestUser } from './test-utils';
 import { getConnection } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
@@ -64,6 +64,13 @@ describe('AuthController', () => {
     await request(applicationContext.getHttpServer())
       .post('/login')
       .send(loginData).expect(401);
+  });
+
+  it('Test that login token can be used to login', async () => {
+    let authorizationHeader = await getLoginUser();
+    await request(applicationContext.getHttpServer())
+      .get('/test/login')
+      .set('Authorization', authorizationHeader).expect(200);
   });
 
 

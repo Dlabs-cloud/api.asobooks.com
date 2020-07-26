@@ -4,7 +4,7 @@ import { Connection, EntityManager } from 'typeorm';
 import { IEmailValidationService } from '../contracts/i-email-validation-service';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalAccountService } from './portal-account.service';
-import { MembershipService } from './membership.service';
+import { PortalUserAccountService } from './portal-user-account.service';
 import { UserUpdateDto } from '../dto/user/user-update.dto';
 import { Some } from 'optional-typescript';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
@@ -24,7 +24,7 @@ export class UserManagementService {
               private readonly authenticationUtils: AuthenticationUtils,
               private readonly portalAccountService: PortalAccountService,
               private readonly portalUserAccountRepository: PortalUserAccountRepository,
-              private readonly membershipService: MembershipService,
+              private readonly portalUserAccountService: PortalUserAccountService,
               private readonly eventBus: EventBus) {
   }
 
@@ -36,10 +36,10 @@ export class UserManagementService {
       portalUser.updatedAt = new Date();
       await entityManager.save(portalUser);
       await this.portalAccountService.activatePortalAccount(entityManager, portalAccount);
-      let membership = await entityManager
+      let portalUserAccount = await entityManager
         .getCustomRepository(PortalUserAccountRepository)
         .findByPortalAccountAndPortalUser(portalUser, portalAccount, GenericStatusConstant.PENDING_ACTIVATION);
-      await this.membershipService.activateMembership(entityManager, membership);
+      await this.portalUserAccountService.activateMembership(entityManager, portalUserAccount);
       return portalUser;
     });
   }

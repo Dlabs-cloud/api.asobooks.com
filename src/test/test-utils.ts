@@ -14,7 +14,6 @@ import { factory } from './factory';
 import { Association } from '../domain/entity/association.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
-import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { Test } from '@nestjs/testing';
@@ -24,6 +23,7 @@ import { AppService } from '../app.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { BankUploadStartup } from '../core/start-ups/bank-upload.startup';
 import { BankUploadStartupMock } from './mocks/bank-upload-startup.mock';
+import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 
 
 export const init = async (entityManager?: EntityManager) => {
@@ -79,8 +79,9 @@ export const mockNewSignUpUser = async (authenticationService: AuthenticationSer
   return newUser;
 };
 
-export const getTestUser = async (status: GenericStatusConstant, portalUser?: PortalUser) => {
-  const association = await factory().upset(Association).use(association => {
+export const getTestUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association) => {
+  status = status ?? GenericStatusConstant.ACTIVE;
+  association = association ?? await factory().upset(Association).use(association => {
     association.status = status;
     return association;
   }).create();
@@ -102,9 +103,9 @@ export const getTestUser = async (status: GenericStatusConstant, portalUser?: Po
 
 };
 
-export const getLoginUser = async (status: GenericStatusConstant, portalUser?: PortalUser): Promise<string> => {
-
-  const portalUserAccount = await getTestUser(status, portalUser);
+export const getLoginUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association): Promise<string> => {
+  status = status ?? GenericStatusConstant.ACTIVE;
+  const portalUserAccount = await getTestUser(status, portalUser, association);
 
   const jwtPayload: JwtPayloadDto = {
     sub: portalUserAccount.portalUser.id,
@@ -113,7 +114,13 @@ export const getLoginUser = async (status: GenericStatusConstant, portalUser?: P
     type: TokenTypeConstant.LOGIN,
   };
 
-  return this.authenticationUtils.generateGenericToken(jwtPayload);
+  let authenticationUtils = new AuthenticationUtils();
+  return authenticationUtils.generateGenericToken(jwtPayload).then(token => {
+    const authorizationToken = `Bearer ${token}`;
+    return Promise.resolve(authorizationToken);
+  });
+
+
 };
 
 

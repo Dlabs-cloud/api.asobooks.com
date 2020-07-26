@@ -104,7 +104,7 @@ describe('SignUp ', () => {
     expect(portalUser.status).toEqual(GenericStatusConstant.ACTIVE);
     const portalAccount = await connection.getCustomRepository(PortalAccountRepository).findOneItemByStatus({ id: portalUserAndAccount.portalAccount.id });
     expect(portalAccount.status).toEqual(GenericStatusConstant.ACTIVE);
-    let portalUserAccount = await connection.getCustomRepository(PortalUserAccountRepository).findByPortalAccountAndPortalUser(portalUserAndAccount.portalUser, portalUserAndAccount.portalAccount);
+    let portalUserAccount = await connection.getCustomRepository(PortalUserAccountRepository).findByPortalAccountAndPortalUser(portalUserAndAccount.portalUser, portalUserAndAccount.portalAccount, GenericStatusConstant.ACTIVE);
     expect(portalUserAccount.status).toEqual(GenericStatusConstant.ACTIVE);
     let association = await connection.getCustomRepository(AssociationRepository).findByPortalUserAccount(portalUserAccount, GenericStatusConstant.PENDING_ACTIVATION);
     expect(association).toBeDefined();
