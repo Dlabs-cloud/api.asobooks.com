@@ -132,3 +132,13 @@ export function baseTestingModule() {
     .overrideProvider(BankUploadStartup)
     .useClass(BankUploadStartupMock);
 }
+
+export const PRINCIPAL_USER_REQUEST_DATA = {
+  associationName: faker.name.firstName() + ' Association',
+  email: faker.internet.email(),
+  firstName: faker.name.firstName(),
+  lastName: faker.name.lastName(),
+  password: faker.random.alphaNumeric(),
+  phoneNumber: faker.phone.phoneNumber(),
+  associationType: AssociationTypeConstant.COOPERATIVE,
+};

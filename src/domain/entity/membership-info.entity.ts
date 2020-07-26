@@ -4,7 +4,7 @@ import { Address } from './address.entity';
 import { PortalUserAccount } from './portal-user-account.entity';
 
 @Entity()
-export class MembershipInfo extends BaseEntity {
+export class Membership extends BaseEntity {
   @Column()
   identificationNumber: string;
   @OneToOne(() => Address)
@@ -12,5 +12,5 @@ export class MembershipInfo extends BaseEntity {
   address: Address;
   @OneToOne(() => PortalUserAccount)
   @JoinColumn()
-  membership: PortalUserAccount;
+  portalUserAccount: PortalUserAccount;
 }

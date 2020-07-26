@@ -15,6 +15,9 @@ import { BearerTokenService } from './bearer-token.service';
 import { AssociationService } from './association.service';
 import { FILE_SERVICE } from '../contracts/i-file-service';
 import { AmazonS3FileService } from './amazon-s3-file.service';
+import { BankInfoService } from './bank-info.service';
+import { AssociationFile } from '../domain/entity/association.file';
+import { AssociationFileService } from './association-file.service';
 
 
 const emailValidationProvider = {
@@ -48,9 +51,11 @@ const fileServiceProvider = {
     MembershipService,
     UserManagementService,
     AssociationService,
+    BankInfoService,
     emailValidationProvider,
     bearerTokenServiceProvider,
     fileServiceProvider,
+    AssociationFileService,
   ],
   providers: [
     SettingService,
@@ -58,6 +63,8 @@ const fileServiceProvider = {
     PortalUserService,
     PortalAccountService,
     UserManagementService,
+    BankInfoService,
+    AssociationFileService,
     MembershipService,
     AssociationService,
     emailValidationProvider,

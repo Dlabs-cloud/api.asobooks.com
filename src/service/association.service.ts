@@ -12,10 +12,10 @@ import { FILE_SERVICE, IFileService } from '../contracts/i-file-service';
 import { File } from '../domain/entity/file.entity';
 import { AssociationRepository } from '../dao/association.repository';
 import { Some } from 'optional-typescript';
-import { BankRepository } from '../dao/bank.repository';
-import { AssociationFileRepository } from '../dao/association.file.repository';
-import { AssociationFileTypeConstant } from '../domain/enums/association-file-type.constant';
-import { AssociationFile } from '../domain/entity/association.file';
+import { BankInfoService } from './bank-info.service';
+import { BankInfoDto } from '../dto/bank-info-dto';
+import { AssociationFileService } from './association-file.service';
+import { threadId } from 'worker_threads';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 
 
@@ -23,7 +23,8 @@ import { IllegalArgumentException } from '../exception/illegal-argument.exceptio
 export class AssociationService {
 
   constructor(private readonly connection: Connection,
-              @Inject(FILE_SERVICE) private readonly fileService: IFileService<File>) {
+              private readonly bankInfoService: BankInfoService,
+              private readonly associationFileService: AssociationFileService) {
   }
 
   createAssociation(associationDto: AssociationRequestDto, requestPrincipal: RequestPrincipal) {
@@ -40,44 +41,31 @@ export class AssociationService {
         .findFirstByPortalUserAndStatus(requestPrincipal.portalUser, true);
       let association = await entityManager.getCustomRepository(AssociationRepository)
         .findByPortalAccount(portalAccount, GenericStatusConstant.PENDING_ACTIVATION);
-      association = Some(association).valueOr(new Association());
+      if (!association) {
+        throw new IllegalArgumentException('Association was not  created for account');
+      }
       association.name = associationDto.name;
       association.address = address;
       association.type = associationDto.type;
-      if (associationDto.bankCode && associationDto.accountNumber) {
-        association.bank = await this.connection
-          .getCustomRepository(BankRepository)
-          .findByCode(associationDto.bankCode);
-        association.accountNumber = associationDto.accountNumber;
-      }
-      await entityManager.save(association);
-
-      if (!association.name && !association.type) {
-        throw new IllegalArgumentException('Association must always have name and type');
-      }
 
       if (association.name && association.type && associationDto.activateAssociation) {
         association.status = GenericStatusConstant.ACTIVE;
+      } else {
+        association.status = GenericStatusConstant.PENDING_ACTIVATION;
       }
 
       await entityManager.save(association);
 
-      if (associationDto.logo) {
-        let associationFile = await this.connection
-          .getCustomRepository(AssociationFileRepository)
-          .findOneByAssociationAndCode(association, AssociationFileTypeConstant.LOGO);
-        if (associationFile) {
-          association.status = GenericStatusConstant.IN_ACTIVE;
-          await entityManager.save(associationFile);
-        } else {
-          let newAssociationFile = new AssociationFile();
-          newAssociationFile.file = await this.fileService.upload(entityManager, associationDto.logo);
-          newAssociationFile.association = association;
-          newAssociationFile.type = AssociationFileTypeConstant.LOGO;
-          await entityManager.save(newAssociationFile);
-        }
+      if (associationDto.bankCode && associationDto.accountNumber) {
+        let bankInfo: BankInfoDto = {
+          accountNumber: associationDto.bankCode,
+          bankCode: associationDto.accountNumber,
+        };
+        await this.bankInfoService.create(entityManager, bankInfo, association);
       }
-
+      if (associationDto.logo) {
+        await this.associationFileService.createLogo(entityManager, association, associationDto.logo);
+      }
       return association;
 
     });

@@ -42,8 +42,7 @@ export class AuthenticationService {
       association.type = signUpRequestDto.associationType;
       association.status = GenericStatusConstant.PENDING_ACTIVATION;
 
-      association = await entityManager.save(association);
-
+      await entityManager.save(association);
 
 
       let accountName = signUpRequestDto.associationName ?? `${signUpRequestDto.email}`;
@@ -60,9 +59,8 @@ export class AuthenticationService {
       const portalUser = new PortalUser();
       portalUser.firstName = signUpRequestDto.firstName;
       portalUser.lastName = signUpRequestDto.lastName;
-      portalUser.username = signUpRequestDto.email.toLowerCase();
       portalUser.password = signUpRequestDto.password;
-      portalUser.email = signUpRequestDto.email.toLowerCase();
+      portalUser.email = signUpRequestDto.email;
       portalUser.phoneNumber = signUpRequestDto.phoneNumber;
       portalUser.status = GenericStatusConstant.PENDING_ACTIVATION;
       await this.portalUserService.createPortalUser(entityManager, portalUser);
