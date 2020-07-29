@@ -36,3 +36,4 @@ lerna-debug.log*
 
 /coverage/
 /src/conf/data-source/type-orm-datasource-conf.ts
+/test.env

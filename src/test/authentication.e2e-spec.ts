@@ -20,6 +20,7 @@ import { PortalUserRepository } from '../dao/portal-user.repository';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { ChangePasswordDto } from '../dto/auth/request/change-password.dto';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
+import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 
 describe('AuthController', () => {
   let applicationContext: INestApplication;
@@ -32,6 +33,7 @@ describe('AuthController', () => {
   beforeAll(async () => {
     const moduleRef: TestingModule = await baseTestingModule().compile();
     applicationContext = moduleRef.createNestApplication();
+    applicationContext.useGlobalPipes(new ValidatorTransformPipe());
     await applicationContext.init();
 
     connection = getConnection();

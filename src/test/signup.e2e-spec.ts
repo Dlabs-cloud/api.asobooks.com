@@ -18,6 +18,7 @@ import { PortalUserAccountRepository } from '../dao/portal-user-account.reposito
 import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { AssociationRepository } from '../dao/association.repository';
 import { AssociationTypeConstant } from '../domain/enums/association-type-constant';
+import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 
 describe('SignUp ', () => {
   let applicationContext: INestApplication;
@@ -30,6 +31,7 @@ describe('SignUp ', () => {
   beforeAll(async () => {
     const moduleRef: TestingModule = await baseTestingModule().compile();
     applicationContext = moduleRef.createNestApplication();
+    applicationContext.useGlobalPipes(new ValidatorTransformPipe());
     await applicationContext.init();
 
     connection = getConnection();
@@ -44,9 +46,11 @@ describe('SignUp ', () => {
 
   it('Test sign up route can sign up a user', async () => {
 
-    await request(applicationContext.getHttpServer())
+    let test = request(applicationContext.getHttpServer())
       .post('/sign-up')
-      .send(PRINCIPAL_USER_REQUEST_DATA).expect(201);
+      .send(PRINCIPAL_USER_REQUEST_DATA);
+
+    await test.expect(201);
   });
 
   it('Test that a principal user can create a pending activated  user, portal, association entities', async () => {
@@ -55,7 +59,7 @@ describe('SignUp ', () => {
       email: faker.internet.email(),
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
-      password: faker.random.alphaNumeric(),
+      password: faker.random.alphaNumeric() + faker.random.uuid(),
       phoneNumber: faker.phone.phoneNumber(),
       associationType: AssociationTypeConstant.COOPERATIVE,
     };

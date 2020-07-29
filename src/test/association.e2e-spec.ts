@@ -17,6 +17,9 @@ import { Country } from '../domain/entity/country.entity';
 import { AssociationTypeConstant } from '../domain/enums/association-type-constant';
 import { Association } from '../domain/entity/association.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { globalPipes } from '../main';
+import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
+import { Bank } from '../domain/entity/bank.entity';
 
 describe('AssociationController', () => {
   let applicationContext: INestApplication;
@@ -29,6 +32,7 @@ describe('AssociationController', () => {
   beforeAll(async () => {
     const moduleRef: TestingModule = await baseTestingModule().compile();
     applicationContext = moduleRef.createNestApplication();
+    applicationContext.useGlobalPipes(new ValidatorTransformPipe());
     await applicationContext.init();
 
     connection = getConnection();
@@ -55,17 +59,19 @@ describe('AssociationController', () => {
       },
       bankInfo: {
         accountNumber: faker.finance.iban(),
-        bankCode: (await factory().create(Country)).code,
+        bankCode: (await factory().create(Bank)).code,
       },
-      name: faker.name.lastName() + 'association',
+      name: faker.name.lastName() + ' association',
       type: faker.random.arrayElement(Object.values(AssociationTypeConstant)),
     };
+
 
     let response = await request(applicationContext.getHttpServer())
       .put('/association/onboard')
       .set('Authorization', loginToken)
       .send(payload);
     expect(response.status).toEqual(201);
+
   });
   afterAll(async () => {
     await connection.close();

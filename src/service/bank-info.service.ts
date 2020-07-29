@@ -4,6 +4,8 @@ import { Injectable } from '@nestjs/common';
 import { Association } from '../domain/entity/association.entity';
 import { Connection, EntityManager } from 'typeorm';
 import { BankRepository } from '../dao/bank.repository';
+import { threadId } from 'worker_threads';
+import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 
 @Injectable()
 export class BankInfoService {
@@ -14,9 +16,15 @@ export class BankInfoService {
     let newBankInfo = new BankInfo();
     newBankInfo.accountNumber = bankInfo.accountNumber;
     newBankInfo.association = association;
-    newBankInfo.bank = await this.connection
+
+    let bank = await this.connection
       .getCustomRepository(BankRepository)
       .findOneItemByStatus({ code: bankInfo.bankCode });
+
+    if (!bank) {
+      throw new IllegalArgumentException(`Bank with code ${bankInfo.bankCode} is not valid`);
+    }
+    newBankInfo.bank = bank;
     return entityManager.save(newBankInfo);
   }
 }

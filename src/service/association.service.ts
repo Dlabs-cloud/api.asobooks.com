@@ -14,6 +14,7 @@ import { BankInfoDto } from '../dto/bank-info-dto';
 import { AssociationFileService } from './association-file.service';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { PortalUserAccountService } from './portal-user-account.service';
+import { BankInfoRepository } from '../dao/bank-info.repository';
 
 
 @Injectable()
@@ -65,11 +66,21 @@ export class AssociationService {
 
 
       if (associationDto.bankInfo) {
-        let bankInfo: BankInfoDto = {
-          accountNumber: associationDto.bankInfo.bankCode,
-          bankCode: associationDto.bankInfo.accountNumber,
+        let bankInfoData: BankInfoDto = {
+          accountNumber: associationDto.bankInfo.accountNumber,
+          bankCode: associationDto.bankInfo.bankCode,
         };
-        await this.bankInfoService.create(entityManager, bankInfo, association);
+
+
+        let bankInfo = await entityManager
+          .getCustomRepository(BankInfoRepository)
+          .findOneByAssociation(association, GenericStatusConstant.ACTIVE);
+        if (bankInfo) {
+          bankInfo.status = GenericStatusConstant.ACTIVE;
+          await entityManager.save(bankInfo);
+        }
+
+        await this.bankInfoService.create(entityManager, bankInfoData, association);
       }
 
       await entityManager.save(association);

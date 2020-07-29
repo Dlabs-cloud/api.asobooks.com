@@ -2,6 +2,7 @@ import { IsEntityExist } from '../../common/class-validators/entity-constraint.v
 import { IsString } from 'class-validator';
 
 export class BankInfoRequestDto {
+  @IsString()
   @IsEntityExist({
     column: 'code',
     isExist: true,
