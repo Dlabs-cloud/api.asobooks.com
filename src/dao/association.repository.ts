@@ -4,11 +4,12 @@ import { EntityRepository } from 'typeorm';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
+import { PortalUser } from '../domain/entity/portal-user.entity';
 
 @EntityRepository(Association)
 export class AssociationRepository extends BaseRepository<Association> {
 
-  findByPortalAccount(portalAccount: PortalAccount, status: GenericStatusConstant = GenericStatusConstant.ACTIVE) {
+  findByPortalAccount(portalAccount: PortalAccount, status = GenericStatusConstant.ACTIVE) {
     return this.createQueryBuilder('association')
       .select()
       .innerJoin(PortalUserAccount, 'portalUserAccount', 'portalUserAccount.association=association.id')
@@ -20,7 +21,7 @@ export class AssociationRepository extends BaseRepository<Association> {
   }
 
 
-  findByPortalUserAccount(portalUserAccount: PortalUserAccount, status: GenericStatusConstant = GenericStatusConstant.PENDING_ACTIVATION) {
+  findByPortalUserAccount(portalUserAccount: PortalUserAccount, status = GenericStatusConstant.PENDING_ACTIVATION) {
     return this.createQueryBuilder('association')
       .select()
       .innerJoin(PortalUserAccount, 'portalUserAccount', 'portalUserAccount.association=association.id')
@@ -29,6 +30,18 @@ export class AssociationRepository extends BaseRepository<Association> {
       .setParameter('status', status)
       .setParameter('portalAccountId', portalUserAccount.id)
       .getOne();
+  }
+
+  findByPortalUserAndStatus(portalUser: PortalUser, status = GenericStatusConstant.ACTIVE) {
+    return this.createQueryBuilder('association')
+      .select()
+      .innerJoin(PortalUserAccount, 'portalUserAccount', 'portalUserAccount.association=association.id')
+      .andWhere('association.status = :status')
+      .andWhere('portalUserAccount.portalUser=:portalUser')
+      .setParameter('status', status)
+      .setParameter('portalUser', portalUser.id)
+      .distinct()
+      .getMany();
   }
 
 

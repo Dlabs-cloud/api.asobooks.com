@@ -20,7 +20,7 @@ export class PortalUserService {
     }
     portalUser.password = await this.authenticationUtils.hashPassword(portalUser.password);
     portalUser.username = portalUser.email;
-    portalUser.email = portalUser.username.toLowerCase();
+    portalUser.email = portalUser.email.toLowerCase();
 
     await entityManager.save(portalUser);
     return portalUser;
