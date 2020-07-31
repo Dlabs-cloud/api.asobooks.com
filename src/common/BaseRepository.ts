@@ -4,14 +4,14 @@ import { BaseEntity } from './base.entity';
 
 export abstract class BaseRepository<T extends BaseEntity> extends Repository<T> {
 
-  public findItem(findOptions: FindConditions<T>, status: GenericStatusConstant = GenericStatusConstant.ACTIVE): Promise<T[]> {
+  public findItem(findOptions: FindConditions<T>, status = GenericStatusConstant.ACTIVE): Promise<T[]> {
     const statusVal = { status };
     return this.find({
       where: { ...findOptions, ...statusVal },
     });
   }
 
-  public findOneItemByStatus(findOptions: FindConditions<T>, status: GenericStatusConstant = GenericStatusConstant.ACTIVE): Promise<T> {
+  public findOneItemByStatus(findOptions: FindConditions<T>, status = GenericStatusConstant.ACTIVE): Promise<T> {
     return this.findOne({
       where: { ...findOptions, ...{ status } },
     });
@@ -32,4 +32,14 @@ export abstract class BaseRepository<T extends BaseEntity> extends Repository<T>
     }
     return selectQueryBuilder.getOne();
   }
+
+  findById(status = GenericStatusConstant.ACTIVE, ...ids: number[]) {
+    return this.createQueryBuilder()
+      .select()
+      .whereInIds(ids)
+      .andWhere('status = :status', { 'status': status })
+      .getMany();
+  }
+
+
 }

@@ -156,6 +156,39 @@ describe('AuthController', () => {
   });
 
 
+  it('test that when a user is logged in he can get me', async () => {
+
+    let response = await request(applicationContext.getHttpServer())
+      .get('/me')
+      .set('Authorization', await getLoginUser());
+    let responseData = response.body.data;
+    expect(responseData.firstName).toBeDefined();
+    expect(responseData.lastName).toBeDefined();
+    expect(responseData.username).toBeDefined();
+    expect(responseData.email).toBeDefined();
+    expect(responseData.phoneNumber).toBeDefined();
+    expect(responseData.association).toBeDefined();
+    expect(responseData.association.length).toEqual(1);
+    expect(responseData.association).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: expect.anything(),
+          type: expect.anything(),
+          accounts: expect.arrayContaining([
+            expect.objectContaining({
+              accountCode: expect.anything(),
+              dateUpdated: expect.anything(),
+              name: expect.anything(),
+              type: expect.anything(),
+            }),
+          ]),
+        }),
+      ]),
+    );
+    expect(response.status).toEqual(200);
+  });
+
+
   afterAll(async () => {
     await connection.close();
     await applicationContext.close();

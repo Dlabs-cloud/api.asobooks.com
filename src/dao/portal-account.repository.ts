@@ -12,20 +12,29 @@ export class PortalAccountRepository extends BaseRepository<PortalAccount> {
   async findFirstByPortalUserAndStatus(portalUser: PortalUser,
                                        throwIfMany: boolean = false,
                                        status: GenericStatusConstant = GenericStatusConstant.ACTIVE) {
-    const portalAccountSelectQueryBuilder = this.createQueryBuilder('portalAccount')
-      .select()
-      .innerJoin(PortalUserAccount, 'membership', 'membership.portalAccount=portalAccount.id')
-      .innerJoin(PortalUser, 'portalUser', 'membership.portalUser=portalUser.id')
-      .where('portalUser.id=:portalUserId')
-      .andWhere('portalAccount.status=:status')
-      .setParameter('portalUserId', portalUser.id)
-      .setParameter('status', status)
-      .addOrderBy('portalAccount.createdAt', 'ASC');
+    const portalAccountSelectQueryBuilder = this.findByPortalUserAndStatusBuilder(portalUser, status);
 
     const count = await portalAccountSelectQueryBuilder.clone().getCount();
     if (throwIfMany && count > 1) {
       throw new IllegalArgumentException('user has more than one account');
     }
     return portalAccountSelectQueryBuilder.getOne();
+  }
+
+
+  private findByPortalUserAndStatusBuilder(portalUser: PortalUser, status: GenericStatusConstant) {
+    return this.createQueryBuilder('portalAccount')
+      .select()
+      .innerJoin(PortalUserAccount, 'membership', 'membership.portalAccount=portalAccount.id')
+      .innerJoin(PortalUser, 'portalUser', 'membership.portalUser=portalUser.id')
+      .where('portalUser.id=:portalUserId')
+      .andWhere('portalAccount.status=:status')
+      .addOrderBy('portalAccount.createdAt', 'ASC')
+      .setParameter('portalUserId', portalUser.id)
+      .setParameter('status', status);
+  }
+
+  async findByPortalUserAndStatus(portalUser: PortalUser, status: GenericStatusConstant = GenericStatusConstant.ACTIVE) {
+    return this.findByPortalUserAndStatusBuilder(portalUser, status).getMany();
   }
 }
