@@ -100,7 +100,21 @@ export const getTestUser = async (status?: GenericStatusConstant, portalUser?: P
     portalUserAccount.association = association;
     return portalUserAccount;
   }).create());
+};
 
+export const getAssociationUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association) => {
+  status = status ?? GenericStatusConstant.ACTIVE;
+  association = association ?? await factory().upset(Association).use(association => {
+    association.status = status;
+    return association;
+  }).create();
+  let token = await getLoginUser(status, portalUser, association);
+
+  const response = {
+    token: token,
+    associationCode: association.code,
+  };
+  return Promise.resolve(response);
 };
 
 export const getLoginUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association): Promise<string> => {

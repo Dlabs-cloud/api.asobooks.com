@@ -44,5 +44,19 @@ export class AssociationRepository extends BaseRepository<Association> {
       .getMany();
   }
 
+  findByPortalUserAndCodeAndStatus(portalUser: PortalUser, associationCode:string, status = GenericStatusConstant.ACTIVE){
+    return this.createQueryBuilder('association')
+      .select()
+      .innerJoin(PortalUserAccount, 'portalUserAccount', 'portalUserAccount.association=association.id')
+      .andWhere('association.status = :status')
+      .andWhere('portalUserAccount.portalUser=:portalUser')
+      .andWhere('association.code = :associationCode')
+      .setParameter('status', status)
+      .setParameter('portalUser', portalUser.id)
+      .setParameter('associationCode', associationCode)
+      .distinct()
+      .getOne();
+  }
+
 
 }

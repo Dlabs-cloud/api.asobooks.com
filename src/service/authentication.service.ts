@@ -18,6 +18,7 @@ import { BEARER_TOKEN_SERVICE, IBearerTokenService } from '../contracts/i-bearer
 import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { Association } from '../domain/entity/association.entity';
 import { AssociationService } from './association.service';
+import { AssociationCodeSequence } from '../core/sequenceGenerators/association-code.sequence';
 
 @Injectable()
 export class AuthenticationService {
@@ -27,6 +28,7 @@ export class AuthenticationService {
               private readonly connection: Connection,
               private readonly portalUserService: PortalUserService,
               private readonly associationService: AssociationService,
+              private readonly associationCodeSequence: AssociationCodeSequence,
               private readonly portalAccountService: PortalAccountService,
               private readonly eventBus: EventBus) {
 
@@ -41,6 +43,7 @@ export class AuthenticationService {
       association.name = signUpRequestDto.associationName;
       association.type = signUpRequestDto.associationType;
       association.status = GenericStatusConstant.PENDING_ACTIVATION;
+      association.code = await this.associationCodeSequence.next();
 
       await entityManager.save(association);
 

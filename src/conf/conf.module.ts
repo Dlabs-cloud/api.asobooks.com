@@ -17,6 +17,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { ServiceModule } from '../service/service.module';
 import { S3Module } from 'nestjs-s3';
 import { AmazonSesConfig } from './file/amazon-ses.config';
+import { AssociationConstraintInterceptor } from './security/interceptors/association-constraint.interceptor';
 
 @Module({
   imports: [
@@ -66,6 +67,11 @@ import { AmazonSesConfig } from './file/amazon-ses.config';
       useExisting: RemoteAddressInterceptor,
     },
     RemoteAddressInterceptor,
+    {
+      provide: APP_INTERCEPTOR,
+      useExisting: AssociationConstraintInterceptor,
+    },
+    AssociationConstraintInterceptor,
     {
       provide: APP_INTERCEPTOR,
       useExisting: LoggerInterceptor,

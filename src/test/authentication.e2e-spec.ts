@@ -67,14 +67,7 @@ describe('AuthController', () => {
       .post('/login')
       .send(loginData).expect(401);
   });
-
-  it('Test that login token can be used to login', async () => {
-    let authorizationHeader = await getLoginUser();
-    await request(applicationContext.getHttpServer())
-      .get('/test/login')
-      .set('Authorization', authorizationHeader).expect(200);
-  });
-
+  
 
   it('Test that an active user can reset password ', async () => {
     const portalUserAccount = await getTestUser(GenericStatusConstant.ACTIVE);

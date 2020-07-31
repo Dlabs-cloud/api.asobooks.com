@@ -1,6 +1,7 @@
 export enum AccessTypes {
-    PUBLIC = 'PUBLIC',
-    TRUSTED_IP = 'TRUSTED_IP',
-    LOCALHOST = 'LOCALHOST',
-    LOG = 'LOG',
+  PUBLIC = 'PUBLIC',
+  TRUSTED_IP = 'TRUSTED_IP',
+  LOCALHOST = 'LOCALHOST',
+  LOG = 'LOG',
+  ASSOCIATION = 'ASSOCIATION'
 }
