@@ -18,6 +18,7 @@ import { AmazonS3FileService } from './amazon-s3-file.service';
 import { BankInfoService } from './bank-info.service';
 import { AssociationFile } from '../domain/entity/association.file';
 import { AssociationFileService } from './association-file.service';
+import { ServiceFeeService } from './service-fee.service';
 
 
 const emailValidationProvider = {
@@ -56,6 +57,7 @@ const fileServiceProvider = {
     bearerTokenServiceProvider,
     fileServiceProvider,
     AssociationFileService,
+    ServiceFeeService,
   ],
   providers: [
     SettingService,
@@ -64,6 +66,7 @@ const fileServiceProvider = {
     PortalAccountService,
     UserManagementService,
     BankInfoService,
+    ServiceFeeService,
     AssociationFileService,
     PortalUserAccountService,
     AssociationService,

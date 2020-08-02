@@ -5,6 +5,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { IllegalArgumentExceptionFilter } from './exception-filters/illegal-argument-exception-filter';
 import { InvalidTokenExceptionFilter } from './exception-filters/invalid-token-exception.filter';
 import { AssociationCodeSequence } from './sequenceGenerators/association-code.sequence';
+import { ServiceFeeCodeSequence } from './sequenceGenerators/service-fee-code.sequence';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -21,10 +22,12 @@ const invalidTokenExceptionFilter = {
     PortalAccountSequence,
     AssociationCodeSequence,
     BankUploadStartup,
+    ServiceFeeCodeSequence,
   ],
   providers: [
     PortalAccountSequence,
     AssociationCodeSequence,
+    ServiceFeeCodeSequence,
     BankUploadStartup,
     illegalArgumentExceptionFilter,
     invalidTokenExceptionFilter,

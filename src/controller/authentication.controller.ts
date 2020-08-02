@@ -20,9 +20,6 @@ import { IllegalArgumentException } from '../exception/illegal-argument.exceptio
 import { InvalidtokenException } from '../exception/invalidtoken.exception';
 import { RequestPrincipalContext } from '../conf/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../conf/security/request-principal.service';
-import { AssociationRepository } from '../dao/association.repository';
-import { PortalUserAccountRepository } from '../dao/portal-user-account.repository';
-import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { LoggedInUserInfoHandler } from './handlers/logged-in-user-info.handler';
 
 

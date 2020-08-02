@@ -67,7 +67,7 @@ describe('AuthController', () => {
       .post('/login')
       .send(loginData).expect(401);
   });
-  
+
 
   it('Test that an active user can reset password ', async () => {
     const portalUserAccount = await getTestUser(GenericStatusConstant.ACTIVE);
