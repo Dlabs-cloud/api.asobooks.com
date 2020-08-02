@@ -10,7 +10,6 @@ import { CommonModule } from '../common/common.module';
 import { DaoModule } from '../dao/dao.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TypeOrmDatasourceConf } from './data-source/type-orm-datasource-conf';
 import { RequestPrincipal } from './security/request-principal.service';
 import { EmailMailerConfiguration } from './email/email.conf';
 import { MailerModule } from '@nestjs-modules/mailer';
@@ -18,6 +17,7 @@ import { ServiceModule } from '../service/service.module';
 import { S3Module } from 'nestjs-s3';
 import { AmazonSesConfig } from './file/amazon-ses.config';
 import { AssociationConstraintInterceptor } from './security/interceptors/association-constraint.interceptor';
+import { TypeOrmDatasourceConf } from './data-source/type-orm-datasource-conf';
 
 @Module({
   imports: [
