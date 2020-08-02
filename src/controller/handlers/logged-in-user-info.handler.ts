@@ -12,9 +12,19 @@ export class LoggedInUserInfoHandler {
   }
 
   async transform(portalUser: PortalUser) {
+    let response = {
+      firstName: portalUser.firstName,
+      lastName: portalUser.lastName,
+      username: portalUser.username,
+      email: portalUser.email,
+      phoneNumber: portalUser.phoneNumber,
+    };
     let associations = await this.connection
       .getCustomRepository(AssociationRepository)
-      .findByPortalUserAndStatus(portalUser, GenericStatusConstant.ACTIVE);
+      .findByPortalUserAndStatus(portalUser, GenericStatusConstant.ACTIVE, GenericStatusConstant.PENDING_ACTIVATION);
+    if (!associations.length) {
+      return Promise.resolve(response);
+    }
     let portalUserAccounts = await this
       .connection
       .getCustomRepository(PortalUserAccountRepository)
@@ -26,33 +36,33 @@ export class LoggedInUserInfoHandler {
       .findById(GenericStatusConstant.ACTIVE, ...portalAccountIds);
 
     const transformedAssociations = associations.map(association => {
-      let associationPortalAccounts = portalUserAccounts
-        .filter(portalUserAccount => portalUserAccount.associationId = association.id);
-      let pAccounts = associationPortalAccounts.map(associationPortalAccount => {
-        return portalAccounts.find(portalAccount => portalAccount.id === associationPortalAccount.portalAccountId);
-      }).map(pAccount => {
-        return {
-          accountCode: pAccount.accountCode,
-          dateUpdated: pAccount.updatedAt,
-          name: pAccount.name,
-          type: pAccount.type,
-        };
-      });
+      let pAccounts = portalUserAccounts
+        .filter(portalUserAccount => portalUserAccount.associationId = association.id)
+        .map(associationPortalAccount => {
+          return portalAccounts.find(portalAccount => portalAccount.id === associationPortalAccount.portalAccountId);
+        })
+        .map(pAccount => {
+          return {
+            accountCode: pAccount.accountCode,
+            dateUpdated: pAccount.updatedAt,
+            name: pAccount.name,
+            type: pAccount.type,
+          };
+        });
       return {
         accounts: pAccounts,
         name: association.name,
         type: association.type,
+        status: association.status,
+        code: association.code,
       };
     });
+
     return {
-      firstName: portalUser.firstName,
-      lastName: portalUser.lastName,
-      username: portalUser.username,
-      email: portalUser.email,
-      phoneNumber: portalUser.phoneNumber,
-      association: transformedAssociations,
+      ...response,
+      ...{
+        association: transformedAssociations,
+      },
     };
-
-
   }
 }

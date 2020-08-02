@@ -21,6 +21,7 @@ import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { ChangePasswordDto } from '../dto/auth/request/change-password.dto';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
+import { Association } from '../domain/entity/association.entity';
 
 describe('AuthController', () => {
   let applicationContext: INestApplication;
@@ -151,10 +152,16 @@ describe('AuthController', () => {
 
   it('test that when a user is logged in he can get me', async () => {
 
+    let association = await factory().upset(Association).use(association => {
+      association.status = GenericStatusConstant.PENDING_ACTIVATION;
+      return association;
+    }).create();
     let response = await request(applicationContext.getHttpServer())
       .get('/me')
-      .set('Authorization', await getLoginUser());
+      .set('Authorization', await getLoginUser(null, null, association));
     let responseData = response.body.data;
+
+
     expect(responseData.firstName).toBeDefined();
     expect(responseData.lastName).toBeDefined();
     expect(responseData.username).toBeDefined();
@@ -167,6 +174,8 @@ describe('AuthController', () => {
         expect.objectContaining({
           name: expect.anything(),
           type: expect.anything(),
+          code: expect.anything(),
+          status: GenericStatusConstant.PENDING_ACTIVATION,
           accounts: expect.arrayContaining([
             expect.objectContaining({
               accountCode: expect.anything(),

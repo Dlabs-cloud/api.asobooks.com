@@ -45,7 +45,6 @@ describe('Service fee set up test ', () => {
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.associationCode);
     expect(response.status).toEqual(200);
-    console.log(response.body);
     let data = response.body.data;
     expect(data.status).toEqual(GenericStatusConstant.ACTIVE);
     expect(data.name).toEqual(serviceFee.name);

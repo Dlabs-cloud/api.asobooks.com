@@ -1,6 +1,6 @@
 import { BaseRepository } from '../common/BaseRepository';
 import { Association } from '../domain/entity/association.entity';
-import { EntityRepository } from 'typeorm';
+import { Brackets, EntityRepository } from 'typeorm';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
@@ -32,19 +32,29 @@ export class AssociationRepository extends BaseRepository<Association> {
       .getOne();
   }
 
-  findByPortalUserAndStatus(portalUser: PortalUser, status = GenericStatusConstant.ACTIVE) {
-    return this.createQueryBuilder('association')
+  findByPortalUserAndStatus(portalUser: PortalUser, ...status: GenericStatusConstant[]) {
+    let selectQueryBuilder = this.createQueryBuilder('association')
       .select()
       .innerJoin(PortalUserAccount, 'portalUserAccount', 'portalUserAccount.association=association.id')
-      .andWhere('association.status = :status')
-      .andWhere('portalUserAccount.portalUser=:portalUser')
-      .setParameter('status', status)
+      .andWhere('portalUserAccount.portalUser=:portalUser');
+
+
+    if (status.length > 0) {
+      selectQueryBuilder.andWhere(new Brackets((qb => {
+        status.forEach((value, index) => {
+          const param = {};
+          param[`status${index}`] = value;
+          qb.orWhere(`association.status=:status${index}`, param);
+        });
+      })));
+    }
+    return selectQueryBuilder
       .setParameter('portalUser', portalUser.id)
       .distinct()
       .getMany();
   }
 
-  findByPortalUserAndCodeAndStatus(portalUser: PortalUser, associationCode:string, status = GenericStatusConstant.ACTIVE){
+  findByPortalUserAndCodeAndStatus(portalUser: PortalUser, associationCode: string, status = GenericStatusConstant.ACTIVE) {
     return this.createQueryBuilder('association')
       .select()
       .innerJoin(PortalUserAccount, 'portalUserAccount', 'portalUserAccount.association=association.id')
