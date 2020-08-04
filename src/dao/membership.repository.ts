@@ -1,5 +1,5 @@
 import { EntityRepository } from 'typeorm';
-import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
+import { Membership } from '../domain/entity/membership.entity';
 import { BaseRepository } from '../common/BaseRepository';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
@@ -7,12 +7,12 @@ import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Association } from '../domain/entity/association.entity';
 
 
-@EntityRepository(PortalUserAccount)
-export class PortalUserAccountRepository extends BaseRepository<PortalUserAccount> {
+@EntityRepository(Membership)
+export class MembershipRepository extends BaseRepository<Membership> {
 
   public findByPortalAccountAndPortalUser(portalUser: PortalUser,
                                           portalAccount: PortalAccount,
-                                          status: GenericStatusConstant = GenericStatusConstant.ACTIVE): Promise<PortalUserAccount> {
+                                          status: GenericStatusConstant = GenericStatusConstant.ACTIVE): Promise<Membership> {
     return this.createQueryBuilder('membership')
       .select()
       .where('membership.portalUser=:portalUserId')
@@ -24,7 +24,7 @@ export class PortalUserAccountRepository extends BaseRepository<PortalUserAccoun
       .getOne();
   }
 
-  public findByAssociationAndPortalUser(associations: Association[], portalUser: PortalUser, status = GenericStatusConstant.ACTIVE): Promise<PortalUserAccount[]> {
+  public findByAssociationAndPortalUser(associations: Association[], portalUser: PortalUser, status = GenericStatusConstant.ACTIVE): Promise<Membership[]> {
     let associationIds = associations.map(association => association.id);
     if (!associationIds.length) {
       return Promise.resolve([]);

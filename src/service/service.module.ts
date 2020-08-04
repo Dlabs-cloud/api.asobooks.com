@@ -7,7 +7,7 @@ import { CommonModule } from '../common/common.module';
 import { PortalUserService } from './portal-user.service';
 import { PortalAccountService } from './portal-account.service';
 import { CqrsModule } from '@nestjs/cqrs';
-import { PortalUserAccountService } from './portal-user-account.service';
+import { MembershipService } from './membership.service';
 import { UserManagementService } from './user-management.service';
 import { ValidationService } from './validation-service';
 import { BEARER_TOKEN_SERVICE } from '../contracts/i-bearer-token-service';
@@ -49,7 +49,7 @@ const fileServiceProvider = {
     AuthenticationService,
     PortalUserService,
     PortalAccountService,
-    PortalUserAccountService,
+    MembershipService,
     UserManagementService,
     AssociationService,
     BankInfoService,
@@ -68,7 +68,7 @@ const fileServiceProvider = {
     BankInfoService,
     ServiceFeeService,
     AssociationFileService,
-    PortalUserAccountService,
+    MembershipService,
     AssociationService,
     emailValidationProvider,
     bearerTokenServiceProvider,

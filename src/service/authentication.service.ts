@@ -8,7 +8,7 @@ import { PortalAccountService } from './portal-account.service';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalUserService } from './portal-user.service';
-import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
+import { Membership } from '../domain/entity/membership.entity';
 import { LoginDto } from '../dto/auth/request/login.dto';
 import { EventBus } from '@nestjs/cqrs';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
@@ -34,7 +34,7 @@ export class AuthenticationService {
 
   }
 
-  public signPrincipalUser(signUpRequestDto: SignUpDto): Promise<PortalUserAccount> {
+  public signPrincipalUser(signUpRequestDto: SignUpDto): Promise<Membership> {
 
     return this.connection.transaction(async (entityManager) => {
 
@@ -68,18 +68,18 @@ export class AuthenticationService {
       portalUser.status = GenericStatusConstant.PENDING_ACTIVATION;
       await this.portalUserService.createPortalUser(entityManager, portalUser);
 
-      const portalUserAccount = new PortalUserAccount();
-      portalUserAccount.portalUser = portalUser;
-      portalUserAccount.portalAccount = portalAccount;
-      portalUserAccount.status = GenericStatusConstant.PENDING_ACTIVATION;
-      portalUserAccount.association = association;
-      await entityManager.save(portalUserAccount);
+      const membership = new Membership();
+      membership.portalUser = portalUser;
+      membership.portalAccount = portalAccount;
+      membership.status = GenericStatusConstant.PENDING_ACTIVATION;
+      membership.association = association;
+      await entityManager.save(membership);
 
 
       delete portalUser.password;
 
       this.eventBus.publish(new NewUserAccountSignUpEvent(portalAccount, portalUser));
-      return portalUserAccount;
+      return membership;
     });
   }
 

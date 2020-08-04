@@ -9,7 +9,7 @@ import { ServiceModule } from '../service/service.module';
 import { baseTestingModule, getLoginUser, getTestUser } from './test-utils';
 import { getConnection } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
+import { Membership } from '../domain/entity/membership.entity';
 import * as request from 'supertest';
 import { LoginDto } from '../dto/auth/request/login.dto';
 import { factory } from './factory';
@@ -27,7 +27,7 @@ describe('AuthController', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
   let authenticationService: AuthenticationService;
-  let signedUpUser: PortalUserAccount;
+  let signedUpUser: Membership;
   let emailValidationService: IEmailValidationService<PortalUser, PortalAccount, TokenPayloadDto>;
 
 
@@ -71,9 +71,9 @@ describe('AuthController', () => {
 
 
   it('Test that an active user can reset password ', async () => {
-    const portalUserAccount = await getTestUser(GenericStatusConstant.ACTIVE);
+    const membership = await getTestUser(GenericStatusConstant.ACTIVE);
     const payLoad: PasswordResetDto = {
-      email: portalUserAccount.portalUser.email,
+      email: membership.portalUser.email,
     };
     await request(applicationContext.getHttpServer())
       .post('/password/reset')
@@ -81,7 +81,7 @@ describe('AuthController', () => {
     const portalUser = await connection
       .getCustomRepository(PortalUserRepository)
       .findOne({
-        username: portalUserAccount.portalUser.username,
+        username: membership.portalUser.username,
       });
 
     expect(GenericStatusConstant.IN_ACTIVE).toEqual(portalUser.status);
