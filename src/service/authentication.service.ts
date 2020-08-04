@@ -1,7 +1,5 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Connection } from 'typeorm';
-import { PortalUser } from '../domain/entity/portal-user.entity';
-import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalAccountService } from './portal-account.service';
@@ -21,6 +19,8 @@ import { AssociationCodeSequence } from '../core/sequenceGenerators/association-
 import { MembershipService } from './membership.service';
 import { MembershipDto } from '../dto/membership.dto';
 import { Membership } from '../domain/entity/membership.entity';
+import { PortalAccountDto } from '../dto/portal-account.dto';
+import { PortalUserDto } from '../dto/portal-user.dto';
 
 @Injectable()
 export class AuthenticationService {
@@ -55,25 +55,32 @@ export class AuthenticationService {
 
       accountName = `${accountName} Excos Account`;
 
-      let portalAccount = new PortalAccount();
-      portalAccount.name = accountName;
-      portalAccount.type = PortalAccountTypeConstant.EXECUTIVE_ACCOUNT;
-      portalAccount = await this.portalAccountService.createPortalAccount(entityManager, portalAccount);
-      portalAccount.status = GenericStatusConstant.PENDING_ACTIVATION;
-      await entityManager.save(portalAccount);
+      let executivePortalAccountDto: PortalAccountDto = {
+        name: accountName,
+        type: PortalAccountTypeConstant.EXECUTIVE_ACCOUNT,
+      };
+      let executivePortalAccount = await this.portalAccountService.createPortalAccount(entityManager, executivePortalAccountDto, GenericStatusConstant.PENDING_ACTIVATION);
 
-      const portalUser = new PortalUser();
-      portalUser.firstName = signUpRequestDto.firstName;
-      portalUser.lastName = signUpRequestDto.lastName;
-      portalUser.password = signUpRequestDto.password;
-      portalUser.email = signUpRequestDto.email;
-      portalUser.phoneNumber = signUpRequestDto.phoneNumber;
-      portalUser.status = GenericStatusConstant.PENDING_ACTIVATION;
-      await this.portalUserService.createPortalUser(entityManager, portalUser);
+      let membershipPortalAccountDto: PortalAccountDto = {
+        name: accountName,
+        type: PortalAccountTypeConstant.EXECUTIVE_ACCOUNT,
+      };
+      await this.portalAccountService.createPortalAccount(entityManager, membershipPortalAccountDto, GenericStatusConstant.PENDING_ACTIVATION);
+
+
+      const portalUserDto: PortalUserDto = {
+        email: signUpRequestDto.email,
+        firstName: signUpRequestDto.firstName,
+        lastName: signUpRequestDto.lastName,
+        password: signUpRequestDto.password,
+        phoneNumber: signUpRequestDto.phoneNumber,
+      };
+
+      const portalUser = await this.portalUserService.createPortalUser(entityManager, portalUserDto, GenericStatusConstant.PENDING_ACTIVATION);
 
       const membershipDto: MembershipDto = {
         association: association,
-        portalAccount: portalAccount,
+        portalAccount: executivePortalAccount,
         portalUser: portalUser,
 
       };
@@ -81,7 +88,7 @@ export class AuthenticationService {
 
       delete portalUser.password;
 
-      this.eventBus.publish(new NewUserAccountSignUpEvent(portalAccount, portalUser));
+      this.eventBus.publish(new NewUserAccountSignUpEvent(executivePortalAccount, portalUser));
       return membership;
     });
   }
