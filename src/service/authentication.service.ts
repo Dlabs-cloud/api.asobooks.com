@@ -61,13 +61,6 @@ export class AuthenticationService {
       };
       let executivePortalAccount = await this.portalAccountService.createPortalAccount(entityManager, executivePortalAccountDto, GenericStatusConstant.PENDING_ACTIVATION);
 
-      let membershipPortalAccountDto: PortalAccountDto = {
-        name: accountName,
-        type: PortalAccountTypeConstant.EXECUTIVE_ACCOUNT,
-      };
-      await this.portalAccountService.createPortalAccount(entityManager, membershipPortalAccountDto, GenericStatusConstant.PENDING_ACTIVATION);
-
-
       const portalUserDto: PortalUserDto = {
         email: signUpRequestDto.email,
         firstName: signUpRequestDto.firstName,
@@ -77,6 +70,7 @@ export class AuthenticationService {
       };
 
       const portalUser = await this.portalUserService.createPortalUser(entityManager, portalUserDto, GenericStatusConstant.PENDING_ACTIVATION);
+
 
       const membershipDto: MembershipDto = {
         association: association,

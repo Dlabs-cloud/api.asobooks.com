@@ -36,6 +36,7 @@ export class PortalUserService {
         portalUser.username = portalUserDto.email;
         portalUser.email = portalUser.email.toLowerCase();
         return entityManager.save(portalUser);
+
       });
 
 

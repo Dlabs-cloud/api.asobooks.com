@@ -12,7 +12,7 @@ export class MembershipRepository extends BaseRepository<Membership> {
 
   public findByPortalAccountAndPortalUser(portalUser: PortalUser,
                                           portalAccount: PortalAccount,
-                                          status: GenericStatusConstant = GenericStatusConstant.ACTIVE): Promise<Membership> {
+                                          status = GenericStatusConstant.ACTIVE): Promise<Membership> {
     return this.createQueryBuilder('membership')
       .select()
       .where('membership.portalUser=:portalUserId')

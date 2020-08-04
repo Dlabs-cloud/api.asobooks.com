@@ -14,11 +14,11 @@ import { IEmailValidationService } from '../contracts/i-email-validation-service
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
-import { MembershipRepository } from '../dao/membership.repository';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { AssociationRepository } from '../dao/association.repository';
 import { AssociationTypeConstant } from '../domain/enums/association-type-constant';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
+import { MembershipRepository } from '../dao/membership.repository';
 
 describe('SignUp ', () => {
   let applicationContext: INestApplication;

@@ -1,4 +1,5 @@
 import { GenderConstant } from '../domain/enums/gender-constant';
+import { PortalUser } from '../domain/entity/portal-user.entity';
 
 export class PortalUserDto {
   firstName: string;
@@ -8,4 +9,5 @@ export class PortalUserDto {
   password: string;
   email: string;
   phoneNumber: string;
+  createdBy?: PortalUser;
 }

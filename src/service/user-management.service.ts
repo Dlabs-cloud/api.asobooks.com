@@ -1,10 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { Connection, EntityManager } from 'typeorm';
-import { IEmailValidationService } from '../contracts/i-email-validation-service';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalAccountService } from './portal-account.service';
-import { MembershipService } from './membership.service';
 import { UserUpdateDto } from '../dto/user/user-update.dto';
 import { Some } from 'optional-typescript';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
@@ -12,9 +10,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { ForgotPasswordEvent } from '../event/forgot-password.event';
 import { ChangePasswordDto } from '../dto/auth/request/change-password.dto';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { TokenPayloadDto } from '../dto/token-payload.dto';
-import { TokenTypeConstant } from '../domain/enums/token-type-constant';
-import { InvalidtokenException } from '../exception/invalidtoken.exception';
+import { MembershipService } from './membership.service';
 import { MembershipRepository } from '../dao/membership.repository';
 
 @Injectable()
@@ -23,7 +19,6 @@ export class UserManagementService {
   constructor(private readonly connection: Connection,
               private readonly authenticationUtils: AuthenticationUtils,
               private readonly portalAccountService: PortalAccountService,
-              private readonly membershipRepository: MembershipRepository,
               private readonly membershipService: MembershipService,
               private readonly eventBus: EventBus) {
   }
@@ -85,4 +80,7 @@ export class UserManagementService {
     await entityManager.save(portalUser);
     return portalUser;
   }
+
+
+  public createAssoicationMember(mem){}
 }

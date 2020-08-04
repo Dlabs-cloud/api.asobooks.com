@@ -13,7 +13,6 @@ import { PortalUser } from '../domain/entity/portal-user.entity';
 import { factory } from './factory';
 import { Association } from '../domain/entity/association.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { Membership } from '../domain/entity/membership.entity';
 import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { Test } from '@nestjs/testing';
@@ -24,6 +23,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { BankUploadStartup } from '../core/start-ups/bank-upload.startup';
 import { BankUploadStartupMock } from './mocks/bank-upload-startup.mock';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
+import { Membership } from '../domain/entity/membership.entity';
 
 
 export const init = async (entityManager?: EntityManager) => {

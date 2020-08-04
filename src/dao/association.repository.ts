@@ -3,8 +3,8 @@ import { Association } from '../domain/entity/association.entity';
 import { Brackets, EntityRepository } from 'typeorm';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { Membership } from '../domain/entity/membership.entity';
 import { PortalUser } from '../domain/entity/portal-user.entity';
+import { Membership } from '../domain/entity/membership.entity';
 
 @EntityRepository(Association)
 export class AssociationRepository extends BaseRepository<Association> {
