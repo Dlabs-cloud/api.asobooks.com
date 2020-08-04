@@ -13,7 +13,7 @@ import { BankInfoService } from './bank-info.service';
 import { BankInfoDto } from '../dto/bank-info-dto';
 import { AssociationFileService } from './association-file.service';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
-import { PortalUserAccountService } from './portal-user-account.service';
+import { MembershipService } from './membership.service';
 import { BankInfoRepository } from '../dao/bank-info.repository';
 
 
@@ -22,7 +22,7 @@ export class AssociationService {
 
   constructor(private readonly connection: Connection,
               private readonly bankInfoService: BankInfoService,
-              private readonly portalUserAccountService: PortalUserAccountService,
+              private readonly membershipService: MembershipService,
               private readonly associationFileService: AssociationFileService) {
   }
 

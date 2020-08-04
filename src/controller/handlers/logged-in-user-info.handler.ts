@@ -1,7 +1,7 @@
 import { PortalUser } from '../../domain/entity/portal-user.entity';
 import { AssociationRepository } from '../../dao/association.repository';
 import { GenericStatusConstant } from '../../domain/enums/generic-status-constant';
-import { PortalUserAccountRepository } from '../../dao/portal-user-account.repository';
+import { MembershipRepository } from '../../dao/membership.repository';
 import { PortalAccountRepository } from '../../dao/portal-account.repository';
 import { Injectable } from '@nestjs/common';
 import { Connection } from 'typeorm';
@@ -25,19 +25,19 @@ export class LoggedInUserInfoHandler {
     if (!associations.length) {
       return Promise.resolve(response);
     }
-    let portalUserAccounts = await this
+    let memberships = await this
       .connection
-      .getCustomRepository(PortalUserAccountRepository)
+      .getCustomRepository(MembershipRepository)
       .findByAssociationAndPortalUser(associations, portalUser);
-    let portalAccountIds = portalUserAccounts.map(portalUserAccount => portalUserAccount.portalAccountId);
+    let portalAccountIds = memberships.map(membership => membership.portalAccountId);
     let portalAccounts = await this
       .connection
       .getCustomRepository(PortalAccountRepository)
       .findById(GenericStatusConstant.ACTIVE, ...portalAccountIds);
 
     const transformedAssociations = associations.map(association => {
-      let pAccounts = portalUserAccounts
-        .filter(portalUserAccount => portalUserAccount.associationId = association.id)
+      let pAccounts = memberships
+        .filter(membership => membership.associationId = association.id)
         .map(associationPortalAccount => {
           return portalAccounts.find(portalAccount => portalAccount.id === associationPortalAccount.portalAccountId);
         })

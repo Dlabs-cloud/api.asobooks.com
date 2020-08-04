@@ -3,7 +3,7 @@ import { BaseRepository } from '../common/BaseRepository';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
+import { Membership } from '../domain/entity/membership.entity';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 
 @EntityRepository(PortalAccount)
@@ -25,7 +25,7 @@ export class PortalAccountRepository extends BaseRepository<PortalAccount> {
   private findByPortalUserAndStatusBuilder(portalUser: PortalUser, status: GenericStatusConstant) {
     return this.createQueryBuilder('portalAccount')
       .select()
-      .innerJoin(PortalUserAccount, 'membership', 'membership.portalAccount=portalAccount.id')
+      .innerJoin(Membership, 'membership', 'membership.portalAccount=portalAccount.id')
       .innerJoin(PortalUser, 'portalUser', 'membership.portalUser=portalUser.id')
       .where('portalUser.id=:portalUserId')
       .andWhere('portalAccount.status=:status')

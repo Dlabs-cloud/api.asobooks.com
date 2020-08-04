@@ -5,7 +5,7 @@ import { PortalUser } from './portal-user.entity';
 import { Association } from './association.entity';
 
 @Entity()
-export class PortalUserAccount extends BaseEntity {
+export class Membership extends BaseEntity {
 
   @ManyToOne(type => PortalAccount)
   @JoinColumn({
