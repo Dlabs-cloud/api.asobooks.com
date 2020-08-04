@@ -29,6 +29,8 @@ export class Membership extends BaseEntity {
 
   @PrimaryColumn()
   portalAccountId: number;
+  @Column()
+  code: string;
 
 
 }

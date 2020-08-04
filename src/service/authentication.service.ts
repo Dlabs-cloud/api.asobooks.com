@@ -8,7 +8,6 @@ import { PortalAccountService } from './portal-account.service';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalUserService } from './portal-user.service';
-import { Membership } from '../domain/entity/membership.entity';
 import { LoginDto } from '../dto/auth/request/login.dto';
 import { EventBus } from '@nestjs/cqrs';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
@@ -19,6 +18,9 @@ import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { Association } from '../domain/entity/association.entity';
 import { AssociationService } from './association.service';
 import { AssociationCodeSequence } from '../core/sequenceGenerators/association-code.sequence';
+import { MembershipService } from './membership.service';
+import { MembershipDto } from '../dto/membership.dto';
+import { Membership } from '../domain/entity/membership.entity';
 
 @Injectable()
 export class AuthenticationService {
@@ -29,6 +31,7 @@ export class AuthenticationService {
               private readonly portalUserService: PortalUserService,
               private readonly associationService: AssociationService,
               private readonly associationCodeSequence: AssociationCodeSequence,
+              private readonly membershipService: MembershipService,
               private readonly portalAccountService: PortalAccountService,
               private readonly eventBus: EventBus) {
 
@@ -68,13 +71,13 @@ export class AuthenticationService {
       portalUser.status = GenericStatusConstant.PENDING_ACTIVATION;
       await this.portalUserService.createPortalUser(entityManager, portalUser);
 
-      const membership = new Membership();
-      membership.portalUser = portalUser;
-      membership.portalAccount = portalAccount;
-      membership.status = GenericStatusConstant.PENDING_ACTIVATION;
-      membership.association = association;
-      await entityManager.save(membership);
+      const membershipDto: MembershipDto = {
+        association: association,
+        portalAccount: portalAccount,
+        portalUser: portalUser,
 
+      };
+      const membership = await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.PENDING_ACTIVATION);
 
       delete portalUser.password;
 
