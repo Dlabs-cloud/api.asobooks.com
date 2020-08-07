@@ -32,7 +32,7 @@ export class LoggedInUserInfoHandler {
       .map(association => {
 
         let associationAccounts = portalAccounts
-          .filter(portalAccount => portalAccount.associationId == association.id)
+          .filter(portalAccount => portalAccount.associationId === association.id)
           .map(portalAccount => {
             return {
               accountCode: portalAccount.code,

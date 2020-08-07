@@ -11,10 +11,4 @@ export class UserManagementController {
   }
 
 
-  @Post('/')
-  public createUser() {
-    
-  }
-
-
 }

@@ -82,5 +82,4 @@ export class UserManagementService {
   }
 
 
-  public createAssoicationMember(mem){}
 }

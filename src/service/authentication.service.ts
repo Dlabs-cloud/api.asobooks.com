@@ -57,7 +57,7 @@ export class AuthenticationService {
 
       let executivePortalAccountDto: PortalAccountDto = {
         name: accountName,
-        association: association,
+        association,
         type: PortalAccountTypeConstant.EXECUTIVE_ACCOUNT,
       };
       let executivePortalAccount = await this.portalAccountService.createPortalAccount(entityManager, executivePortalAccountDto, GenericStatusConstant.PENDING_ACTIVATION);
@@ -74,9 +74,9 @@ export class AuthenticationService {
 
 
       const membershipDto: MembershipDto = {
-        association: association,
+        association,
         portalAccount: executivePortalAccount,
-        portalUser: portalUser,
+        portalUser,
 
       };
       const membership = await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.PENDING_ACTIVATION);
