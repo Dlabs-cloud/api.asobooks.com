@@ -19,7 +19,8 @@ export class PortalAccountService {
       let portalAccount = new PortalAccount();
       portalAccount.name = portalAccountDto.name;
       portalAccount.type = portalAccountDto.type;
-      portalAccount.accountCode = sequenceCode;
+      portalAccount.code = sequenceCode;
+      portalAccount.association =  portalAccountDto.association
       portalAccount.status = status;
       return entityManager.save(portalAccount);
     });

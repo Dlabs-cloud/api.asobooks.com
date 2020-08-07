@@ -75,7 +75,7 @@ describe('SignUp ', () => {
     const membership = await connection.getCustomRepository(MembershipRepository).findByPortalAccountAndPortalUser(portalUser, portalAccount, GenericStatusConstant.PENDING_ACTIVATION);
     expect(membership).toBeDefined();
     expect(membership.status).toEqual(GenericStatusConstant.PENDING_ACTIVATION);
-    let association = await connection.getCustomRepository(AssociationRepository).findBymembership(membership, GenericStatusConstant.PENDING_ACTIVATION);
+    let association = await connection.getCustomRepository(AssociationRepository).findByMembership(membership, GenericStatusConstant.PENDING_ACTIVATION);
     expect(association).toBeDefined();
     expect(association.status).toEqual(GenericStatusConstant.PENDING_ACTIVATION);
 
@@ -110,7 +110,7 @@ describe('SignUp ', () => {
     expect(portalAccount.status).toEqual(GenericStatusConstant.ACTIVE);
     let membership = await connection.getCustomRepository(MembershipRepository).findByPortalAccountAndPortalUser(portalUserAndAccount.portalUser, portalUserAndAccount.portalAccount, GenericStatusConstant.ACTIVE);
     expect(membership.status).toEqual(GenericStatusConstant.ACTIVE);
-    let association = await connection.getCustomRepository(AssociationRepository).findBymembership(membership, GenericStatusConstant.PENDING_ACTIVATION);
+    let association = await connection.getCustomRepository(AssociationRepository).findByMembership(membership, GenericStatusConstant.PENDING_ACTIVATION);
     expect(association).toBeDefined();
     expect(association.status).toEqual(GenericStatusConstant.PENDING_ACTIVATION);
 

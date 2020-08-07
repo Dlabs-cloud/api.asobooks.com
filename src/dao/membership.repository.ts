@@ -24,19 +24,9 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .getOne();
   }
 
-  public findByAssociationAndPortalUser(associations: Association[], portalUser: PortalUser, status = GenericStatusConstant.ACTIVE): Promise<Membership[]> {
-    let associationIds = associations.map(association => association.id);
-    if (!associationIds.length) {
-      return Promise.resolve([]);
-    }
-    return this.createQueryBuilder('membership')
-      .select()
-      .where('membership.association IN (:...associations)')
-      .andWhere('membership.portalUser = :portalUser')
-      .andWhere('membership.status=:status')
-      .setParameter('status', status)
-      .setParameter('associations', associationIds)
-      .setParameter('portalUser', portalUser.id)
-      .getMany();
-  }
+
+
+
+
+
 }

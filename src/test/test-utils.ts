@@ -87,17 +87,18 @@ export const getTestUser = async (status?: GenericStatusConstant, portalUser?: P
   }).create();
   const portalAccount = await factory().upset(PortalAccount).use(portalAccount => {
     portalAccount.status = status;
+    portalAccount.association = association;
     return portalAccount;
   }).create();
   portalUser = portalUser ?? await factory().upset(PortalUser).use(portalUser => {
     portalUser.status = status;
     return portalUser;
   }).create();
+
   return await (factory().upset(Membership).use(membership => {
     membership.portalAccount = portalAccount;
     membership.portalUser = portalUser;
     membership.status = status;
-    membership.association = association;
     return membership;
   }).create());
 };

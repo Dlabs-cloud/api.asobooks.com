@@ -12,52 +12,46 @@ export class AssociationRepository extends BaseRepository<Association> {
   findByPortalAccount(portalAccount: PortalAccount, status = GenericStatusConstant.ACTIVE) {
     return this.createQueryBuilder('association')
       .select()
-      .innerJoin(Membership, 'membership', 'membership.association=association.id')
+      .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.association=association.id')
       .where('association.status = :status')
-      .andWhere('membership.portalAccount=:portalAccountId')
+      .andWhere('portalAccount.id = :portalAccountId')
       .setParameter('portalAccountId', portalAccount.id)
       .setParameter('status', status)
       .getOne();
   }
 
 
-  findBymembership(membership: Membership, status = GenericStatusConstant.PENDING_ACTIVATION) {
+  findByMembership(membership: Membership, status = GenericStatusConstant.PENDING_ACTIVATION) {
     return this.createQueryBuilder('association')
       .select()
-      .innerJoin(Membership, 'membership', 'membership.association=association.id')
+      .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.association=association.id')
+      .innerJoin(Membership, 'membership', 'membership.portalAccount=portalAccount.id')
       .andWhere('association.status = :status')
-      .andWhere('membership.id=:portalAccountId')
+      .andWhere('membership.id=:membershipId')
       .setParameter('status', status)
-      .setParameter('portalAccountId', membership.id)
+      .setParameter('membershipId', membership.id)
       .getOne();
   }
 
   findByPortalUserAndStatus(portalUser: PortalUser, ...status: GenericStatusConstant[]) {
-    let selectQueryBuilder = this.createQueryBuilder('association')
+    return this.createQueryBuilder('association')
       .select()
-      .innerJoin(Membership, 'membership', 'membership.association=association.id')
-      .andWhere('membership.portalUser=:portalUser');
-
-
-    if (status.length > 0) {
-      selectQueryBuilder.andWhere(new Brackets((qb => {
-        status.forEach((value, index) => {
-          const param = {};
-          param[`status${index}`] = value;
-          qb.orWhere(`association.status=:status${index}`, param);
-        });
-      })));
-    }
-    return selectQueryBuilder
+      .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.association=association.id')
+      .innerJoin(Membership, 'membership', 'membership.portalAccount = portalAccount.id')
+      .andWhere('membership.portalUser=:portalUser')
+      .andWhere('association.status IN (:...statuses)')
       .setParameter('portalUser', portalUser.id)
+      .setParameter('statuses', status)
       .distinct()
       .getMany();
+
   }
 
   findByPortalUserAndCodeAndStatus(portalUser: PortalUser, associationCode: string, status = GenericStatusConstant.ACTIVE) {
     return this.createQueryBuilder('association')
       .select()
-      .innerJoin(Membership, 'membership', 'membership.association=association.id')
+      .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.association=association.id')
+      .innerJoin(Membership, 'membership', 'membership.portalAccount=portalAccount.id')
       .andWhere('association.status = :status')
       .andWhere('membership.portalUser=:portalUser')
       .andWhere('association.code = :associationCode')
@@ -66,6 +60,7 @@ export class AssociationRepository extends BaseRepository<Association> {
       .setParameter('associationCode', associationCode)
       .distinct()
       .getOne();
+
   }
 
 

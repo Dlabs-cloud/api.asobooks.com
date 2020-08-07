@@ -17,7 +17,6 @@ import { Country } from '../domain/entity/country.entity';
 import { AssociationTypeConstant } from '../domain/enums/association-type-constant';
 import { Association } from '../domain/entity/association.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { globalPipes } from '../main';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { Bank } from '../domain/entity/bank.entity';
 

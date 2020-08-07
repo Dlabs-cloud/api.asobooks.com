@@ -25,38 +25,33 @@ export class LoggedInUserInfoHandler {
     if (!associations.length) {
       return Promise.resolve(response);
     }
-    let memberships = await this
-      .connection
-      .getCustomRepository(MembershipRepository)
-      .findByAssociationAndPortalUser(associations, portalUser);
-    let portalAccountIds = memberships.map(membership => membership.portalAccountId);
-    let portalAccounts = await this
-      .connection
+    let portalAccounts = await this.connection
       .getCustomRepository(PortalAccountRepository)
-      .findById(GenericStatusConstant.ACTIVE, ...portalAccountIds);
+      .findByStatusAndAssociation(GenericStatusConstant.ACTIVE, associations);
+    const transformedAssociations = associations
+      .map(association => {
 
-    const transformedAssociations = associations.map(association => {
-      let pAccounts = memberships
-        .filter(membership => membership.associationId = association.id)
-        .map(associationPortalAccount => {
-          return portalAccounts.find(portalAccount => portalAccount.id === associationPortalAccount.portalAccountId);
-        })
-        .map(pAccount => {
-          return {
-            accountCode: pAccount.accountCode,
-            dateUpdated: pAccount.updatedAt,
-            name: pAccount.name,
-            type: pAccount.type,
-          };
-        });
-      return {
-        accounts: pAccounts,
-        name: association.name,
-        type: association.type,
-        status: association.status,
-        code: association.code,
-      };
-    });
+        let associationAccounts = portalAccounts
+          .filter(portalAccount => portalAccount.associationId == association.id)
+          .map(portalAccount => {
+            return {
+              accountCode: portalAccount.code,
+              dateUpdated: portalAccount.updatedAt,
+              name: portalAccount.name,
+              type: portalAccount.type,
+            };
+          });
+
+        return {
+          accounts: associationAccounts,
+          name: association.name,
+          type: association.type,
+          status: association.status,
+          code: association.code,
+        };
+
+      });
+
 
     return {
       ...response,

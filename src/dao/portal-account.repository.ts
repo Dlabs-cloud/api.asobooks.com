@@ -3,8 +3,9 @@ import { BaseRepository } from '../common/BaseRepository';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { Membership } from '../domain/entity/membership.entity';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
+import { Membership } from '../domain/entity/membership.entity';
+import { Association } from '../domain/entity/association.entity';
 
 @EntityRepository(PortalAccount)
 export class PortalAccountRepository extends BaseRepository<PortalAccount> {
@@ -34,7 +35,25 @@ export class PortalAccountRepository extends BaseRepository<PortalAccount> {
       .setParameter('status', status);
   }
 
-  async findByPortalUserAndStatus(portalUser: PortalUser, status: GenericStatusConstant = GenericStatusConstant.ACTIVE) {
+  findByPortalUserAndStatus(portalUser: PortalUser, status: GenericStatusConstant = GenericStatusConstant.ACTIVE) {
     return this.findByPortalUserAndStatusBuilder(portalUser, status).getMany();
   }
+
+  findByStatusAndAssociation(status = GenericStatusConstant.ACTIVE, associations: Association[]) {
+    if (!associations.length) {
+      return Promise.resolve([]);
+    }
+    let associationIds = associations.map(association => association.id);
+    return this.createQueryBuilder('portalAccount')
+      .select()
+      .innerJoin(Association, 'association', 'portalAccount.association = association.id ')
+      .where('portalAccount.status = :status')
+      .andWhere('association.id IN (:...associations)')
+      .setParameter('associations', associationIds)
+      .setParameter('status', status)
+      .getMany();
+
+  }
+
+
 }

@@ -57,6 +57,7 @@ export class AuthenticationService {
 
       let executivePortalAccountDto: PortalAccountDto = {
         name: accountName,
+        association: association,
         type: PortalAccountTypeConstant.EXECUTIVE_ACCOUNT,
       };
       let executivePortalAccount = await this.portalAccountService.createPortalAccount(entityManager, executivePortalAccountDto, GenericStatusConstant.PENDING_ACTIVATION);
