@@ -11,7 +11,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest  --max_old_space_size=4096 build",
+    "build": "nest build",
     "prestart:prod": "rimraf dist && npm run build",
     "postinstall": "npm run prestart:prod",
     "heroku-postbuild": "npm install --only=dev --no-shrinkwrap && npm run build",
@@ -19,7 +19,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node --max_old_space_size=4096  dist/src/main.js",
+    "start:prod": "node dist/src/main.js",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "ENV=test jest --runInBand",
     "test:watch": "ENV=test jest --watch",
