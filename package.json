@@ -8,11 +8,12 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
+    "postinstall": "npm run build",
     "format": "prettier --write \\\"src/**/*.ts\\\" \\\"view/test/**/*.ts\\\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "ENV=test jest --runInBand",
     "test:watch": "ENV=test jest --watch",
