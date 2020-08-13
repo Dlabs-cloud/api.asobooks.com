@@ -60,7 +60,9 @@ export class AuthenticationService {
         association,
         type: PortalAccountTypeConstant.EXECUTIVE_ACCOUNT,
       };
-      let executivePortalAccount = await this.portalAccountService.createPortalAccount(entityManager, executivePortalAccountDto, GenericStatusConstant.PENDING_ACTIVATION);
+      let executivePortalAccount = await this
+        .portalAccountService
+        .createPortalAccount(entityManager, executivePortalAccountDto, GenericStatusConstant.PENDING_ACTIVATION);
 
       const portalUserDto: PortalUserDto = {
         email: signUpRequestDto.email,

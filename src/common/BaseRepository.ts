@@ -12,7 +12,7 @@ export abstract class BaseRepository<T extends BaseEntity> extends Repository<T>
   }
 
   public findOneItemByStatus(findOptions: FindConditions<T>, status = GenericStatusConstant.ACTIVE): Promise<T> {
-    return this.findOneOrFail({
+    return this.findOne({
       where: { ...findOptions, ...{ status } },
     });
   }

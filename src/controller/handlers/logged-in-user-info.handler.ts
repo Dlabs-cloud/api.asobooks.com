@@ -27,7 +27,7 @@ export class LoggedInUserInfoHandler {
     }
     let portalAccounts = await this.connection
       .getCustomRepository(PortalAccountRepository)
-      .findByStatusAndAssociation(GenericStatusConstant.ACTIVE, associations);
+      .findByStatusAndAssociation(GenericStatusConstant.ACTIVE, ...associations);
     const transformedAssociations = associations
       .map(association => {
 

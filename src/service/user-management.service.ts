@@ -12,6 +12,16 @@ import { ChangePasswordDto } from '../dto/auth/request/change-password.dto';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { MembershipService } from './membership.service';
 import { MembershipRepository } from '../dao/membership.repository';
+import { MemberSignUpDto } from '../dto/user/member-sign-up.dto';
+import { Association } from '../domain/entity/association.entity';
+import { PortalUserService } from './portal-user.service';
+import { PortalUserDto } from '../dto/portal-user.dto';
+import { PortalAccountRepository } from '../dao/portal-account.repository';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { PortalAccountDto } from '../dto/portal-account.dto';
+import { MembershipDto } from '../dto/membership.dto';
+import { AssociationMembershipSignUpEvent } from '../event/AssociationMembershipSignUpEvent';
+import { PortalUserRepository } from '../dao/portal-user.repository';
 
 @Injectable()
 export class UserManagementService {
@@ -20,6 +30,7 @@ export class UserManagementService {
               private readonly authenticationUtils: AuthenticationUtils,
               private readonly portalAccountService: PortalAccountService,
               private readonly membershipService: MembershipService,
+              private readonly portalUserService: PortalUserService,
               private readonly eventBus: EventBus) {
   }
 
@@ -81,5 +92,48 @@ export class UserManagementService {
     return portalUser;
   }
 
+
+  public async createAssociationMember(membershipSignUp: MemberSignUpDto, association: Association) {
+    return  await this.connection.transaction(async entityManager => {
+      let portalUser = await this.connection.getCustomRepository(PortalUserRepository)
+        .findByUserNameOrEmailOrPhoneNumberAndNotDeleted(membershipSignUp.email);
+      if (portalUser) {
+        portalUser.lastName = membershipSignUp.lastName;
+        portalUser.phoneNumber = membershipSignUp.phoneNumber;
+        portalUser.firstName = membershipSignUp.firstName;
+        await entityManager.save(portalUser);
+      } else {
+        let portalUserDto: PortalUserDto = {
+          createdBy: undefined,
+          email: membershipSignUp.email,
+          firstName: membershipSignUp.firstName,
+          lastName: membershipSignUp.lastName,
+          password: Math.random().toString(36).slice(-8),
+          phoneNumber: membershipSignUp.phoneNumber,
+          username: membershipSignUp.email,
+        };
+        portalUser = await this.portalUserService.createPortalUser(entityManager, portalUserDto, GenericStatusConstant.ACTIVE);
+      }
+
+      let portalAccount: any = await entityManager
+        .getCustomRepository(PortalAccountRepository)
+        .findByStatusAndTypeAndAssociations(PortalAccountTypeConstant.MEMBER_ACCOUNT, GenericStatusConstant.ACTIVE, association);
+      if (!portalAccount) {
+        const portalAccountDto: PortalAccountDto = {
+          association: association,
+          name: `${association.name} Membership Account`,
+          type: PortalAccountTypeConstant.MEMBER_ACCOUNT,
+        };
+        portalAccount = await this.portalAccountService.createPortalAccount(entityManager, portalAccountDto, GenericStatusConstant.ACTIVE);
+      }
+
+      const membershipDto: MembershipDto = { association, portalAccount, portalUser };
+      await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE);
+
+      this.eventBus.publish(new AssociationMembershipSignUpEvent(portalUser));
+      return portalUser;
+    });
+
+  }
 
 }
