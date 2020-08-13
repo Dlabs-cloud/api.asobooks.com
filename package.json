@@ -1,6 +1,10 @@
 {
   "name": "asobooks.com",
   "version": "0.0.1",
+  "engines": {
+    "node": "12.18.1",
+    "npm": "6.14.5"
+  },
   "description": "",
   "author": "support@dlabs.cloud",
   "private": true,
