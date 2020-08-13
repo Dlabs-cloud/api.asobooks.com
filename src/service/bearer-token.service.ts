@@ -1,19 +1,15 @@
 import { IBearerTokenService } from '../contracts/i-bearer-token-service';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
-import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { Connection } from 'typeorm';
 import { InvalidtokenException } from '../exception/invalidtoken.exception';
 import { PortalUserRepository } from '../dao/portal-user.repository';
-import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
-import { TokenExpiredError } from 'jsonwebtoken';
-import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { Some } from 'optional-typescript';
-import { PortalUser } from '../domain/entity/portal-user.entity';
+
 
 @Injectable()
 export class BearerTokenService implements IBearerTokenService<TokenPayloadDto> {

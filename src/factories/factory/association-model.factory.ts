@@ -12,6 +12,7 @@ export class AssociationModelFactory implements FactoryHelper<Association> {
     association.type = faker.random.arrayElement(Object.values(AssociationTypeConstant));
     association.address = await modelFactory.create(Address);
     association.name = faker.name.lastName() + ' Association';
+    association.code = faker.random.uuid();
 
     return association;
 

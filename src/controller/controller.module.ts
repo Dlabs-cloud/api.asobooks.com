@@ -9,6 +9,8 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseTransformInterceptor } from './response-transform.interceptor';
 import { UserManagementController } from './user-management.controller';
 import { AssociationController } from './association.controller';
+import { LoggedInUserInfoHandler } from './handlers/logged-in-user-info.handler';
+import { ServiceFeeController } from './service-fee.controller';
 
 @Module({
   imports: [
@@ -22,9 +24,11 @@ import { AssociationController } from './association.controller';
     AuthenticationController,
     UserManagementController,
     AssociationController,
+    ServiceFeeController,
   ],
   providers: [
     ResponseTransformInterceptor,
+    LoggedInUserInfoHandler,
     {
 
       provide: APP_INTERCEPTOR,

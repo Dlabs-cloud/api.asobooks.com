@@ -1,0 +1,44 @@
+name: Aso Books CI
+on:
+#  push:
+#    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:10.8
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - name: Checking out of repo.
+        uses: actions/checkout@v2
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.1
+        with:
+          node-version: '12'
+          check-latest: true
+      - name: Get npm cache directory
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
+      - name: Install all node modules
+        run: npm install
+      - name: Run Test
+        run: npm run test:cov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./coverage
+

@@ -24,4 +24,7 @@ export class Association extends BaseEntity {
     nullable: true,
   })
   accountNumber: string;
+
+  @Column()
+  code: string;
 }

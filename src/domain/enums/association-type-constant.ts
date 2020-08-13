@@ -1,7 +1,8 @@
 export enum AssociationTypeConstant {
   ESTATE = 'ESTATE',
   CLUB = 'CLUB',
-  COMMUNITY = 'COMMUNITY',
   COOPERATIVE = 'COOPERATIVE',
-  UNION = 'UNION'
+  UNION = 'UNION',
+  ALUMNI = 'ALUMNI',
+  HOUSING = 'HOUSING'
 }

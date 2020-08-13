@@ -6,6 +6,6 @@ export const RequestPrincipalContext = createParamDecorator((data, req) => {
   if (!principal) {
     throw new UnauthorizedException('A request principal is needed for this route!');
   }
-
+  
   return req.requestPrincipal;
 });

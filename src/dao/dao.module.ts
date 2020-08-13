@@ -7,7 +7,7 @@ import { CountryRepository } from './country.repository';
 import { FileRepository } from './file.repository';
 import { AssociationRepository } from './association.repository';
 import { BankRepository } from './bank.repository';
-import { PortalUserAccountRepository } from './portal-user-account.repository';
+import { MembershipRepository } from './membership.repository';
 import { AssociationFileRepository } from './association.file.repository';
 
 @Module({
@@ -19,13 +19,13 @@ import { AssociationFileRepository } from './association.file.repository';
     CountryRepository,
     FileRepository,
     AssociationRepository,
-    PortalUserAccountRepository,
+    MembershipRepository,
     AssociationFileRepository,
     BankRepository,
   ],
   exports: [
     SettingRepository,
-    PortalUserAccountRepository,
+    MembershipRepository,
     BankRepository,
     PortalUserRepository,
     AddressRepository,

@@ -4,13 +4,12 @@ import { AuthenticationService } from '../service/authentication.service';
 import { IEmailValidationService } from '../contracts/i-email-validation-service';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { TokenPayloadDto } from '../../dist/src/dto/token-payload.dto';
 import { TestingModule } from '@nestjs/testing';
 import { ServiceModule } from '../service/service.module';
-import { baseTestingModule, getTestUser } from './test-utils';
+import { baseTestingModule, getLoginUser, getTestUser } from './test-utils';
 import { getConnection } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
+import { Membership } from '../domain/entity/membership.entity';
 import * as request from 'supertest';
 import { LoginDto } from '../dto/auth/request/login.dto';
 import { factory } from './factory';
@@ -20,18 +19,22 @@ import { PasswordResetDto } from '../dto/auth/request/password-reset.dto';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { ChangePasswordDto } from '../dto/auth/request/change-password.dto';
+import { TokenPayloadDto } from '../dto/token-payload.dto';
+import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
+import { Association } from '../domain/entity/association.entity';
 
 describe('AuthController', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
   let authenticationService: AuthenticationService;
-  let signedUpUser: PortalUserAccount;
+  let signedUpUser: Membership;
   let emailValidationService: IEmailValidationService<PortalUser, PortalAccount, TokenPayloadDto>;
 
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await baseTestingModule().compile();
     applicationContext = moduleRef.createNestApplication();
+    applicationContext.useGlobalPipes(new ValidatorTransformPipe());
     await applicationContext.init();
 
     connection = getConnection();
@@ -68,9 +71,9 @@ describe('AuthController', () => {
 
 
   it('Test that an active user can reset password ', async () => {
-    const portalUserAccount = await getTestUser(GenericStatusConstant.ACTIVE);
+    const membership = await getTestUser(GenericStatusConstant.ACTIVE);
     const payLoad: PasswordResetDto = {
-      email: portalUserAccount.portalUser.email,
+      email: membership.portalUser.email,
     };
     await request(applicationContext.getHttpServer())
       .post('/password/reset')
@@ -78,7 +81,7 @@ describe('AuthController', () => {
     const portalUser = await connection
       .getCustomRepository(PortalUserRepository)
       .findOne({
-        username: portalUserAccount.portalUser.username,
+        username: membership.portalUser.username,
       });
 
     expect(GenericStatusConstant.IN_ACTIVE).toEqual(portalUser.status);
@@ -144,6 +147,47 @@ describe('AuthController', () => {
       .send(payload)
       .expect(401);
 
+  });
+
+
+  it('test that when a user is logged in he can get me', async () => {
+
+    let association = await factory().upset(Association).use(association => {
+      association.status = GenericStatusConstant.PENDING_ACTIVATION;
+      return association;
+    }).create();
+    let response = await request(applicationContext.getHttpServer())
+      .get('/me')
+      .set('Authorization', await getLoginUser(null, null, association));
+    let responseData = response.body.data;
+
+
+    expect(responseData.firstName).toBeDefined();
+    expect(responseData.lastName).toBeDefined();
+    expect(responseData.username).toBeDefined();
+    expect(responseData.email).toBeDefined();
+    expect(responseData.phoneNumber).toBeDefined();
+    expect(responseData.association).toBeDefined();
+    expect(responseData.association.length).toEqual(1);
+    expect(responseData.association).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: expect.anything(),
+          type: expect.anything(),
+          code: expect.anything(),
+          status: GenericStatusConstant.PENDING_ACTIVATION,
+          accounts: expect.arrayContaining([
+            expect.objectContaining({
+              accountCode: expect.anything(),
+              dateUpdated: expect.anything(),
+              name: expect.anything(),
+              type: expect.anything(),
+            }),
+          ]),
+        }),
+      ]),
+    );
+    expect(response.status).toEqual(200);
   });
 
 

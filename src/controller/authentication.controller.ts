@@ -18,18 +18,23 @@ import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { InvalidtokenException } from '../exception/invalidtoken.exception';
+import { RequestPrincipalContext } from '../conf/security/decorators/request-principal.docorator';
+import { RequestPrincipal } from '../conf/security/request-principal.service';
+import { LoggedInUserInfoHandler } from './handlers/logged-in-user-info.handler';
 
-@Public()
+
 @Controller()
 export class AuthenticationController {
 
   constructor(private readonly authenticationService: AuthenticationService,
               private readonly userManagementService: UserManagementService,
               @Inject('EMAIL_VALIDATION_SERVICE') private emailValidationService: IEmailValidationService<PortalUser, PortalAccount, TokenPayloadDto>,
-              private readonly connection: Connection) {
+              private readonly connection: Connection,
+              private readonly loggedInUserInfoHandler: LoggedInUserInfoHandler) {
   }
 
 
+  @Public()
   @Post('sign-up')
   async signUp(@Body() signUpRequestDto: SignUpDto) {
     const existingIngPortalUser = await this.connection.getCustomRepository(PortalUserRepository)
@@ -42,6 +47,7 @@ export class AuthenticationController {
     return new ApiResponseDto(membership.portalUser, 201);
   }
 
+  @Public()
   @Get('/validate-principal/:token')
   public async principalSetUp(@Param('token') token: string) {
 
@@ -54,6 +60,7 @@ export class AuthenticationController {
     return new ApiResponseDto();
   }
 
+  @Public()
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
     const token = await this.authenticationService.loginUser(loginDto);
@@ -63,6 +70,7 @@ export class AuthenticationController {
   }
 
 
+  @Public()
   @Post('/password/reset/:token')
   public async onPasswordReset(@Param('token') token: string,
                                @Body() passwordResetDto: ChangePasswordDto) {
@@ -72,6 +80,7 @@ export class AuthenticationController {
     return new ApiResponseDto();
   }
 
+  @Public()
   @Post('/password/reset')
   public async passwordReset(@Body() passwordResetDto: PasswordResetDto) {
     let portalUser = await this.connection
@@ -82,4 +91,14 @@ export class AuthenticationController {
     }
     return new ApiResponseDto(null, 200, 'A reset link will been sent to the email if its exists');
   }
+
+
+  @Get('/me')
+  public async me(@RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
+    let response = await this.loggedInUserInfoHandler.transform(requestPrincipal.portalUser);
+    return new ApiResponseDto(response);
+
+
+  }
+
 }

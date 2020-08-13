@@ -8,7 +8,7 @@ import { PortalAccountService } from './portal-account.service';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalUserService } from './portal-user.service';
-import { PortalUserAccount } from '../domain/entity/portal-user-account.entity';
+import { Membership } from '../domain/entity/membership.entity';
 import { LoginDto } from '../dto/auth/request/login.dto';
 import { EventBus } from '@nestjs/cqrs';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
@@ -18,6 +18,7 @@ import { BEARER_TOKEN_SERVICE, IBearerTokenService } from '../contracts/i-bearer
 import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { Association } from '../domain/entity/association.entity';
 import { AssociationService } from './association.service';
+import { AssociationCodeSequence } from '../core/sequenceGenerators/association-code.sequence';
 
 @Injectable()
 export class AuthenticationService {
@@ -27,12 +28,13 @@ export class AuthenticationService {
               private readonly connection: Connection,
               private readonly portalUserService: PortalUserService,
               private readonly associationService: AssociationService,
+              private readonly associationCodeSequence: AssociationCodeSequence,
               private readonly portalAccountService: PortalAccountService,
               private readonly eventBus: EventBus) {
 
   }
 
-  public signPrincipalUser(signUpRequestDto: SignUpDto): Promise<PortalUserAccount> {
+  public signPrincipalUser(signUpRequestDto: SignUpDto): Promise<Membership> {
 
     return this.connection.transaction(async (entityManager) => {
 
@@ -41,9 +43,9 @@ export class AuthenticationService {
       association.name = signUpRequestDto.associationName;
       association.type = signUpRequestDto.associationType;
       association.status = GenericStatusConstant.PENDING_ACTIVATION;
+      association.code = await this.associationCodeSequence.next();
 
-      association = await entityManager.save(association);
-
+      await entityManager.save(association);
 
 
       let accountName = signUpRequestDto.associationName ?? `${signUpRequestDto.email}`;
@@ -60,25 +62,24 @@ export class AuthenticationService {
       const portalUser = new PortalUser();
       portalUser.firstName = signUpRequestDto.firstName;
       portalUser.lastName = signUpRequestDto.lastName;
-      portalUser.username = signUpRequestDto.email.toLowerCase();
       portalUser.password = signUpRequestDto.password;
-      portalUser.email = signUpRequestDto.email.toLowerCase();
+      portalUser.email = signUpRequestDto.email;
       portalUser.phoneNumber = signUpRequestDto.phoneNumber;
       portalUser.status = GenericStatusConstant.PENDING_ACTIVATION;
       await this.portalUserService.createPortalUser(entityManager, portalUser);
 
-      const portalUserAccount = new PortalUserAccount();
-      portalUserAccount.portalUser = portalUser;
-      portalUserAccount.portalAccount = portalAccount;
-      portalUserAccount.status = GenericStatusConstant.PENDING_ACTIVATION;
-      portalUserAccount.association = association;
-      await entityManager.save(portalUserAccount);
+      const membership = new Membership();
+      membership.portalUser = portalUser;
+      membership.portalAccount = portalAccount;
+      membership.status = GenericStatusConstant.PENDING_ACTIVATION;
+      membership.association = association;
+      await entityManager.save(membership);
 
 
       delete portalUser.password;
 
       this.eventBus.publish(new NewUserAccountSignUpEvent(portalAccount, portalUser));
-      return portalUserAccount;
+      return membership;
     });
   }
 
