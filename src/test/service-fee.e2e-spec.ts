@@ -15,7 +15,7 @@ import { Association } from '../domain/entity/association.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { ServiceFee } from '../domain/entity/service.fee.entity';
 
-describe('Service fee set up test ', () => {
+describe('Service fees set up test ', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
   beforeAll(async () => {
@@ -39,7 +39,7 @@ describe('Service fee set up test ', () => {
     }).create();
 
     let response = await request(applicationContext.getHttpServer())
-      .get(`/service-fee/${serviceFee.code}`)
+      .get(`/service-fees/${serviceFee.code}`)
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code);
     expect(response.status).toEqual(200);
@@ -69,7 +69,7 @@ describe('Service fee set up test ', () => {
     let associationUser = await getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
 
     let response = await request(applicationContext.getHttpServer())
-      .post('/service-fee')
+      .post('/service-fees')
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
       .send(requestPayload);

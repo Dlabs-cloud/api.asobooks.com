@@ -18,7 +18,7 @@ import { Membership } from '../domain/entity/membership.entity';
 import { AssociationService } from '../service/association.service';
 import { UserManagementService } from '../service/user-management.service';
 
-describe('User-management-controller ', () => {
+describe('Membership-management-controller ', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
   let authenticationService: AuthenticationService;
@@ -58,7 +58,7 @@ describe('User-management-controller ', () => {
 
     };
     return request(applicationContext.getHttpServer())
-      .post(`/user-management/create-member`)
+      .post(`/membership-management/create`)
       .send(membershipSignUpDto)
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
@@ -74,7 +74,7 @@ describe('User-management-controller ', () => {
     };
     await userManagementService.createAssociationMember(membershipSignUp, associationUser.association);
     return request(applicationContext.getHttpServer())
-      .post(`/user-management/create-member`)
+      .post(`/membership-management/create`)
       .send(membershipSignUp)
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)

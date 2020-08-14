@@ -79,7 +79,7 @@ describe('AssociationController', () => {
     let payload = __ret.payload;
 
     let response = await request(applicationContext.getHttpServer())
-      .put('/association/onboard')
+      .put('/associations/onboard')
       .set('Authorization', loginToken)
       .send(payload);
     expect(response.status).toEqual(201);
@@ -95,7 +95,7 @@ describe('AssociationController', () => {
     loginToken = __ret.loginToken;
     let payload = __ret.payload;
     let response = await request(applicationContext.getHttpServer())
-      .put('/association/onboard')
+      .put('/associations/onboard')
       .set('Authorization', loginToken)
       .send(payload);
     expect(response.status).toEqual(201);

@@ -7,7 +7,7 @@ import { TestController } from './test.controller';
 import { AuthenticationController } from './authentication.controller';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseTransformInterceptor } from './response-transform.interceptor';
-import { UserManagementController } from './user-management.controller';
+import { MembershipManagementController } from './membership-management.controller';
 import { AssociationController } from './association.controller';
 import { LoggedInUserInfoHandler } from './handlers/logged-in-user-info.handler';
 import { ServiceFeeController } from './service-fee.controller';
@@ -22,7 +22,7 @@ import { ServiceFeeController } from './service-fee.controller';
   controllers: [
     TestController,
     AuthenticationController,
-    UserManagementController,
+    MembershipManagementController,
     AssociationController,
     ServiceFeeController,
   ],

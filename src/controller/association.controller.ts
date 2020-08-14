@@ -9,7 +9,7 @@ import { BaseController } from './BaseController';
 import { Some } from 'optional-typescript';
 import { FileTypeConstant } from '../domain/enums/file-type-constant';
 
-@Controller('association')
+@Controller('associations')
 export class AssociationController extends BaseController {
   constructor(private readonly associationService: AssociationService) {
     super();
