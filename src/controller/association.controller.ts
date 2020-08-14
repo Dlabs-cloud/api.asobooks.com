@@ -23,6 +23,7 @@ export class AssociationController extends BaseController {
                                  @Body() associationRequestDto: AssociationRequestDto,
                                  @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
 
+
     Some(file).ifPresent(fileData => {
       associationRequestDto.logo = this.requestToFile(fileData.buffer, fileData.originalname, fileData.mimetype, FileTypeConstant.IMAGE);
     });

@@ -14,11 +14,11 @@ import { IEmailValidationService } from '../contracts/i-email-validation-service
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
-import { MembershipRepository } from '../dao/membership.repository';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { AssociationRepository } from '../dao/association.repository';
 import { AssociationTypeConstant } from '../domain/enums/association-type-constant';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
+import { MembershipRepository } from '../dao/membership.repository';
 
 describe('SignUp ', () => {
   let applicationContext: INestApplication;
@@ -75,7 +75,7 @@ describe('SignUp ', () => {
     const membership = await connection.getCustomRepository(MembershipRepository).findByPortalAccountAndPortalUser(portalUser, portalAccount, GenericStatusConstant.PENDING_ACTIVATION);
     expect(membership).toBeDefined();
     expect(membership.status).toEqual(GenericStatusConstant.PENDING_ACTIVATION);
-    let association = await connection.getCustomRepository(AssociationRepository).findBymembership(membership, GenericStatusConstant.PENDING_ACTIVATION);
+    let association = await connection.getCustomRepository(AssociationRepository).findByMembership(membership, GenericStatusConstant.PENDING_ACTIVATION);
     expect(association).toBeDefined();
     expect(association.status).toEqual(GenericStatusConstant.PENDING_ACTIVATION);
 
@@ -90,8 +90,8 @@ describe('SignUp ', () => {
   });
 
   it('test that a principal user can activate is account using the token sent to email', async () => {
-    const membership = await getTestUser(GenericStatusConstant.PENDING_ACTIVATION);
-    const token = await emailValidationService.createCallBackToken(membership.portalUser, TokenTypeConstant.PRINCIPAL_USER_SIGN_UP, membership.portalAccount);
+    const testUser = await getTestUser(GenericStatusConstant.PENDING_ACTIVATION);
+    const token = await emailValidationService.createCallBackToken(testUser.membership.portalUser, TokenTypeConstant.PRINCIPAL_USER_SIGN_UP, testUser.membership.portalAccount);
     const url = `/validate-principal/${token}`;
     await request(applicationContext.getHttpServer())
       .get(url)
@@ -99,19 +99,20 @@ describe('SignUp ', () => {
   });
 
   it('test that portalUser Account and users are active after principal validates signup', async () => {
-    const portalUserAndAccount = await getTestUser(GenericStatusConstant.PENDING_ACTIVATION);
-    const token = await emailValidationService.createCallBackToken(portalUserAndAccount.portalUser, TokenTypeConstant.PRINCIPAL_USER_SIGN_UP, portalUserAndAccount.portalAccount);
+    const testUser = await getTestUser(GenericStatusConstant.PENDING_ACTIVATION);
+    let membership = testUser.membership;
+    const token = await emailValidationService.createCallBackToken(membership.portalUser, TokenTypeConstant.PRINCIPAL_USER_SIGN_UP, membership.portalAccount);
     const url = `/validate-principal/${token}`;
     await request(applicationContext.getHttpServer())
       .get(url)
       .send(signedUpUser).expect(200);
-    const portalUser = await connection.getCustomRepository(PortalUserRepository).findOneItemByStatus({ id: portalUserAndAccount.portalUser.id });
+    const portalUser = await connection.getCustomRepository(PortalUserRepository).findOneItemByStatus({ id: membership.portalUser.id });
     expect(portalUser.status).toEqual(GenericStatusConstant.ACTIVE);
-    const portalAccount = await connection.getCustomRepository(PortalAccountRepository).findOneItemByStatus({ id: portalUserAndAccount.portalAccount.id });
+    const portalAccount = await connection.getCustomRepository(PortalAccountRepository).findOneItemByStatus({ id: membership.portalAccount.id });
     expect(portalAccount.status).toEqual(GenericStatusConstant.ACTIVE);
-    let membership = await connection.getCustomRepository(MembershipRepository).findByPortalAccountAndPortalUser(portalUserAndAccount.portalUser, portalUserAndAccount.portalAccount, GenericStatusConstant.ACTIVE);
-    expect(membership.status).toEqual(GenericStatusConstant.ACTIVE);
-    let association = await connection.getCustomRepository(AssociationRepository).findBymembership(membership, GenericStatusConstant.PENDING_ACTIVATION);
+    let mBership = await connection.getCustomRepository(MembershipRepository).findByPortalAccountAndPortalUser(membership.portalUser, membership.portalAccount, GenericStatusConstant.ACTIVE);
+    expect(mBership.status).toEqual(GenericStatusConstant.ACTIVE);
+    let association = await connection.getCustomRepository(AssociationRepository).findByMembership(mBership, GenericStatusConstant.PENDING_ACTIVATION);
     expect(association).toBeDefined();
     expect(association.status).toEqual(GenericStatusConstant.PENDING_ACTIVATION);
 

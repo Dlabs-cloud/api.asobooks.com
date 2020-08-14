@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ObjectID, ObjectIdColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 import { GenderConstant } from '../enums/gender-constant';
 
@@ -22,4 +22,9 @@ export class PortalUser extends BaseEntity {
   email: string;
   @Column()
   phoneNumber: string;
+
+  @ManyToOne(() => PortalUser, {
+    nullable: true
+  })
+  createdBy: PortalUser;
 }

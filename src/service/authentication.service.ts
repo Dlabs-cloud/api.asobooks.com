@@ -1,14 +1,11 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Connection } from 'typeorm';
-import { PortalUser } from '../domain/entity/portal-user.entity';
-import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalAccountService } from './portal-account.service';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalUserService } from './portal-user.service';
-import { Membership } from '../domain/entity/membership.entity';
 import { LoginDto } from '../dto/auth/request/login.dto';
 import { EventBus } from '@nestjs/cqrs';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
@@ -19,6 +16,11 @@ import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { Association } from '../domain/entity/association.entity';
 import { AssociationService } from './association.service';
 import { AssociationCodeSequence } from '../core/sequenceGenerators/association-code.sequence';
+import { MembershipService } from './membership.service';
+import { MembershipDto } from '../dto/membership.dto';
+import { Membership } from '../domain/entity/membership.entity';
+import { PortalAccountDto } from '../dto/portal-account.dto';
+import { PortalUserDto } from '../dto/portal-user.dto';
 
 @Injectable()
 export class AuthenticationService {
@@ -29,6 +31,7 @@ export class AuthenticationService {
               private readonly portalUserService: PortalUserService,
               private readonly associationService: AssociationService,
               private readonly associationCodeSequence: AssociationCodeSequence,
+              private readonly membershipService: MembershipService,
               private readonly portalAccountService: PortalAccountService,
               private readonly eventBus: EventBus) {
 
@@ -52,33 +55,37 @@ export class AuthenticationService {
 
       accountName = `${accountName} Excos Account`;
 
-      let portalAccount = new PortalAccount();
-      portalAccount.name = accountName;
-      portalAccount.type = PortalAccountTypeConstant.EXECUTIVE_ACCOUNT;
-      portalAccount = await this.portalAccountService.createPortalAccount(entityManager, portalAccount);
-      portalAccount.status = GenericStatusConstant.PENDING_ACTIVATION;
-      await entityManager.save(portalAccount);
+      let executivePortalAccountDto: PortalAccountDto = {
+        name: accountName,
+        association,
+        type: PortalAccountTypeConstant.EXECUTIVE_ACCOUNT,
+      };
+      let executivePortalAccount = await this
+        .portalAccountService
+        .createPortalAccount(entityManager, executivePortalAccountDto, GenericStatusConstant.PENDING_ACTIVATION);
 
-      const portalUser = new PortalUser();
-      portalUser.firstName = signUpRequestDto.firstName;
-      portalUser.lastName = signUpRequestDto.lastName;
-      portalUser.password = signUpRequestDto.password;
-      portalUser.email = signUpRequestDto.email;
-      portalUser.phoneNumber = signUpRequestDto.phoneNumber;
-      portalUser.status = GenericStatusConstant.PENDING_ACTIVATION;
-      await this.portalUserService.createPortalUser(entityManager, portalUser);
+      const portalUserDto: PortalUserDto = {
+        email: signUpRequestDto.email,
+        firstName: signUpRequestDto.firstName,
+        lastName: signUpRequestDto.lastName,
+        password: signUpRequestDto.password,
+        phoneNumber: signUpRequestDto.phoneNumber,
+      };
 
-      const membership = new Membership();
-      membership.portalUser = portalUser;
-      membership.portalAccount = portalAccount;
-      membership.status = GenericStatusConstant.PENDING_ACTIVATION;
-      membership.association = association;
-      await entityManager.save(membership);
+      const portalUser = await this.portalUserService.createPortalUser(entityManager, portalUserDto, GenericStatusConstant.PENDING_ACTIVATION);
 
+
+      const membershipDto: MembershipDto = {
+        association,
+        portalAccount: executivePortalAccount,
+        portalUser,
+
+      };
+      const membership = await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.PENDING_ACTIVATION);
 
       delete portalUser.password;
 
-      this.eventBus.publish(new NewUserAccountSignUpEvent(portalAccount, portalUser));
+      this.eventBus.publish(new NewUserAccountSignUpEvent(executivePortalAccount, portalUser));
       return membership;
     });
   }
