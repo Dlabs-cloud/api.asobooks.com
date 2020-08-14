@@ -19,6 +19,31 @@ import { Association } from '../domain/entity/association.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { Bank } from '../domain/entity/bank.entity';
+import { BankInfoRepository } from '../dao/bank-info.repository';
+import { AssociationService } from '../service/association.service';
+
+async function associationUpdate(loginToken: string) {
+  let association = await factory().upset(Association).use(association => {
+    association.status = GenericStatusConstant.PENDING_ACTIVATION;
+    return association;
+  }).create();
+  let portalUser = await factory().create(PortalUser);
+  loginToken = await getLoginUser(null, portalUser, association);
+  let payload: AssociationRequestDto = {
+    activateAssociation: false,
+    address: {
+      address: faker.address.streetAddress(),
+      countryCode: (await factory().create(Country)).code,
+    },
+    bankInfo: {
+      accountNumber: faker.finance.iban(),
+      bankCode: (await factory().create(Bank)).code,
+    },
+    name: faker.name.lastName() + ' association',
+    type: faker.random.arrayElement(Object.values(AssociationTypeConstant)),
+  };
+  return { loginToken, payload, portalUser, association };
+}
 
 describe('AssociationController', () => {
   let applicationContext: INestApplication;
@@ -26,6 +51,7 @@ describe('AssociationController', () => {
   let authenticationService: AuthenticationService;
   let loginToken: string;
   let emailValidationService: IEmailValidationService<PortalUser, PortalAccount, TokenPayloadDto>;
+  let associationService: AssociationService;
 
 
   beforeAll(async () => {
@@ -38,6 +64,9 @@ describe('AssociationController', () => {
     authenticationService = applicationContext
       .select(ServiceModule)
       .get(AuthenticationService, { strict: true });
+    associationService = applicationContext
+      .select(ServiceModule)
+      .get(AssociationService, { strict: true });
     emailValidationService = applicationContext.select(ServiceModule).get('EMAIL_VALIDATION_SERVICE', { strict: true });
 
 
@@ -45,31 +74,33 @@ describe('AssociationController', () => {
 
 
   it('Test that a login user should be able continue updating his association', async () => {
-    let association = await factory().upset(Association).use(association => {
-      association.status = GenericStatusConstant.PENDING_ACTIVATION;
-      return association;
-    }).create();
-    loginToken = await getLoginUser(null, null, association);
-    let payload: AssociationRequestDto = {
-      activateAssociation: false,
-      address: {
-        address: faker.address.streetAddress(),
-        countryCode: (await factory().create(Country)).code,
-      },
-      bankInfo: {
-        accountNumber: faker.finance.iban(),
-        bankCode: (await factory().create(Bank)).code,
-      },
-      name: faker.name.lastName() + ' association',
-      type: faker.random.arrayElement(Object.values(AssociationTypeConstant)),
-    };
-
+    const __ret = await associationUpdate(loginToken);
+    loginToken = __ret.loginToken;
+    let payload = __ret.payload;
 
     let response = await request(applicationContext.getHttpServer())
       .put('/association/onboard')
       .set('Authorization', loginToken)
       .send(payload);
     expect(response.status).toEqual(201);
+
+  });
+
+  it('Test that updating of association creates right records', async () => {
+    const __ret = await associationUpdate(loginToken);
+
+    await associationService.createAssociation(__ret.payload, {
+      association: __ret.association, portalUser: __ret.portalUser,
+    });
+    loginToken = __ret.loginToken;
+    let payload = __ret.payload;
+    let response = await request(applicationContext.getHttpServer())
+      .put('/association/onboard')
+      .set('Authorization', loginToken)
+      .send(payload);
+    expect(response.status).toEqual(201);
+    let number = await connection.getCustomRepository(BankInfoRepository).countByAssociation(__ret.association);
+    expect(number).toEqual(1);
 
   });
   afterAll(async () => {

@@ -13,13 +13,17 @@ import * as faker from 'faker';
 import { AssociationAddressRequestDto } from '../dto/association/association-address-request.dto';
 import { factory } from './factory';
 import { Country } from '../domain/entity/country.entity';
+import { Association } from '../domain/entity/association.entity';
+import { Membership } from '../domain/entity/membership.entity';
+import { AssociationService } from '../service/association.service';
+import { UserManagementService } from '../service/user-management.service';
 
 describe('User-management-controller ', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
   let authenticationService: AuthenticationService;
-  let signedUpUser;
   let associationUser;
+  let userManagementService: UserManagementService;
 
 
   beforeAll(async () => {
@@ -32,8 +36,10 @@ describe('User-management-controller ', () => {
       .select(ServiceModule)
       .get(AuthenticationService, { strict: true });
 
+    userManagementService = applicationContext
+      .select(ServiceModule)
+      .get(UserManagementService, { strict: true });
 
-    signedUpUser = await mockNewSignUpUser(authenticationService);
 
     associationUser = await getAssociationUser();
 
@@ -51,12 +57,29 @@ describe('User-management-controller ', () => {
       phoneNumber: faker.phone.phoneNumber(),
 
     };
-    let response = await request(applicationContext.getHttpServer())
+    return request(applicationContext.getHttpServer())
       .post(`/user-management/create-member`)
       .send(membershipSignUpDto)
       .set('Authorization', associationUser.token)
-      .set('X-ASSOCIATION-IDENTIFIER', associationUser.associationCode)
+      .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
       .expect(201);
+  });
+
+  it('Test that admin cannot create multiple members with same email', async () => {
+    let membershipSignUp: MemberSignUpDto = {
+      email: faker.internet.email(),
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName(),
+      phoneNumber: faker.phone.phoneNumber(),
+    };
+    await userManagementService.createAssociationMember(membershipSignUp, associationUser.association);
+    return request(applicationContext.getHttpServer())
+      .post(`/user-management/create-member`)
+      .send(membershipSignUp)
+      .set('Authorization', associationUser.token)
+      .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
+      .expect(400);
+
   });
 
   afterAll(async () => {

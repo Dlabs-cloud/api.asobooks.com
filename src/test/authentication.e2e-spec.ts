@@ -42,8 +42,8 @@ describe('AuthController', () => {
       .select(ServiceModule)
       .get(AuthenticationService, { strict: true });
     emailValidationService = applicationContext.select(ServiceModule).get('EMAIL_VALIDATION_SERVICE', { strict: true });
-
-    signedUpUser = await getTestUser(GenericStatusConstant.ACTIVE);
+    let testUser = await getTestUser(GenericStatusConstant.ACTIVE);
+    signedUpUser = testUser.membership;
 
   });
 
@@ -80,9 +80,9 @@ describe('AuthController', () => {
 
 
   it('Test that an active user can reset password ', async () => {
-    const membership = await getTestUser();
+    const testUser = await getTestUser();
     const payLoad: PasswordResetDto = {
-      email: membership.portalUser.email,
+      email: testUser.membership.portalUser.email,
     };
     await request(applicationContext.getHttpServer())
       .post('/password/reset')
@@ -90,7 +90,7 @@ describe('AuthController', () => {
     const portalUser = await connection
       .getCustomRepository(PortalUserRepository)
       .findOne({
-        username: membership.portalUser.username,
+        username: testUser.membership.portalUser.username,
       });
 
     expect(GenericStatusConstant.IN_ACTIVE).toEqual(portalUser.status);

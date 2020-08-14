@@ -41,7 +41,7 @@ describe('Service fee set up test ', () => {
     let response = await request(applicationContext.getHttpServer())
       .get(`/service-fee/${serviceFee.code}`)
       .set('Authorization', associationUser.token)
-      .set('X-ASSOCIATION-IDENTIFIER', associationUser.associationCode);
+      .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code);
     expect(response.status).toEqual(200);
     let data = response.body.data;
     expect(data.status).toEqual(GenericStatusConstant.ACTIVE);
@@ -71,7 +71,7 @@ describe('Service fee set up test ', () => {
     let response = await request(applicationContext.getHttpServer())
       .post('/service-fee')
       .set('Authorization', associationUser.token)
-      .set('X-ASSOCIATION-IDENTIFIER', associationUser.associationCode)
+      .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
       .send(requestPayload);
     expect(response.status).toEqual(201);
     expect(response.body.data.code).toBeDefined();

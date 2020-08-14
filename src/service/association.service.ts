@@ -15,6 +15,7 @@ import { AssociationFileService } from './association-file.service';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { MembershipService } from './membership.service';
 import { BankInfoRepository } from '../dao/bank-info.repository';
+import { BankRepository } from '../dao/bank.repository';
 
 
 @Injectable()
@@ -38,7 +39,7 @@ export class AssociationService {
         .findByPortalAccount(portalAccount, GenericStatusConstant.PENDING_ACTIVATION);
 
       if (!association) {
-        throw new IllegalArgumentException('Association was not  created for account');
+        throw new IllegalArgumentException('Association already exist ');
       }
       Some(associationDto.name).ifPresent(associationName => {
         association.name = associationDto.name;
@@ -77,10 +78,16 @@ export class AssociationService {
           .findOneByAssociation(association, GenericStatusConstant.ACTIVE);
         if (bankInfo) {
           bankInfo.status = GenericStatusConstant.ACTIVE;
+          bankInfo.accountNumber = bankInfoData.accountNumber;
+          bankInfo.bank = await this.connection
+            .getCustomRepository(BankRepository)
+            .findOneItemByStatus({ code: bankInfoData.bankCode });
           await entityManager.save(bankInfo);
+        } else {
+          await this.bankInfoService.create(entityManager, bankInfoData, association);
         }
 
-        await this.bankInfoService.create(entityManager, bankInfoData, association);
+
       }
 
       await entityManager.save(association);

@@ -95,12 +95,13 @@ export const getTestUser = async (status?: GenericStatusConstant, portalUser?: P
     return portalUser;
   }).create();
 
-  return await (factory().upset(Membership).use(membership => {
+  let membership = await (factory().upset(Membership).use(membership => {
     membership.portalAccount = portalAccount;
     membership.portalUser = portalUser;
     membership.status = status;
     return membership;
   }).create());
+  return { membership, association };
 };
 
 export const getAssociationUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association) => {
@@ -113,19 +114,20 @@ export const getAssociationUser = async (status?: GenericStatusConstant, portalU
 
   const response = {
     token: token,
-    associationCode: association.code,
+    association,
+
   };
   return Promise.resolve(response);
 };
 
 export const getLoginUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association): Promise<string> => {
   status = status ?? GenericStatusConstant.ACTIVE;
-  const membership = await getTestUser(status, portalUser, association);
+  const testUser = await getTestUser(status, portalUser, association);
 
   const jwtPayload: JwtPayloadDto = {
-    sub: membership.portalUser.id,
-    email: membership.portalUser.email,
-    subStatus: membership.portalUser.status,
+    sub: testUser.membership.portalUser.id,
+    email: testUser.membership.portalUser.email,
+    subStatus: testUser.membership.portalUser.status,
     type: TokenTypeConstant.LOGIN,
   };
 

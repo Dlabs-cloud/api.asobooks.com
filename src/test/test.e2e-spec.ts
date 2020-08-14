@@ -34,7 +34,7 @@ describe('Test controller ', () => {
     let response = await request(applicationContext.getHttpServer())
       .get('/test/association')
       .set('Authorization', associationUser.token)
-      .set('X-ASSOCIATION-IDENTIFIER', associationUser.associationCode);
+      .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code);
     expect(response.body.name).toEqual(association.name);
     expect(response.body.type).toEqual(association.type);
     expect(response.status).toEqual(200);
