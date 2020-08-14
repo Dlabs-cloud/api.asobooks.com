@@ -58,15 +58,24 @@ describe('AuthController', () => {
       .send(loginData).expect(401);
   });
 
-  it('Test that an active user can reset password', async () => {
+  it('Test that a user that us inactive cannot login', async () => {
+    const password = faker.random.uuid();
+    const hashPassword = await (new AuthenticationUtils()).hashPassword(password);
+    const portalUser = await factory().upset(PortalUser).use(portalUser => {
+      portalUser.password = hashPassword;
+      portalUser.status = GenericStatusConstant.PENDING_ACTIVATION;
+      return portalUser;
+    }).create();
     const loginData: LoginDto = {
-      password: signedUpUser.portalUser.password,
-      username: signedUpUser.portalUser.username,
+      password: password,
+      username: portalUser.username,
     };
 
-    await request(applicationContext.getHttpServer())
+
+    return request(applicationContext.getHttpServer())
       .post('/login')
       .send(loginData).expect(401);
+
   });
 
 

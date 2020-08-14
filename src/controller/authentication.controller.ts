@@ -38,7 +38,7 @@ export class AuthenticationController {
   @Post('sign-up')
   async signUp(@Body() signUpRequestDto: SignUpDto) {
     const existingIngPortalUser = await this.connection.getCustomRepository(PortalUserRepository)
-      .findByUserNameOrEmailOrPhoneNumberAndNotDeleted(signUpRequestDto.email);
+      .findByUserNameOrEmailOrPhoneNumberAndNotDeleted(signUpRequestDto.email.toLowerCase());
 
     if (existingIngPortalUser) {
       throw new IllegalArgumentException('portal user with email or user name is already existing');

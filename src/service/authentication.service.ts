@@ -87,7 +87,7 @@ export class AuthenticationService {
   public async loginUser(loginDto: LoginDto): Promise<string> {
 
     return this.connection.getCustomRepository(PortalUserRepository)
-      .findByUserNameOrEmailOrPhoneNumberAndStatus(loginDto.username, GenericStatusConstant.ACTIVE)
+      .findByUserNameOrEmailOrPhoneNumberAndStatus(loginDto.username.toLowerCase(), GenericStatusConstant.ACTIVE)
       .then(async portalUserValue => {
         if (portalUserValue) {
           const isTrue = await this.authenticationUtils

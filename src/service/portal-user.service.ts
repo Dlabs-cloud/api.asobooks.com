@@ -13,13 +13,13 @@ export class PortalUserService {
 
   async createPortalUser(entityManager: EntityManager, portalUser: PortalUser) {
     const existingIngPortalUser = await this.connection.getCustomRepository(PortalUserRepository)
-      .findByUserNameOrEmailOrPhoneNumberAndNotDeleted(portalUser.email);
+      .findByUserNameOrEmailOrPhoneNumberAndNotDeleted(portalUser.email.toLowerCase());
 
     if (existingIngPortalUser) {
       throw new IllegalArgumentException('portal user with email or user name is already existing');
     }
     portalUser.password = await this.authenticationUtils.hashPassword(portalUser.password);
-    portalUser.username = portalUser.email;
+    portalUser.username = portalUser.email.toLowerCase();
     portalUser.email = portalUser.email.toLowerCase();
 
     await entityManager.save(portalUser);

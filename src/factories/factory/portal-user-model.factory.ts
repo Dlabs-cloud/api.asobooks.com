@@ -15,8 +15,9 @@ export class PortalUserModelFactory implements FactoryHelper<PortalUser> {
     portalUser.phoneNumber = faker.phone.phoneNumber();
     portalUser.password = await (new AuthenticationUtils()).hashPassword(faker.random.uuid());
     portalUser.gender = faker.random.arrayElement(Object.values(GenderConstant));
-    portalUser.username = faker.company.companyName();
-    portalUser.email = faker.internet.email();
+    portalUser.email = faker.internet.email().toLowerCase();
+    portalUser.username = portalUser.email.toLocaleLowerCase();
+
     return portalUser;
 
   }
