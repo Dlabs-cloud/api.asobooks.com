@@ -5,7 +5,7 @@ import { baseTestingModule } from './test-utils';
 import { getConnection } from 'typeorm';
 import { SettingRepository } from '../dao/setting.repository';
 
-describe('SignUp ', () => {
+describe('Settings Repository test ', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
 

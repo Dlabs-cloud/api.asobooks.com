@@ -6,9 +6,11 @@ import { RequestPrincipalContext } from '../conf/security/decorators/request-pri
 import { RequestPrincipal } from '../conf/security/request-principal.service';
 import { MemberSignUpDto } from '../dto/user/member-sign-up.dto';
 import { ApiResponseDto } from '../dto/api-response.dto';
+import { AssociationContext } from '../conf/security/annotations/association-context';
 
 
 @Controller('user-management')
+@AssociationContext()
 export class UserManagementController {
 
   constructor(private readonly userManagementService: UserManagementService) {
@@ -25,8 +27,6 @@ export class UserManagementController {
     };
     return new ApiResponseDto(response, 201);
   }
-
-
 
 
 }
