@@ -5,7 +5,9 @@ import { Membership } from './membership.entity';
 
 @Entity()
 export class MembershipInfo extends BaseEntity {
-  @Column()
+  @Column({
+    nullable: true,
+  })
   identificationNumber: string;
   @OneToOne(() => Address)
   @JoinColumn()

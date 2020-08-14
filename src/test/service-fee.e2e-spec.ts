@@ -8,7 +8,6 @@ import { ServiceFeeRequestDto } from '../dto/service-fee-request.dto';
 import { BillingCycleConstant } from '../domain/enums/billing-cycle.constant';
 import * as faker from 'faker';
 import * as moment from 'moment';
-import { GenderConstant } from '../domain/enums/gender-constant';
 import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 import * as request from 'supertest';
 import { factory } from './factory';
@@ -34,7 +33,6 @@ describe('Service fee set up test ', () => {
       return association;
     }).create();
     let associationUser = await getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
-    console.log(associationUser.associationCode);
     let serviceFee = await factory().upset(ServiceFee).use((serviceFee) => {
       serviceFee.association = association;
       return serviceFee;
@@ -43,7 +41,7 @@ describe('Service fee set up test ', () => {
     let response = await request(applicationContext.getHttpServer())
       .get(`/service-fee/${serviceFee.code}`)
       .set('Authorization', associationUser.token)
-      .set('X-ASSOCIATION-IDENTIFIER', associationUser.associationCode);
+      .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code);
     expect(response.status).toEqual(200);
     let data = response.body.data;
     expect(data.status).toEqual(GenericStatusConstant.ACTIVE);
@@ -73,7 +71,7 @@ describe('Service fee set up test ', () => {
     let response = await request(applicationContext.getHttpServer())
       .post('/service-fee')
       .set('Authorization', associationUser.token)
-      .set('X-ASSOCIATION-IDENTIFIER', associationUser.associationCode)
+      .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
       .send(requestPayload);
     expect(response.status).toEqual(201);
     expect(response.body.data.code).toBeDefined();

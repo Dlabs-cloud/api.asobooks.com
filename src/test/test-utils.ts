@@ -13,7 +13,6 @@ import { PortalUser } from '../domain/entity/portal-user.entity';
 import { factory } from './factory';
 import { Association } from '../domain/entity/association.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { Membership } from '../domain/entity/membership.entity';
 import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { Test } from '@nestjs/testing';
@@ -24,6 +23,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { BankUploadStartup } from '../core/start-ups/bank-upload.startup';
 import { BankUploadStartupMock } from './mocks/bank-upload-startup.mock';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
+import { Membership } from '../domain/entity/membership.entity';
 
 
 export const init = async (entityManager?: EntityManager) => {
@@ -87,19 +87,21 @@ export const getTestUser = async (status?: GenericStatusConstant, portalUser?: P
   }).create();
   const portalAccount = await factory().upset(PortalAccount).use(portalAccount => {
     portalAccount.status = status;
+    portalAccount.association = association;
     return portalAccount;
   }).create();
   portalUser = portalUser ?? await factory().upset(PortalUser).use(portalUser => {
     portalUser.status = status;
     return portalUser;
   }).create();
-  return await (factory().upset(Membership).use(membership => {
+
+  let membership = await (factory().upset(Membership).use(membership => {
     membership.portalAccount = portalAccount;
     membership.portalUser = portalUser;
     membership.status = status;
-    membership.association = association;
     return membership;
   }).create());
+  return { membership, association };
 };
 
 export const getAssociationUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association) => {
@@ -112,19 +114,20 @@ export const getAssociationUser = async (status?: GenericStatusConstant, portalU
 
   const response = {
     token: token,
-    associationCode: association.code,
+    association,
+
   };
   return Promise.resolve(response);
 };
 
 export const getLoginUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association): Promise<string> => {
   status = status ?? GenericStatusConstant.ACTIVE;
-  const membership = await getTestUser(status, portalUser, association);
+  const testUser = await getTestUser(status, portalUser, association);
 
   const jwtPayload: JwtPayloadDto = {
-    sub: membership.portalUser.id,
-    email: membership.portalUser.email,
-    subStatus: membership.portalUser.status,
+    sub: testUser.membership.portalUser.id,
+    email: testUser.membership.portalUser.email,
+    subStatus: testUser.membership.portalUser.status,
     type: TokenTypeConstant.LOGIN,
   };
 

@@ -18,13 +18,6 @@ export class Association extends BaseEntity {
   @OneToOne(() => Address)
   @JoinColumn({ name: 'addressId' })
   address?: Address;
-  @ManyToOne(() => Bank)
-  bank: Bank;
-  @Column({
-    nullable: true,
-  })
-  accountNumber: string;
-
   @Column()
   code: string;
 }
