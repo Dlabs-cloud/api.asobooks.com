@@ -1,1 +1,0 @@
-"postinstall":"npm run start:prod"

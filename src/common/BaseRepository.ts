@@ -18,19 +18,12 @@ export abstract class BaseRepository<T extends BaseEntity> extends Repository<T>
   }
 
   public findByIdAndStatus(id: number, ...status: GenericStatusConstant[]) {
-    const selectQueryBuilder = this.createQueryBuilder()
+    return this.createQueryBuilder()
       .select()
-      .where('id =:id', { id });
-    if (status.length > 0) {
-      selectQueryBuilder.andWhere(new Brackets((qb => {
-        status.forEach((value, index) => {
-          const param = {};
-          param[`status${index}`] = value;
-          qb.orWhere(`status=:status${index}`, param);
-        });
-      })));
-    }
-    return selectQueryBuilder.getOne();
+      .where('id =:id', { id })
+      .andWhere('status IN (:...status)')
+      .setParameter('status', status)
+      .getOne();
   }
 
   findById(status = GenericStatusConstant.ACTIVE, ...ids: number[]) {

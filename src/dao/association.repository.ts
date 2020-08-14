@@ -33,23 +33,13 @@ export class AssociationRepository extends BaseRepository<Association> {
   }
 
   findByPortalUserAndStatus(portalUser: PortalUser, ...status: GenericStatusConstant[]) {
-    let selectQueryBuilder = this.createQueryBuilder('association')
+    return this.createQueryBuilder('association')
       .select()
       .innerJoin(Membership, 'membership', 'membership.association=association.id')
-      .andWhere('membership.portalUser=:portalUser');
-
-
-    if (status.length > 0) {
-      selectQueryBuilder.andWhere(new Brackets((qb => {
-        status.forEach((value, index) => {
-          const param = {};
-          param[`status${index}`] = value;
-          qb.orWhere(`association.status=:status${index}`, param);
-        });
-      })));
-    }
-    return selectQueryBuilder
+      .andWhere('membership.portalUser=:portalUser')
+      .andWhere('association.status IN (:...status)')
       .setParameter('portalUser', portalUser.id)
+      .setParameter('status', status)
       .distinct()
       .getMany();
   }

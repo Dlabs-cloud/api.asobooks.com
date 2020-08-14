@@ -66,7 +66,7 @@ describe('SignUp ', () => {
     await request(applicationContext.getHttpServer())
       .post('/sign-up')
       .send(requestPayLoad).expect(201);
-    const portalUser = await connection.getCustomRepository(PortalUserRepository).findOneItemByStatus({ username: requestPayLoad.email }, GenericStatusConstant.PENDING_ACTIVATION);
+    const portalUser = await connection.getCustomRepository(PortalUserRepository).findOneItemByStatus({ username: requestPayLoad.email.toLowerCase() }, GenericStatusConstant.PENDING_ACTIVATION);
     expect(portalUser).toBeDefined();
     expect(portalUser.status).toEqual(GenericStatusConstant.PENDING_ACTIVATION);
     const portalAccount = await connection.getCustomRepository(PortalAccountRepository).findFirstByPortalUserAndStatus(portalUser, false, GenericStatusConstant.PENDING_ACTIVATION);
@@ -85,7 +85,8 @@ describe('SignUp ', () => {
 
     await request(applicationContext.getHttpServer())
       .post('/sign-up')
-      .send(signedUpUser).expect(400);
+      .send(signedUpUser)
+      .expect(400);
   });
 
   it('test that a principal user can activate is account using the token sent to email', async () => {

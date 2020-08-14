@@ -1,6 +1,10 @@
 {
   "name": "asobooks.com",
   "version": "0.0.1",
+  "engines": {
+    "node": "12.18.1",
+    "npm": "6.14.5"
+  },
   "description": "",
   "author": "support@dlabs.cloud",
   "private": true,
@@ -8,12 +12,14 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "postinstall": "npm run build",
+    "prestart:prod": "rimraf dist && npm run build",
+    "postinstall": "npm run prestart:prod",
+    "heroku-postbuild": "npm install --only=dev --no-shrinkwrap && npm run build",
     "format": "prettier --write \\\"src/**/*.ts\\\" \\\"view/test/**/*.ts\\\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/src/main",
+    "start:prod": "node --max-old-space-size=8192 dist/src/main.js",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "ENV=test jest --runInBand",
     "test:watch": "ENV=test jest --watch",

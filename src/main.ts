@@ -9,9 +9,10 @@ async function bootstrap() {
   globalPipes(app);
 
 
-  app.listen(process.env.HOST_PORT).then(() => {
-    console.log(`Starting application on port ${process.env.HOST_PORT}`);
-    console.log(`Url:: ${process.env.DOMAIN}:${process.env.HOST_PORT}/api/v${process.env.VERSION}`);
+  let port = process.env.HOST_PORT || process.env.PORT || 3000;
+  app.listen(port).then(() => {
+    console.log(`Starting application on port ${port}`);
+    console.log(`Url:: ${process.env.DOMAIN}:${port}/api/v${process.env.VERSION}`);
   });
 }
 

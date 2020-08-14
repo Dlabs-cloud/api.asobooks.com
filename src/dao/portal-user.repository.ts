@@ -17,17 +17,12 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
 
   public findByUserNameOrEmailOrPhoneNumberAndStatus(usernameOrEmailOrPhone: string, ...status: GenericStatusConstant[]) {
     const portalUserSelectQueryBuilder = this.getPortalUserNameOrEmailOrPhoneNumberSelectQueryBuilder(usernameOrEmailOrPhone);
-    portalUserSelectQueryBuilder.andWhere(new Brackets((qb => {
-      status.forEach((value, index) => {
-        const param = {};
-        param[`status${index}`] = value;
-        qb.orWhere(`status=:status${index}`, param);
-      });
-    })));
-    return portalUserSelectQueryBuilder
-
+    let one = portalUserSelectQueryBuilder
+      .andWhere('portalUser.status IN (:...status)')
+      .setParameter('status', status)
       .distinct()
       .getOne();
+    return one;
   }
 
 
@@ -35,9 +30,11 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
     return this
       .createQueryBuilder('portalUser')
       .select()
-      .orWhere('portalUser.username = :username')
-      .orWhere('portalUser.email = :username')
-      .orWhere('portalUser.phoneNumber = :username')
+      .where(new Brackets(qb => {
+        qb.orWhere('portalUser.username = :username')
+          .orWhere('portalUser.email = :username')
+          .orWhere('portalUser.phoneNumber = :username');
+      }))
       .setParameter('username', usernameOrEmailOrPhone);
   }
 }
