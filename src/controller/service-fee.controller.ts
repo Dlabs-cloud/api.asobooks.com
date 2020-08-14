@@ -8,7 +8,7 @@ import { Connection } from 'typeorm';
 import { ServiceFeeRepository } from '../dao/service-fee.repository';
 import { AssociationContext } from '../conf/security/annotations/association-context';
 
-@Controller('service-fee')
+@Controller('service-fees')
 @AssociationContext()
 export class ServiceFeeController {
 

@@ -9,15 +9,15 @@ import { ApiResponseDto } from '../dto/api-response.dto';
 import { AssociationContext } from '../conf/security/annotations/association-context';
 
 
-@Controller('user-management')
+@Controller('membership-management')
 @AssociationContext()
-export class UserManagementController {
+export class MembershipManagementController {
 
   constructor(private readonly userManagementService: UserManagementService) {
   }
 
 
-  @Post('create-member')
+  @Post('create')
   public async createAssociationMember(@Body() memberSignUpDto: MemberSignUpDto,
                                        @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
     const portalUser = await this.userManagementService.createAssociationMember(memberSignUpDto, requestPrincipal.association);
