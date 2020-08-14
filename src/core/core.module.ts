@@ -6,6 +6,7 @@ import { IllegalArgumentExceptionFilter } from './exception-filters/illegal-argu
 import { InvalidTokenExceptionFilter } from './exception-filters/invalid-token-exception.filter';
 import { AssociationCodeSequence } from './sequenceGenerators/association-code.sequence';
 import { ServiceFeeCodeSequence } from './sequenceGenerators/service-fee-code.sequence';
+import { MembershipCodeSequence } from './sequenceGenerators/membership-code.sequence';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -23,12 +24,14 @@ const invalidTokenExceptionFilter = {
     AssociationCodeSequence,
     BankUploadStartup,
     ServiceFeeCodeSequence,
+    MembershipCodeSequence,
   ],
   providers: [
     PortalAccountSequence,
     AssociationCodeSequence,
     ServiceFeeCodeSequence,
     BankUploadStartup,
+    MembershipCodeSequence,
     illegalArgumentExceptionFilter,
     invalidTokenExceptionFilter,
   ],

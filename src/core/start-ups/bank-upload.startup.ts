@@ -51,7 +51,6 @@ export class BankUploadStartup implements OnApplicationBootstrap {
           }
 
         });
-
         setTimeout(() => {
           callback();
         }, 1000);

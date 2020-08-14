@@ -8,7 +8,6 @@ import { ServiceFeeRequestDto } from '../dto/service-fee-request.dto';
 import { BillingCycleConstant } from '../domain/enums/billing-cycle.constant';
 import * as faker from 'faker';
 import * as moment from 'moment';
-import { GenderConstant } from '../domain/enums/gender-constant';
 import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 import * as request from 'supertest';
 import { factory } from './factory';
@@ -34,7 +33,6 @@ describe('Service fee set up test ', () => {
       return association;
     }).create();
     let associationUser = await getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
-    console.log(associationUser.associationCode);
     let serviceFee = await factory().upset(ServiceFee).use((serviceFee) => {
       serviceFee.association = association;
       return serviceFee;

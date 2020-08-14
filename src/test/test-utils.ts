@@ -13,7 +13,6 @@ import { PortalUser } from '../domain/entity/portal-user.entity';
 import { factory } from './factory';
 import { Association } from '../domain/entity/association.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { Membership } from '../domain/entity/membership.entity';
 import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { Test } from '@nestjs/testing';
@@ -24,6 +23,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { BankUploadStartup } from '../core/start-ups/bank-upload.startup';
 import { BankUploadStartupMock } from './mocks/bank-upload-startup.mock';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
+import { Membership } from '../domain/entity/membership.entity';
 
 
 export const init = async (entityManager?: EntityManager) => {
@@ -87,17 +87,18 @@ export const getTestUser = async (status?: GenericStatusConstant, portalUser?: P
   }).create();
   const portalAccount = await factory().upset(PortalAccount).use(portalAccount => {
     portalAccount.status = status;
+    portalAccount.association = association;
     return portalAccount;
   }).create();
   portalUser = portalUser ?? await factory().upset(PortalUser).use(portalUser => {
     portalUser.status = status;
     return portalUser;
   }).create();
+
   return await (factory().upset(Membership).use(membership => {
     membership.portalAccount = portalAccount;
     membership.portalUser = portalUser;
     membership.status = status;
-    membership.association = association;
     return membership;
   }).create());
 };

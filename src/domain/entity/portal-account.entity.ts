@@ -6,11 +6,12 @@ import {
   ManyToOne,
   ObjectID,
   ObjectIdColumn,
-  OneToOne,
+  OneToOne, PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 import { PortalAccountTypeConstant } from '../enums/portal-account-type-constant';
+import { Association } from './association.entity';
 
 @Entity()
 export class PortalAccount extends BaseEntity {
@@ -20,11 +21,20 @@ export class PortalAccount extends BaseEntity {
   @Column({
     unique: true,
   })
-  accountCode: string;
+  code: string;
 
   @Column({
     type: 'enum',
     enum: PortalAccountTypeConstant,
   })
   type: PortalAccountTypeConstant;
+
+  @ManyToOne(() => Association, {
+    nullable: false,
+  })
+  @JoinColumn({ name: "associationId"})
+  association: Association;
+
+  @PrimaryColumn()
+  associationId?: number;
 }
