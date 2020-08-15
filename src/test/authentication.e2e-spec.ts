@@ -170,7 +170,7 @@ describe('AuthController', () => {
       .set('Authorization', await getLoginUser(null, null, association));
     let responseData = response.body.data;
 
-
+    
     expect(responseData.firstName).toBeDefined();
     expect(responseData.lastName).toBeDefined();
     expect(responseData.username).toBeDefined();
