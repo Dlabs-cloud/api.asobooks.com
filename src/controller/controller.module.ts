@@ -11,6 +11,7 @@ import { MembershipManagementController } from './membership-management.controll
 import { AssociationController } from './association.controller';
 import { LoggedInUserInfoHandler } from './handlers/logged-in-user-info.handler';
 import { ServiceFeeController } from './service-fee.controller';
+import { MasterRecordController } from './master-record-controller';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ServiceFeeController } from './service-fee.controller';
     AuthenticationController,
     MembershipManagementController,
     AssociationController,
+    MasterRecordController,
     ServiceFeeController,
   ],
   providers: [

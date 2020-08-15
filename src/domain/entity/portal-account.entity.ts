@@ -30,11 +30,11 @@ export class PortalAccount extends BaseEntity {
   type: PortalAccountTypeConstant;
 
   @ManyToOne(() => Association, {
-    nullable: false,
+    eager: true,
   })
-  @JoinColumn({ name: "associationId"})
+  @JoinColumn({ name: 'associationId', referencedColumnName: 'id' })
   association: Association;
 
-  @PrimaryColumn()
+  @Column({ nullable: true })
   associationId?: number;
 }

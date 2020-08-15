@@ -40,7 +40,6 @@ export class ValidatorTransformPipe implements PipeTransform<any> {
     let result = {};
     errors.forEach(el => {
       if (el.children.length > 0) {
-        console.log(el.children);
         result = { ...result, ...this.buildError(el.children) };
       } else {
         let prop = el.property;
