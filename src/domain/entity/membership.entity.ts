@@ -15,7 +15,9 @@ export class Membership extends BaseEntity {
 
   portalAccountId: number;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   code: string;
 
 
