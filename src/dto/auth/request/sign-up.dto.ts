@@ -23,8 +23,4 @@ export class SignUpDto {
     'message': 'Password can only be minimum of six',
   })
   password: string;
-  @IsEnum(AssociationTypeConstant, {
-    message: 'Association myst be provider',
-  })
-  associationType: AssociationTypeConstant;
 }

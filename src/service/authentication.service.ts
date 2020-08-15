@@ -44,7 +44,6 @@ export class AuthenticationService {
 
       let association = new Association();
       association.name = signUpRequestDto.associationName;
-      association.type = signUpRequestDto.associationType;
       association.status = GenericStatusConstant.PENDING_ACTIVATION;
       association.code = await this.associationCodeSequence.next();
 
