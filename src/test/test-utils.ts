@@ -62,7 +62,6 @@ export const mockNewSignUpUser = async (authenticationService: AuthenticationSer
     lastName: faker.name.lastName(),
     password: faker.random.uuid(),
     phoneNumber: faker.phone.phoneNumber(),
-    associationType: faker.random.arrayElement(Object.values(AssociationTypeConstant)),
   };
 
   const membership = await authenticationService.signPrincipalUser(newUser);
