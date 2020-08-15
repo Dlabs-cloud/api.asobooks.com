@@ -16,7 +16,7 @@ export class MasterRecordController extends BaseController {
     super();
   }
 
-  @Get('master-records')
+  @Get('banks')
   public async getBanks() {
     let banks = await this
       .connection
@@ -32,7 +32,7 @@ export class MasterRecordController extends BaseController {
     return new ApiResponseDto(banks);
   }
 
-  @Get('counties')
+  @Get('/counties')
   public async getCountries() {
     let countries = await this
       .connection
