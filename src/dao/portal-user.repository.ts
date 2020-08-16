@@ -2,6 +2,11 @@ import { Brackets, EntityRepository } from 'typeorm';
 import { BaseRepository } from '../common/BaseRepository';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { Association } from '../domain/entity/association.entity';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { Membership } from '../domain/entity/membership.entity';
+import { PortalAccount } from '../domain/entity/portal-account.entity';
+import { Some } from 'optional-typescript';
 
 @EntityRepository(PortalUser)
 export class PortalUserRepository extends BaseRepository<PortalUser> {
@@ -34,5 +39,51 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
           .orWhere('portalUser.phoneNumber = :username');
       }))
       .setParameter('username', usernameOrEmailOrPhone);
+  }
+
+
+  public createQueryBuilderGetByAssociationAndAccountType(association: Association,
+                                                          portalAccountType?: PortalAccountTypeConstant,
+                                                          status = GenericStatusConstant.ACTIVE,
+                                                          limit = 20,
+                                                          offset = 0) {
+    const builder = this
+      .createQueryBuilder('portalUser')
+      .select()
+      .distinct()
+      .innerJoin(Membership, 'membership', 'membership.portalUser = portalUser.id')
+      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount = portalAccount.id')
+      .where('portalUser.status = :status')
+      .andWhere('portalAccount.association = :association')
+      .limit(limit)
+      .take(offset)
+      .setParameter('status', status)
+      .setParameter('association', association.id);
+
+    Some(portalAccountType).ifPresent(type => {
+      builder
+        .andWhere('portalAccount.type = :portalAccountType')
+        .setParameter('portalAccountType', portalAccountType);
+    });
+    return builder;
+  }
+
+
+  public getByAssociationAndAccountType(association: Association,
+                                        portalAccountType?: PortalAccountTypeConstant,
+                                        status = GenericStatusConstant.ACTIVE,
+                                        limit = 20,
+                                        offset = 0) {
+    const builder = this.createQueryBuilderGetByAssociationAndAccountType(association, portalAccountType, status, limit, offset);
+    const count = builder.clone().getCount();
+    const result = builder.getMany();
+    return Promise.all([result, count]);
+  }
+
+  public countByAssociationAndAccountType(association: Association,
+                                          portalAccountType?: PortalAccountTypeConstant,
+                                          status = GenericStatusConstant.ACTIVE) {
+    const builder = this.createQueryBuilderGetByAssociationAndAccountType(association, portalAccountType, status);
+    return builder.getCount();
   }
 }
