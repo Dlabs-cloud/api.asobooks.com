@@ -11,6 +11,7 @@ import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-c
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { PortalUser } from '../domain/entity/portal-user.entity';
+import { PortalUserDto } from '../dto/portal-user.dto';
 
 
 @Controller('membership-management')
@@ -42,8 +43,18 @@ export class MembershipManagementController {
     let portalUsersAndCount = await this.connection
       .getCustomRepository(PortalUserRepository)
       .getByAssociationAndAccountType(requestPrincipal.association, type, GenericStatusConstant.ACTIVE, limit, offset);
-    const response: PaginatedResponseDto<PortalUser> = {
-      items: portalUsersAndCount[0],
+    let users = (portalUsersAndCount[0] as PortalUser[]).map(portalUser => {
+      return {
+        email: portalUser.email,
+        firstName: portalUser.firstName,
+        lastName: portalUser.lastName,
+        phoneNumber: portalUser.phoneNumber,
+        username: portalUser.username,
+        dateCreated: portalUser.createdAt,
+      };
+    });
+    const response: PaginatedResponseDto<PortalUserDto> = {
+      items: users,
       itemsPerPage: limit,
       offset: offset,
       total: portalUsersAndCount[1],

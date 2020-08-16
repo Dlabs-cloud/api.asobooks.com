@@ -6,8 +6,9 @@ export class PortalUserDto {
   lastName: string;
   username?: string;
   gender?: GenderConstant;
-  password: string;
+  password?: string;
   email: string;
   phoneNumber: string;
   createdBy?: PortalUser;
+  dateCreated: Date;
 }

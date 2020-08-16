@@ -87,7 +87,7 @@ describe('Membership-management-controller ', () => {
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
       .expect(200);
-    
+
     let responseData = response.body.data;
     expect(responseData.total).toEqual(totalExistingValue);
 
