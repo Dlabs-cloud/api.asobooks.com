@@ -14,8 +14,7 @@ export class BankUploadStartup implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-
-    console.log('hello maam');
+    
     const totalBanks = await this.connection.getCustomRepository(BankRepository).count();
     if (!totalBanks) {
       this.uploadBanks();
