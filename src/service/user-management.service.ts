@@ -104,7 +104,6 @@ export class UserManagementService {
         await entityManager.save(portalUser);
       } else {
         let portalUserDto: PortalUserDto = {
-          createdBy: undefined,
           email: membershipSignUp.email,
           firstName: membershipSignUp.firstName,
           lastName: membershipSignUp.lastName,
