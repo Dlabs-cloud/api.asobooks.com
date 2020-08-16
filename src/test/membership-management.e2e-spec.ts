@@ -13,6 +13,7 @@ import { Country } from '../domain/entity/country.entity';
 import { UserManagementService } from '../service/user-management.service';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 
 describe('Membership-management-controller ', () => {
   let applicationContext: INestApplication;
@@ -25,6 +26,7 @@ describe('Membership-management-controller ', () => {
   beforeAll(async () => {
     const moduleRef: TestingModule = await baseTestingModule().compile();
     applicationContext = moduleRef.createNestApplication();
+    applicationContext.useGlobalPipes(new ValidatorTransformPipe());
     await applicationContext.init();
     connection = getConnection();
 
@@ -80,25 +82,18 @@ describe('Membership-management-controller ', () => {
 
   it('test that association user can get all is association members ', async () => {
     let totalExistingValue = await connection.getCustomRepository(PortalUserRepository).countByAssociationAndAccountType(associationUser.association, PortalAccountTypeConstant.MEMBER_ACCOUNT);
-    for (let i = 0; i <= 2; i++) {
-      let membershipSignUp: MemberSignUpDto = {
-        email: faker.internet.email(),
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName(),
-        phoneNumber: faker.phone.phoneNumber(),
-      };
-      await userManagementService.createAssociationMember(membershipSignUp, associationUser.association);
-    }
     let response = await request(applicationContext.getHttpServer())
       .get(`/membership-management`)
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
       .expect(200);
-
+    
     let responseData = response.body.data;
-    expect(responseData.total).toEqual(totalExistingValue + 3);
+    expect(responseData.total).toEqual(totalExistingValue);
 
   });
+
+
 
   afterAll(async () => {
     await connection.close();

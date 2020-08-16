@@ -9,13 +9,14 @@ import {
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
+import { Console } from 'inspector';
 
 @Injectable()
 export class ValidatorTransformPipe implements PipeTransform<any> {
 
   async transform(value: any, metadata: ArgumentMetadata): Promise<any> {
     if (!value) {
-      throw new BadRequestException('No data submitted');
+      return value;
     }
 
 

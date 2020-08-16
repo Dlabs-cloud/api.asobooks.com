@@ -36,7 +36,7 @@ export class MembershipManagementController {
 
   @Get()
   public async getAssociationMembers(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
-                                     @Query('type') type =  PortalAccountTypeConstant.MEMBER_ACCOUNT,
+                                     @Query('type') type = PortalAccountTypeConstant.MEMBER_ACCOUNT,
                                      @Query('limit') limit?: number,
                                      @Query('offset') offset?: number) {
     let portalUsersAndCount = await this.connection
