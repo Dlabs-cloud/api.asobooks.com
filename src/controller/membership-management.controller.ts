@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { UserManagementService } from '../service/user-management.service';
 import { RequestPrincipalContext } from '../conf/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../conf/security/request-principal.service';
@@ -36,19 +36,19 @@ export class MembershipManagementController {
 
   @Get()
   public async getAssociationMembers(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
+                                     @Query('type') type =  PortalAccountTypeConstant.MEMBER_ACCOUNT,
                                      @Query('limit') limit?: number,
-                                     @Query('type') type?: PortalAccountTypeConstant,
                                      @Query('offset') offset?: number) {
-    let portalUsersCount = await this.connection
+    let portalUsersAndCount = await this.connection
       .getCustomRepository(PortalUserRepository)
       .getByAssociationAndAccountType(requestPrincipal.association, type, GenericStatusConstant.ACTIVE, limit, offset);
     const response: PaginatedResponseDto<PortalUser> = {
-      items: portalUsersCount[0],
+      items: portalUsersAndCount[0],
       itemsPerPage: limit,
       offset: offset,
-      total: portalUsersCount[1],
+      total: portalUsersAndCount[1],
     };
-    return new ApiResponseDto(response, 201);
+    return new ApiResponseDto(response, 200);
   }
 
 
