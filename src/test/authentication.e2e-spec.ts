@@ -53,9 +53,10 @@ describe('AuthController', () => {
       password: signedUpUser.portalUser.password,
       username: signedUpUser.portalUser.username,
     };
-    await request(applicationContext.getHttpServer())
+    return request(applicationContext.getHttpServer())
       .post('/login')
-      .send(loginData).expect(401);
+      .send(loginData)
+      .expect(401);
   });
 
   it('Test that a user that us inactive cannot login', async () => {
@@ -170,7 +171,7 @@ describe('AuthController', () => {
       .set('Authorization', await getLoginUser(null, null, association));
     let responseData = response.body.data;
 
-    
+
     expect(responseData.firstName).toBeDefined();
     expect(responseData.lastName).toBeDefined();
     expect(responseData.username).toBeDefined();
