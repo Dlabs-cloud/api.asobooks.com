@@ -1,22 +1,19 @@
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
 import { TestingModule } from '@nestjs/testing';
-import { baseTestingModule, getAssociationUser, mockNewSignUpUser } from './test-utils';
+import { baseTestingModule, getAssociationUser } from './test-utils';
 import { getConnection } from 'typeorm';
-import { SettingRepository } from '../dao/setting.repository';
 import { ServiceModule } from '../service/service.module';
 import { AuthenticationService } from '../service/authentication.service';
 import * as request from 'supertest';
-import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { MemberSignUpDto } from '../dto/user/member-sign-up.dto';
 import * as faker from 'faker';
-import { AssociationAddressRequestDto } from '../dto/association/association-address-request.dto';
 import { factory } from './factory';
 import { Country } from '../domain/entity/country.entity';
-import { Association } from '../domain/entity/association.entity';
-import { Membership } from '../domain/entity/membership.entity';
-import { AssociationService } from '../service/association.service';
 import { UserManagementService } from '../service/user-management.service';
+import { PortalUserRepository } from '../dao/portal-user.repository';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 
 describe('Membership-management-controller ', () => {
   let applicationContext: INestApplication;
@@ -29,6 +26,7 @@ describe('Membership-management-controller ', () => {
   beforeAll(async () => {
     const moduleRef: TestingModule = await baseTestingModule().compile();
     applicationContext = moduleRef.createNestApplication();
+    applicationContext.useGlobalPipes(new ValidatorTransformPipe());
     await applicationContext.init();
     connection = getConnection();
 
@@ -81,6 +79,21 @@ describe('Membership-management-controller ', () => {
       .expect(400);
 
   });
+
+  it('test that association user can get all is association members ', async () => {
+    let totalExistingValue = await connection.getCustomRepository(PortalUserRepository).countByAssociationAndAccountType(associationUser.association, PortalAccountTypeConstant.MEMBER_ACCOUNT);
+    let response = await request(applicationContext.getHttpServer())
+      .get(`/membership-management`)
+      .set('Authorization', associationUser.token)
+      .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
+      .expect(200);
+
+    let responseData = response.body.data;
+    expect(responseData.total).toEqual(totalExistingValue);
+
+  });
+
+
 
   afterAll(async () => {
     await connection.close();

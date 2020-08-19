@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { Connection } from 'typeorm';
 
 @EventsHandler(AssociationMembershipSignUpEvent)
-export class AssociationMembershipSignUpHandler implements IEventHandler<AssociationMembershipSignUpEvent> {
+export class AssociationMembershipSignupHandler implements IEventHandler<AssociationMembershipSignUpEvent> {
 
   constructor(
     private readonly connection: Connection,

@@ -18,7 +18,7 @@ describe('Membership-management-controller ', () => {
     connection = getConnection();
   });
 
-  it('Get all banks', function() {
+  it('Get all master-records', function() {
     factory().createMany(2, Bank);
     return request(applicationContext.getHttpServer())
       .get(`/master-records/banks`)

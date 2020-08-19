@@ -7,6 +7,7 @@ import { InvalidTokenExceptionFilter } from './exception-filters/invalid-token-e
 import { AssociationCodeSequence } from './sequenceGenerators/association-code.sequence';
 import { ServiceFeeCodeSequence } from './sequenceGenerators/service-fee-code.sequence';
 import { MembershipCodeSequence } from './sequenceGenerators/membership-code.sequence';
+import { UnAuthorizedExceptionFilter } from './exception-filters/un-authorized-exception.filter';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -16,6 +17,11 @@ const illegalArgumentExceptionFilter = {
 const invalidTokenExceptionFilter = {
   provide: APP_FILTER,
   useClass: InvalidTokenExceptionFilter,
+};
+
+const unAuthorizedExceptionFilter = {
+  provide: APP_FILTER,
+  useClass: UnAuthorizedExceptionFilter,
 };
 
 @Module({
@@ -34,6 +40,7 @@ const invalidTokenExceptionFilter = {
     MembershipCodeSequence,
     illegalArgumentExceptionFilter,
     invalidTokenExceptionFilter,
+    unAuthorizedExceptionFilter,
   ],
 })
 

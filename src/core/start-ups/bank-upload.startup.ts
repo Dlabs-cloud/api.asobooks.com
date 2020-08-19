@@ -15,7 +15,6 @@ export class BankUploadStartup implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
 
-    console.log('hello maam');
     const totalBanks = await this.connection.getCustomRepository(BankRepository).count();
     if (!totalBanks) {
       this.uploadBanks();
@@ -24,7 +23,7 @@ export class BankUploadStartup implements OnApplicationBootstrap {
 
 
   private uploadBanks() {
-    const fileStream = fs.createReadStream(process.cwd() + '/docs/banks.json');
+    const fileStream = fs.createReadStream(process.cwd() + '/docs/master-records.json');
     const jsonStream = StreamArray.withParser();
     const processingStream = new Writable({
       write({ key, value }, encoding, callback) {

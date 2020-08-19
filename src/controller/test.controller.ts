@@ -10,7 +10,7 @@ export class TestController {
   @Get()
   @Public()
   index() {
-    return 'AsoBooks';
+    return 'AsoBooks.com';
   }
 
   @Get('/association')

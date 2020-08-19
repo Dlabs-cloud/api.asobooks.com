@@ -6,6 +6,7 @@ import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { ApiResponseDto } from '../dto/api-response.dto';
 import { CountryRepository } from '../dao/country.repository';
 import { Public } from '../conf/security/annotations/public';
+import { NameCodeDto } from '../dto/master-records/name-code.dto';
 
 @Public()
 @Controller('master-records')
@@ -21,15 +22,29 @@ export class MasterRecordController extends BaseController {
       .connection
       .getCustomRepository(BankRepository)
       .find({ status: GenericStatusConstant.ACTIVE });
+    banks = banks.map(bank => {
+      return {
+        code: bank.code,
+        name: bank.name,
+
+      };
+    });
     return new ApiResponseDto(banks);
   }
 
-  @Get('counties')
+  @Get('/counties')
   public async getCountries() {
     let countries = await this
       .connection
       .getCustomRepository(CountryRepository)
       .find({ status: GenericStatusConstant.ACTIVE });
+
+    countries = countries.map(country => {
+      return {
+        code: country.code,
+        name: country.name,
+      };
+    });
     return new ApiResponseDto(countries);
   }
 }

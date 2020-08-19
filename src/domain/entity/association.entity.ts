@@ -12,6 +12,7 @@ export class Association extends BaseEntity {
   @Column({
     type: 'enum',
     enum: AssociationTypeConstant,
+    nullable: true,
   })
   type: AssociationTypeConstant;
 

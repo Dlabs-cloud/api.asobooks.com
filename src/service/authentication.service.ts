@@ -21,6 +21,7 @@ import { MembershipDto } from '../dto/membership.dto';
 import { Membership } from '../domain/entity/membership.entity';
 import { PortalAccountDto } from '../dto/portal-account.dto';
 import { PortalUserDto } from '../dto/portal-user.dto';
+import { UnAuthorizedException } from '../exception/unAuthorized.exception';
 
 @Injectable()
 export class AuthenticationService {
@@ -44,7 +45,6 @@ export class AuthenticationService {
 
       let association = new Association();
       association.name = signUpRequestDto.associationName;
-      association.type = signUpRequestDto.associationType;
       association.status = GenericStatusConstant.PENDING_ACTIVATION;
       association.code = await this.associationCodeSequence.next();
 
@@ -107,7 +107,7 @@ export class AuthenticationService {
             return Promise.resolve(token);
           }
         }
-        throw new UnauthorizedException('Username or password is incorrect');
+        throw  new UnAuthorizedException('Username or password is incorrect');
       });
 
   }
