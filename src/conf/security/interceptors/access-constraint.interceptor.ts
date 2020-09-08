@@ -30,7 +30,7 @@ export class AccessConstraintInterceptor implements NestInterceptor {
     if (publicAccessType.includes(AccessTypes.PUBLIC)) {
       return next.handle();
     }
-
+    
     const request = context.switchToHttp().getRequest();
     const authorisationToken = request.header('Authorization');
 

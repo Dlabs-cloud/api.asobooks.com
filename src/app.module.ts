@@ -10,9 +10,13 @@ import { ServiceModule } from './service/service.module';
 import { ControllerModule } from './controller/controller.module';
 import { ConfigModule } from '@nestjs/config';
 import { HandlerModule } from './handler/handler.module';
+import { EarlyAccessModule } from './early-access/src/early-access.module';
 
 @Module({
   imports: [
+    EarlyAccessModule.forRoot({
+      enabled: true,
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [ConfModule.environment + '.env'],
@@ -25,6 +29,7 @@ import { HandlerModule } from './handler/handler.module';
     ServiceModule,
     HandlerModule,
     ControllerModule,
+    EarlyAccessModule,
   ],
   controllers: [AppController],
   providers: [AppService],
