@@ -9,6 +9,7 @@ import { AssociationRepository } from './association.repository';
 import { BankRepository } from './bank.repository';
 import { MembershipRepository } from './membership.repository';
 import { AssociationFileRepository } from './association.file.repository';
+import { EarlyAccessRepository } from './early-access.repository';
 
 @Module({
   providers: [
@@ -22,11 +23,13 @@ import { AssociationFileRepository } from './association.file.repository';
     MembershipRepository,
     AssociationFileRepository,
     BankRepository,
+    EarlyAccessRepository,
   ],
   exports: [
     SettingRepository,
     MembershipRepository,
     BankRepository,
+    EarlyAccessRepository,
     PortalUserRepository,
     AddressRepository,
     FileRepository,

@@ -30,8 +30,12 @@ export class AccessConstraintInterceptor implements NestInterceptor {
     if (publicAccessType.includes(AccessTypes.PUBLIC)) {
       return next.handle();
     }
-    
+
+
     const request = context.switchToHttp().getRequest();
+    if (request.url === '/api/v1/early-access') {
+      return next.handle();
+    }
     const authorisationToken = request.header('Authorization');
 
     if (!authorisationToken) {

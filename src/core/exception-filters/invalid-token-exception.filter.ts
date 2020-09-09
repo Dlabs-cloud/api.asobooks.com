@@ -8,7 +8,6 @@ export class InvalidTokenExceptionFilter implements ExceptionFilter<Invalidtoken
   catch(exception: InvalidtokenException, host: ArgumentsHost): any {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    console.log(exception.message);
     response
       .status(401)
       .json({

@@ -10,12 +10,20 @@ import { ServiceModule } from './service/service.module';
 import { ControllerModule } from './controller/controller.module';
 import { ConfigModule } from '@nestjs/config';
 import { HandlerModule } from './handler/handler.module';
-import { EarlyAccessModule } from './early-access/src/early-access.module';
+import { EarlyAccessService } from './service/early-access.service';
+import { EarlyAccessModule } from '@dlabs/nestjs-early-starter/dist/early-access.module';
 
 @Module({
   imports: [
-    EarlyAccessModule.forRoot({
-      enabled: true,
+    EarlyAccessModule.registerAsync({
+      inject: [EarlyAccessService],
+      imports: [ServiceModule],
+      useFactory: (earlyAccessService: EarlyAccessService) => {
+        return {
+          repository: earlyAccessService,
+          enabled: true,
+        };
+      },
     }),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -28,8 +36,7 @@ import { EarlyAccessModule } from './early-access/src/early-access.module';
     CoreModule,
     ServiceModule,
     HandlerModule,
-    ControllerModule,
-    EarlyAccessModule,
+    ControllerModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -18,6 +18,7 @@ import { BankInfoService } from './bank-info.service';
 import { AssociationFile } from '../domain/entity/association.file';
 import { AssociationFileService } from './association-file.service';
 import { ServiceFeeService } from './service-fee.service';
+import { EarlyAccessService } from './early-access.service';
 
 
 const emailValidationProvider = {
@@ -56,10 +57,12 @@ const fileServiceProvider = {
     fileServiceProvider,
     AssociationFileService,
     ServiceFeeService,
+    EarlyAccessService,
   ],
   providers: [
     AuthenticationService,
     PortalUserService,
+    EarlyAccessService,
     PortalAccountService,
     UserManagementService,
     BankInfoService,
