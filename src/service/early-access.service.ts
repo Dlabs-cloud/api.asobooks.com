@@ -3,6 +3,7 @@ import { EarlyAccess } from '../domain/entity/early-access.entity';
 import { Injectable } from '@nestjs/common';
 import { Connection } from 'typeorm';
 import { EarlyAccessRepository } from '@dlabs/nestjs-early-starter';
+import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 
 @Injectable()
 export class EarlyAccessService implements EarlyAccessRepository {
@@ -22,11 +23,21 @@ export class EarlyAccessService implements EarlyAccessRepository {
   }
 
   delete(email: string): Promise<boolean> {
-    return Promise.resolve(false);
+
+    return this.connection.transaction(entityManager =>
+      entityManager.getCustomRepository(EAccessRepository).findOneItemByStatus({
+        email,
+      }).then(earlyAccess => {
+        earlyAccess.status = GenericStatusConstant.IN_ACTIVE;
+        return entityManager.save(earlyAccess);
+      }).then(() => Promise.resolve(true))
+        .catch(() => Promise.resolve(false)));
   }
 
-  find<T>(email: string): Promise<T> | Promise<null> {
-    return Promise.resolve(undefined);
+  find(email: string) {
+    return this.connection
+      .getCustomRepository(EAccessRepository)
+      .findOneItemByStatus({ email });
   }
 
 }
