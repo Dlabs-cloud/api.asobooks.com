@@ -28,7 +28,7 @@ export class EmailMailerConfiguration {
         from: this.configService.get<string>('EMAIL_SENDER', '"Socialite.io" <no-reply@dlabs.cloud>'),
       },
       template: {
-        dir: process.cwd() + '/view/email/',
+        dir: process.cwd() + '/views/email/',
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true,

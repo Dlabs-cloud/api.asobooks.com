@@ -22,6 +22,12 @@ import { EarlyAccessModule } from '@dlabs/nestjs-early-starter/dist/early-access
         return {
           repository: earlyAccessService,
           enabled: true,
+          url: '/',
+          template: {
+            viewDir: `${process.cwd()}/views`,
+            assetsDir: `${process.cwd()}/assets`,
+            index: 'index',
+          },
         };
       },
     }),
@@ -36,7 +42,7 @@ import { EarlyAccessModule } from '@dlabs/nestjs-early-starter/dist/early-access
     CoreModule,
     ServiceModule,
     HandlerModule,
-    ControllerModule
+    ControllerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
