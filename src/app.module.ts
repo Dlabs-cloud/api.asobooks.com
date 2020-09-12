@@ -22,7 +22,7 @@ import { EarlyAccessModule } from '@dlabs/nestjs-early-starter/dist/early-access
         return {
           repository: earlyAccessService,
           enabled: true,
-          url: '/',
+          url: '/early-access',
           template: {
             viewDir: `${process.cwd()}/views`,
             assetsDir: `${process.cwd()}/assets`,
