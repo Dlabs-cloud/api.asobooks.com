@@ -4,10 +4,10 @@ import { FileDto } from '../dto/file.dto';
 import { AssociationFileTypeConstant } from '../domain/enums/association-file-type.constant';
 import { AssociationFileRepository } from '../dao/association.file.repository';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { AssociationFile } from '../domain/entity/association.file';
 import { Association } from '../domain/entity/association.entity';
 import { FILE_SERVICE, IFileService } from '../contracts/i-file-service';
 import { File } from '../domain/entity/file.entity';
+import { AssociationFile } from '../domain/entity/association-file.entity';
 
 @Injectable()
 export class AssociationFileService {
@@ -17,17 +17,18 @@ export class AssociationFileService {
   async createLogo(entityManager: EntityManager, association: Association, fileDto: FileDto) {
     let associationFile = await entityManager
       .getCustomRepository(AssociationFileRepository)
-      .findOneByAssociationAndCode(association, AssociationFileTypeConstant.LOGO);
+      .findOneByAssociationAndType(association, AssociationFileTypeConstant.LOGO);
     if (associationFile) {
       association.status = GenericStatusConstant.IN_ACTIVE;
       await entityManager.save(associationFile);
-    } else {
-      let newAssociationFile = new AssociationFile();
-      newAssociationFile.file = await this.fileService.upload(entityManager, fileDto);
-      newAssociationFile.association = association;
-      newAssociationFile.type = AssociationFileTypeConstant.LOGO;
-      await entityManager.save(newAssociationFile);
     }
+
+    console.log(associationFile);
+    let newAssociationFile = new AssociationFile();
+    newAssociationFile.file = await this.fileService.upload(entityManager, fileDto);
+    newAssociationFile.association = association;
+    newAssociationFile.type = AssociationFileTypeConstant.LOGO;
+    await entityManager.save(newAssociationFile);
     return associationFile;
   }
 }

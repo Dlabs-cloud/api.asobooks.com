@@ -39,7 +39,7 @@ export class AssociationService {
         .findByPortalAccount(portalAccount, GenericStatusConstant.PENDING_ACTIVATION);
 
       if (!association) {
-        throw new IllegalArgumentException('Association already exist ');
+        throw new IllegalArgumentException('Association does not exist');
       }
       Some(associationDto.name).ifPresent(associationName => {
         association.name = associationDto.name;
@@ -91,7 +91,6 @@ export class AssociationService {
       }
 
       await entityManager.save(association);
-
       if (associationDto.logo) {
         await this.associationFileService.createLogo(entityManager, association, associationDto.logo);
       }
