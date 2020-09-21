@@ -59,7 +59,8 @@ export class AssociationService {
         association.type = type;
       });
 
-      if (association.name && association.type && associationDto.activateAssociation) {
+
+      if (true === (association.name && association.type && associationDto.activateAssociation)) {
         association.status = GenericStatusConstant.ACTIVE;
       } else {
         association.status = GenericStatusConstant.PENDING_ACTIVATION;
@@ -86,7 +87,6 @@ export class AssociationService {
         } else {
           await this.bankInfoService.create(entityManager, bankInfoData, association);
         }
-
 
       }
 

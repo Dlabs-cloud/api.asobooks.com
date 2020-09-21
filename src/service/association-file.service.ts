@@ -22,8 +22,6 @@ export class AssociationFileService {
       association.status = GenericStatusConstant.IN_ACTIVE;
       await entityManager.save(associationFile);
     }
-
-    console.log(associationFile);
     let newAssociationFile = new AssociationFile();
     newAssociationFile.file = await this.fileService.upload(entityManager, fileDto);
     newAssociationFile.association = association;
