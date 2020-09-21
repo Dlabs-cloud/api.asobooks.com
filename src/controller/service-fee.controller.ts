@@ -7,18 +7,34 @@ import { ApiResponseDto } from '../dto/api-response.dto';
 import { Connection } from 'typeorm';
 import { ServiceFeeRepository } from '../dao/service-fee.repository';
 import { AssociationContext } from '../conf/security/annotations/association-context';
+import { PortalUserRepository } from '../dao/portal-user.repository';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { PortalUser } from '../domain/entity/portal-user.entity';
 
 @Controller('service-fees')
 @AssociationContext()
 export class ServiceFeeController {
 
-  constructor(private readonly serviceFeeService: ServiceFeeService, private readonly connection: Connection) {
+  constructor(private readonly serviceFeeService: ServiceFeeService,
+              private readonly connection: Connection,
+              private readonly userRepository: PortalUserRepository) {
   }
 
   @Post()
   public async createService(@Body() serviceFeeRequestDto: ServiceFeeRequestDto,
                              @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
-    let serviceFee = await this.serviceFeeService.createService(serviceFeeRequestDto, requestPrincipal.association);
+
+    let recipients = serviceFeeRequestDto.recipients;
+    let portalUsers: PortalUser[] = null;
+    if (recipients) {
+      portalUsers = await this.userRepository.findByAssociationAndTypeAndStatusAndCodes(requestPrincipal.association,
+        PortalAccountTypeConstant.MEMBER_ACCOUNT,
+        GenericStatusConstant.ACTIVE,
+        ...recipients);
+    }
+
+    let serviceFee = await this.serviceFeeService.createService(serviceFeeRequestDto, requestPrincipal.association, portalUsers);
     let response = { code: serviceFee.code };
     return new ApiResponseDto(response, 201);
 

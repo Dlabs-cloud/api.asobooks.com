@@ -1,9 +1,9 @@
 import { BaseRepository } from '../common/BaseRepository';
-import { AssociationFile } from '../domain/entity/association.file';
 import { EntityRepository } from 'typeorm';
 import { Association } from '../domain/entity/association.entity';
 import { AssociationFileTypeConstant } from '../domain/enums/association-file-type.constant';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { AssociationFile } from '../domain/entity/association-file.entity';
 
 @EntityRepository(AssociationFile)
 export class AssociationFileRepository extends BaseRepository<AssociationFile> {
@@ -18,15 +18,21 @@ export class AssociationFileRepository extends BaseRepository<AssociationFile> {
 
   private getAssociationFileSelectQueryBuilder() {
     return this
-      .createQueryBuilder()
-      .where('association =:association')
-      .andWhere('type = :type').andWhere('status=:status');
+      .createQueryBuilder('associationFile')
+      .select()
+      .innerJoin(Association, 'association', 'associationFile.association = association.id')
+      .where('association.id=:association')
+      .andWhere('associationFile.type = :type')
+      .andWhere('associationFile.status=:status');
   }
 
-  findOneByAssociationAndCode(association: Association,
-                                type: AssociationFileTypeConstant,
-                                status: GenericStatusConstant = GenericStatusConstant.ACTIVE) {
+  findOneByAssociationAndType(association: Association,
+                              type: AssociationFileTypeConstant,
+                              status: GenericStatusConstant = GenericStatusConstant.ACTIVE) {
     return this.getAssociationFileSelectQueryBuilder()
+      .setParameter('association', association.id)
+      .setParameter('type', type)
+      .setParameter('status', status)
       .getOne();
   }
 

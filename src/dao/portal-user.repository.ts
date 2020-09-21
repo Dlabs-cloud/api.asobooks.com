@@ -18,6 +18,17 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
       .getOne();
   }
 
+  public getByAssociationAndAccountType(association: Association,
+                                        portalAccountType?: PortalAccountTypeConstant,
+                                        status = GenericStatusConstant.ACTIVE,
+                                        limit = 20,
+                                        offset = 0) {
+    const builder = this.createQueryBuilderGetByAssociationAndAccountType(association, portalAccountType, status, limit, offset);
+    const count = builder.clone().getCount();
+    const result = builder.getMany();
+    return Promise.all([result, count]);
+  }
+
   public findByUserNameOrEmailOrPhoneNumberAndStatus(usernameOrEmailOrPhone: string, ...status: GenericStatusConstant[]) {
     const portalUserSelectQueryBuilder = this.getPortalUserNameOrEmailOrPhoneNumberSelectQueryBuilder(usernameOrEmailOrPhone);
     let one = portalUserSelectQueryBuilder
@@ -26,6 +37,64 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
       .distinct()
       .getOne();
     return one;
+  }
+
+
+  public findByAssociationAndAccountType(association: Association,
+                                         portalAccountType?: PortalAccountTypeConstant,
+                                         status = GenericStatusConstant.ACTIVE,
+                                         limit = 20,
+                                         offset = 0) {
+    const builder = this.createQueryBuilderGetByAssociationAndAccountType(association, portalAccountType, status, limit, offset);
+    const count = builder.clone().getCount();
+    const result = builder.getMany();
+    return Promise.all([result, count]);
+  }
+
+  public countByAssociationAndAccountType(association: Association,
+                                          portalAccountType?: PortalAccountTypeConstant,
+                                          status = GenericStatusConstant.ACTIVE) {
+    const builder = this.createQueryBuilderGetByAssociationAndAccountType(association, portalAccountType, status);
+    return builder.getCount();
+  }
+
+  public findByAssociationAndTypeAndStatusAndCodes(association: Association, type: PortalAccountTypeConstant, status = GenericStatusConstant.ACTIVE, ...code: string[]):
+    Promise<PortalUser[]> {
+    return this.createQueryBuilder('portalUser')
+      .select()
+      .distinct()
+      .innerJoin(Membership, 'membership', 'membership.portalUser=portalUser.id')
+      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount=portalAccount.id')
+      .where('portalUser.status = :status')
+      .andWhere('portalUser.code IN (:...code)')
+      .andWhere('portalAccount.association = :association')
+      .andWhere('portalAccount.type = :type')
+      .setParameter('status', status)
+      .setParameter('association', association.id)
+      .setParameter('code', code)
+      .getMany();
+  }
+
+
+  /**
+   * This is fetching all the members of an association;So it should be optimised
+   * @param association
+   * @param type
+   * @param status
+   */
+  public findAllByAssociationAndTypeAndStatus(association: Association, type: PortalAccountTypeConstant, status = GenericStatusConstant.ACTIVE) {
+    return this.createQueryBuilder('portalUser')
+      .select()
+      .distinct()
+      .innerJoin(Membership, 'membership', 'membership.portalUser=portalUser.id')
+      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount=portalAccount.id')
+      .where('portalUser.status = :status')
+      .andWhere('portalAccount.association = :association')
+      .andWhere('portalAccount.type = :type')
+      .setParameter('status', status)
+      .setParameter('association', association.id)
+      .setParameter('type', type)
+      .getMany();
   }
 
 
@@ -42,11 +111,11 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
   }
 
 
-  public createQueryBuilderGetByAssociationAndAccountType(association: Association,
-                                                          portalAccountType?: PortalAccountTypeConstant,
-                                                          status = GenericStatusConstant.ACTIVE,
-                                                          limit = 20,
-                                                          offset = 0) {
+  private createQueryBuilderGetByAssociationAndAccountType(association: Association,
+                                                           portalAccountType?: PortalAccountTypeConstant,
+                                                           status = GenericStatusConstant.ACTIVE,
+                                                           limit = 20,
+                                                           offset = 0) {
     const builder = this
       .createQueryBuilder('portalUser')
       .select()
@@ -69,21 +138,4 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
   }
 
 
-  public getByAssociationAndAccountType(association: Association,
-                                        portalAccountType?: PortalAccountTypeConstant,
-                                        status = GenericStatusConstant.ACTIVE,
-                                        limit = 20,
-                                        offset = 0) {
-    const builder = this.createQueryBuilderGetByAssociationAndAccountType(association, portalAccountType, status, limit, offset);
-    const count = builder.clone().getCount();
-    const result = builder.getMany();
-    return Promise.all([result, count]);
-  }
-
-  public countByAssociationAndAccountType(association: Association,
-                                          portalAccountType?: PortalAccountTypeConstant,
-                                          status = GenericStatusConstant.ACTIVE) {
-    const builder = this.createQueryBuilderGetByAssociationAndAccountType(association, portalAccountType, status);
-    return builder.getCount();
-  }
 }

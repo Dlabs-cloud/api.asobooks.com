@@ -39,7 +39,7 @@ export class AssociationService {
         .findByPortalAccount(portalAccount, GenericStatusConstant.PENDING_ACTIVATION);
 
       if (!association) {
-        throw new IllegalArgumentException('Association already exist ');
+        throw new IllegalArgumentException('Association does not exist');
       }
       Some(associationDto.name).ifPresent(associationName => {
         association.name = associationDto.name;
@@ -59,7 +59,8 @@ export class AssociationService {
         association.type = type;
       });
 
-      if (association.name && association.type && associationDto.activateAssociation) {
+
+      if (true === (association.name && association.type && associationDto.activateAssociation)) {
         association.status = GenericStatusConstant.ACTIVE;
       } else {
         association.status = GenericStatusConstant.PENDING_ACTIVATION;
@@ -87,11 +88,9 @@ export class AssociationService {
           await this.bankInfoService.create(entityManager, bankInfoData, association);
         }
 
-
       }
 
       await entityManager.save(association);
-
       if (associationDto.logo) {
         await this.associationFileService.createLogo(entityManager, association, associationDto.logo);
       }

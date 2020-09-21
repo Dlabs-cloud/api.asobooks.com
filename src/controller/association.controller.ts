@@ -28,7 +28,6 @@ export class AssociationController extends BaseController {
       associationRequestDto.logo = this.requestToFile(fileData.buffer, fileData.originalname, fileData.mimetype, FileTypeConstant.IMAGE);
     });
     let association = await this.associationService.createAssociation(associationRequestDto, requestPrincipal);
-
     return new ApiResponseDto(association, 201);
   }
 }

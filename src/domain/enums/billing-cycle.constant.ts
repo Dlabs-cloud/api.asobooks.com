@@ -4,5 +4,6 @@ export enum BillingCycleConstant {
   BI_WEEKLY = 'BI_WEEKLY',
   MONTHLY = 'MONTHLY',
   QUARTERLY = 'QUARTERLY',
-  YEARLY = 'YEARLY'
+  YEARLY = 'YEARLY',
+  ONE_OFF = 'ONE_OFF'
 }
