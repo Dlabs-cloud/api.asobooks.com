@@ -22,6 +22,10 @@ import { PortalAccountDto } from '../dto/portal-account.dto';
 import { MembershipDto } from '../dto/membership.dto';
 import { AssociationMembershipSignUpEvent } from '../event/AssociationMembershipSignUpEvent';
 import { PortalUserRepository } from '../dao/portal-user.repository';
+import { GroupService } from './group.service';
+import { GroupRepository } from '../dao/group.repository';
+import { GroupTypeConstant } from '../domain/enums/group-type.constant';
+import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 
 @Injectable()
 export class UserManagementService {
@@ -31,6 +35,7 @@ export class UserManagementService {
               private readonly portalAccountService: PortalAccountService,
               private readonly membershipService: MembershipService,
               private readonly portalUserService: PortalUserService,
+              private readonly groupService: GroupService,
               private readonly eventBus: EventBus) {
   }
 
@@ -94,7 +99,7 @@ export class UserManagementService {
 
 
   public async createAssociationMember(membershipSignUp: MemberSignUpDto, association: Association) {
-    return  await this.connection.transaction(async entityManager => {
+    return await this.connection.transaction(async entityManager => {
       let portalUser = await this.connection.getCustomRepository(PortalUserRepository)
         .findByUserNameOrEmailOrPhoneNumberAndNotDeleted(membershipSignUp.email);
       if (portalUser) {
@@ -127,10 +132,22 @@ export class UserManagementService {
       }
 
       const membershipDto: MembershipDto = { association, portalAccount, portalUser };
-      await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE);
 
+      let membership = await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE);
+
+      let groups = await entityManager
+        .getCustomRepository(GroupRepository)
+        .findByAssociation(association, GroupTypeConstant.GENERAL);
+
+
+      if (!groups && groups.length < 0) {
+        throw new IllegalArgumentException('Association does dont have a general group');
+      }
+      let group = groups[0];
+
+      await this.groupService.addMember(entityManager, group, membership);
       this.eventBus.publish(new AssociationMembershipSignUpEvent(portalUser));
-      return portalUser;
+      return membership;
     });
 
   }

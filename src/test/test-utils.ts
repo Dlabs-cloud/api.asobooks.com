@@ -24,6 +24,9 @@ import { BankUploadStartup } from '../core/start-ups/bank-upload.startup';
 import { BankUploadStartupMock } from './mocks/bank-upload-startup.mock';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { Membership } from '../domain/entity/membership.entity';
+import { MembershipGroup } from '../domain/entity/membership-group.entity';
+import { Group } from '../domain/entity/group.entity';
+import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 
 
 export const init = async (entityManager?: EntityManager) => {
@@ -100,15 +103,29 @@ export const getTestUser = async (status?: GenericStatusConstant, portalUser?: P
     membership.status = status;
     return membership;
   }).create());
+  let group = await factory().upset(Group).use(group => {
+    group.association = association;
+    group.type = GroupTypeConstant.GENERAL;
+    return group;
+  }).create();
+
+  await factory().upset(MembershipGroup).use(membershipGroup => {
+    membershipGroup.membership = membership;
+    membershipGroup.group = group;
+    return membershipGroup;
+  }).create();
   return { membership, association };
 };
 
 export const getAssociationUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association) => {
   status = status ?? GenericStatusConstant.ACTIVE;
-  association = association ?? await factory().upset(Association).use(association => {
-    association.status = status;
-    return association;
-  }).create();
+  association = association ?? await factory()
+    .upset(Association)
+    .use(association => {
+      association.status = status;
+      return association;
+    })
+    .create();
   let token = await getLoginUser(status, portalUser, association);
 
   const response = {
