@@ -14,6 +14,9 @@ import { UserManagementService } from '../service/user-management.service';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
+import { GroupRepository } from '../dao/group.repository';
+import { GroupTypeConstant } from '../domain/enums/group-type.constant';
+import { MembershipRepository } from '../dao/membership.repository';
 
 describe('Membership-management-controller ', () => {
   let applicationContext: INestApplication;
@@ -63,6 +66,35 @@ describe('Membership-management-controller ', () => {
       .expect(201);
   });
 
+  it('Test that an when a member is created he his added to the association general group', async () => {
+    let membershipSignUpDto: MemberSignUpDto = {
+      address: {
+        address: faker.address.streetAddress(),
+        countryCode: (await factory().create(Country)).code,
+      },
+      email: faker.internet.email(),
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName(),
+      phoneNumber: faker.phone.phoneNumber(),
+    };
+    let response = await request(applicationContext.getHttpServer())
+      .post(`/membership-management/create`)
+      .send(membershipSignUpDto)
+      .set('Authorization', associationUser.token)
+      .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
+      .expect(201);
+    let membership = await connection
+      .getCustomRepository(MembershipRepository)
+      .findOneItemByStatus({ code: response.body.data.code });
+
+    let membershipGroups = await connection
+      .getCustomRepository(GroupRepository)
+      .findByAssociationAndMembershipAndType(associationUser.association, membership, GroupTypeConstant.GENERAL);
+
+    expect(1).toEqual(membershipGroups.length);
+
+  });
+
   it('Test that admin cannot create multiple members with same email', async () => {
     let membershipSignUp: MemberSignUpDto = {
       email: faker.internet.email(),
@@ -92,7 +124,6 @@ describe('Membership-management-controller ', () => {
     expect(responseData.total).toEqual(totalExistingValue);
 
   });
-
 
 
   afterAll(async () => {

@@ -16,6 +16,9 @@ import { IllegalArgumentException } from '../exception/illegal-argument.exceptio
 import { MembershipService } from './membership.service';
 import { BankInfoRepository } from '../dao/bank-info.repository';
 import { BankRepository } from '../dao/bank.repository';
+import { GroupService } from './group.service';
+import { GroupDto } from '../dto/group.dto';
+import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 
 
 @Injectable()
@@ -24,6 +27,7 @@ export class AssociationService {
   constructor(private readonly connection: Connection,
               private readonly bankInfoService: BankInfoService,
               private readonly membershipService: MembershipService,
+              private readonly groupService: GroupService,
               private readonly associationFileService: AssociationFileService) {
   }
 
@@ -62,6 +66,14 @@ export class AssociationService {
 
       if (true === (association.name && association.type && associationDto.activateAssociation)) {
         association.status = GenericStatusConstant.ACTIVE;
+        const group: GroupDto = {
+          association: association,
+          name: `${association.name.toLowerCase()} general group`,
+          type: GroupTypeConstant.GENERAL,
+
+        };
+        await this.groupService.createGroup(entityManager, group);
+
       } else {
         association.status = GenericStatusConstant.PENDING_ACTIVATION;
       }

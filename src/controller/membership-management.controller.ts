@@ -26,12 +26,9 @@ export class MembershipManagementController {
   @Post('create')
   public async createAssociationMember(@Body() memberSignUpDto: MemberSignUpDto,
                                        @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
-    const portalUser = await this.userManagementService.createAssociationMember(memberSignUpDto, requestPrincipal.association);
-    let response = {
-      username: portalUser.username,
-      email: portalUser.email,
-    };
-    return new ApiResponseDto(response, 201);
+    const membership = await this.userManagementService.createAssociationMember(memberSignUpDto, requestPrincipal.association);
+
+    return new ApiResponseDto(membership, 201);
   }
 
 
