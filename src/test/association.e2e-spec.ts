@@ -28,9 +28,9 @@ async function associationUpdate(loginToken: string) {
     return association;
   }).create();
   let portalUser = await factory().create(PortalUser);
-  loginToken = await getLoginUser(null, portalUser, association);
+  loginToken = (await getLoginUser(null, portalUser, association)).token;
   let payload: AssociationRequestDto = {
-    activateAssociation: "false",
+    activateAssociation: 'false',
     address: {
       address: faker.address.streetAddress(),
       countryCode: (await factory().create(Country)).code,

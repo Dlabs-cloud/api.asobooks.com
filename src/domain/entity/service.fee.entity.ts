@@ -18,9 +18,7 @@ export class ServiceFee extends BaseEntity {
   })
   amountInMinorUnit: number;
 
-  @Column({
-    nullable: true,
-  })
+  @Column({})
   description: string;
 
   @Column({
@@ -38,7 +36,6 @@ export class ServiceFee extends BaseEntity {
   })
   cycle: BillingCycleConstant;
 
-
   @CreateDateColumn({
     type: 'timestamp',
   })
@@ -46,6 +43,7 @@ export class ServiceFee extends BaseEntity {
 
   @CreateDateColumn({
     type: 'timestamp',
+    nullable: true,
   })
-  nextBillingDate: Date;
+  nextBillingDate?: Date;
 }

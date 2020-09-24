@@ -1,7 +1,5 @@
 import { BaseEntity } from '../../common/base.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
-import { ServiceFee } from './service.fee.entity';
-import { PortalUser } from './portal-user.entity';
+import { Column, Entity } from 'typeorm';
 
 
 @Entity()
@@ -9,20 +7,17 @@ export class Subscription extends BaseEntity {
   @Column()
   code: string;
 
-  @ManyToOne(() => ServiceFee)
-  serviceFee: ServiceFee;
-
-  @Column({
-    type: 'timestamp',
-    nullable: true,
-  })
-  previousBillingDate: Date;
+  @Column()
+  description: string;
 
   @Column({
     type: 'timestamp',
   })
-  nextBillingDate: Date;
+  startDate: Date;
 
-  @ManyToOne(() => PortalUser)
-  portalUser: PortalUser;
+  @Column({
+    type: 'timestamp',
+  })
+  endDate: Date;
+
 }

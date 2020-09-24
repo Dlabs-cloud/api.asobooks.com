@@ -5,6 +5,7 @@ import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Association } from '../domain/entity/association.entity';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 
 
 @EntityRepository(Membership)
@@ -24,9 +25,24 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .getOne();
   }
 
+  public findByAssociationAndAccountTypeAndStatusAndUserIds(association: Association,
+                                                            accountType: PortalAccountTypeConstant,
+                                                            status = GenericStatusConstant.ACTIVE,
+                                                            ...users: number[]) {
 
-
-
+    return this.createQueryBuilder('membership')
+      .select()
+      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount = portalAccount.id')
+      .where('portalAccount.association = :association')
+      .andWhere('portalAccount.type = :type')
+      .andWhere('membership.status = :status')
+      .andWhere('membership.portalUser IN (:...users) ')
+      .setParameter('association', association.id)
+      .setParameter('type', accountType)
+      .setParameter('status', status)
+      .setParameter('users', users)
+      .getMany();
+  }
 
 
 }

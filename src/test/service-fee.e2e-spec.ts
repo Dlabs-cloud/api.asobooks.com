@@ -53,6 +53,40 @@ describe('Service fees set up test ', () => {
     expect(data.nextBillingDate).toBeDefined();
   });
 
+  it('test that service fee can be created with recipients', async () => {
+
+    let association = await factory().upset(Association).use(association => {
+      association.status = GenericStatusConstant.ACTIVE;
+      return association;
+    }).create();
+
+    let assoUser = await getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
+    let awaitAssoUsers = [0, 1, 2, 3].map(number => {
+      return getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
+    });
+    let usersIds = (await Promise.all(awaitAssoUsers)).map(assoUser => assoUser.user.membership.id);
+    let requestPayload: ServiceFeeRequestDto = {
+      amountInMinorUnit: 10_000_00,
+      cycle: BillingCycleConstant.MONTHLY,
+      description: faker.random.words(10),
+      firstBillingDate: moment(faker.date.future()).format('DD/MM/YYYY'),
+      name: faker.random.words(2),
+      type: faker.random.arrayElement(Object.values(ServiceTypeConstant)),
+      recipients: usersIds,
+    };
+
+    let response = await request(applicationContext.getHttpServer())
+      .post('/service-fees')
+      .set('Authorization', assoUser.token)
+      .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
+      .send(requestPayload);
+    expect(response.status).toEqual(201);
+    //Todo  Test with count
+
+
+  });
+
+
   it('test that set up fee can be created', async () => {
     let requestPayload: ServiceFeeRequestDto = {
       amountInMinorUnit: 1000000,

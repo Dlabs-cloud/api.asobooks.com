@@ -108,12 +108,12 @@ export const getTestUser = async (status?: GenericStatusConstant, portalUser?: P
     group.type = GroupTypeConstant.GENERAL;
     return group;
   }).create();
-
   await factory().upset(MembershipGroup).use(membershipGroup => {
     membershipGroup.membership = membership;
     membershipGroup.group = group;
     return membershipGroup;
   }).create();
+
   return { membership, association };
 };
 
@@ -126,17 +126,18 @@ export const getAssociationUser = async (status?: GenericStatusConstant, portalU
       return association;
     })
     .create();
-  let token = await getLoginUser(status, portalUser, association);
+  let loginDetails = await getLoginUser(status, portalUser, association);
 
   const response = {
-    token: token,
+    token: loginDetails.token,
     association,
+    user: loginDetails.user,
 
   };
   return Promise.resolve(response);
 };
 
-export const getLoginUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association): Promise<string> => {
+export const getLoginUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association) => {
   status = status ?? GenericStatusConstant.ACTIVE;
   const testUser = await getTestUser(status, portalUser, association);
 
@@ -151,6 +152,11 @@ export const getLoginUser = async (status?: GenericStatusConstant, portalUser?: 
   return authenticationUtils.generateGenericToken(jwtPayload).then(token => {
     const authorizationToken = `Bearer ${token}`;
     return Promise.resolve(authorizationToken);
+  }).then(token => {
+    return {
+      token,
+      user: testUser,
+    };
   });
 
 

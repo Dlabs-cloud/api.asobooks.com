@@ -6,7 +6,7 @@ import { CommonModule } from '../common/common.module';
 import { TestController } from './test.controller';
 import { AuthenticationController } from './authentication.controller';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { ResponseTransformInterceptor } from './response-transform.interceptor';
+import { ResponseTransformInterceptor } from './interceptors/response-transform.interceptor';
 import { MembershipManagementController } from './membership-management.controller';
 import { AssociationController } from './association.controller';
 import { LoggedInUserInfoHandler } from './handlers/logged-in-user-info.handler';

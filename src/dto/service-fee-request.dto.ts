@@ -37,6 +37,6 @@ export class ServiceFeeRequestDto {
   firstBillingDate?: string;
   @IsOptional()
   @IsArray()
-  recipients?: string[];
+  recipients?: number[];
 
 }

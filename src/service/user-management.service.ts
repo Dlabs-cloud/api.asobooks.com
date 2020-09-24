@@ -145,7 +145,7 @@ export class UserManagementService {
       }
       let group = groups[0];
 
-      await this.groupService.addMember(entityManager, group, membership);
+      await this.groupService.addMember(group, membership, entityManager);
       this.eventBus.publish(new AssociationMembershipSignUpEvent(portalUser));
       return membership;
     });

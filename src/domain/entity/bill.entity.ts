@@ -4,25 +4,15 @@ import { Subscription } from './subcription.entity';
 import { Address } from './address.entity';
 import { PortalUser } from './portal-user.entity';
 import { ServiceFee } from './service.fee.entity';
+import { Membership } from './membership.entity';
 
 @Entity()
 export class Bill extends BaseEntity {
 
   @Column()
   code: string;
-  @Column()
-  membershipRef: string;
-  @Column()
-  receiverName: string;
-  @Column()
-  receiverAddress: string;
-  @Column({
-    type: 'timestamp',
-    nullable: true,
-  })
-  previousPayDate: Date;
-  @Column()
-  previousPayAmountInMinorUnit: number;
+  @ManyToOne(() => Membership)
+  membership: Membership;
   @Column()
   netArrears: number;
   @Column()
@@ -46,19 +36,4 @@ export class Bill extends BaseEntity {
   })
   @JoinColumn()
   subscription: Subscription;
-  @ManyToOne(() => PortalUser)
-  @JoinColumn()
-  user: PortalUser;
-
-  @ManyToOne(() => ServiceFee)
-  @JoinColumn()
-  serviceFee: ServiceFee;
-
-  @Column({
-    type: 'timestamp',
-    nullable: true,
-  })
-  lastPayDate: Date;
-
-
 }

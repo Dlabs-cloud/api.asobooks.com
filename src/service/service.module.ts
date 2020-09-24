@@ -19,6 +19,7 @@ import { AssociationFileService } from './association-file.service';
 import { ServiceFeeService } from './service-fee.service';
 import { EarlyAccessService } from './early-access.service';
 import { GroupService } from './group.service';
+import { GroupServiceFeeService } from './group-service-fee.service';
 
 
 const emailValidationProvider = {
@@ -58,6 +59,7 @@ const fileServiceProvider = {
     AssociationFileService,
     ServiceFeeService,
     EarlyAccessService,
+    GroupServiceFeeService,
     GroupService,
   ],
   providers: [
@@ -72,6 +74,7 @@ const fileServiceProvider = {
     AssociationFileService,
     MembershipService,
     AssociationService,
+    GroupServiceFeeService,
     emailValidationProvider,
     bearerTokenServiceProvider,
     fileServiceProvider,

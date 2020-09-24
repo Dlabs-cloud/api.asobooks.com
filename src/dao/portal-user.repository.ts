@@ -40,17 +40,6 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
   }
 
 
-  public findByAssociationAndAccountType(association: Association,
-                                         portalAccountType?: PortalAccountTypeConstant,
-                                         status = GenericStatusConstant.ACTIVE,
-                                         limit = 20,
-                                         offset = 0) {
-    const builder = this.createQueryBuilderGetByAssociationAndAccountType(association, portalAccountType, status, limit, offset);
-    const count = builder.clone().getCount();
-    const result = builder.getMany();
-    return Promise.all([result, count]);
-  }
-
   public countByAssociationAndAccountType(association: Association,
                                           portalAccountType?: PortalAccountTypeConstant,
                                           status = GenericStatusConstant.ACTIVE) {
