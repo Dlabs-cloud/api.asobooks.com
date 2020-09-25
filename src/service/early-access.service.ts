@@ -1,9 +1,9 @@
-import { EarlyAccessRepository as EAccessRepository } from '../dao/early-access.repository';
+import { EarlyAccessRepository as EAccessRepository} from '../dao/early-access.repository';
 import { EarlyAccess } from '../domain/entity/early-access.entity';
 import { Injectable } from '@nestjs/common';
 import { Connection } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { EarlyAccessRepository } from 'nestjs-early-access/index';
+import {EarlyAccessRepository} from "nestjs-early-access/index";
 
 @Injectable()
 export class EarlyAccessService implements EarlyAccessRepository {
