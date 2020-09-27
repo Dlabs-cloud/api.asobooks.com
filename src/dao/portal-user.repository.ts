@@ -7,6 +7,10 @@ import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-c
 import { Membership } from '../domain/entity/membership.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { Some } from 'optional-typescript';
+import { ServiceFee } from '../domain/entity/service.fee.entity';
+import { GroupMembership } from '../domain/entity/group-membership.entity';
+import { GroupServiceFee } from '../domain/entity/group-sevice-fee.entity';
+import { Group } from '../domain/entity/group.entity';
 
 @EntityRepository(PortalUser)
 export class PortalUserRepository extends BaseRepository<PortalUser> {
@@ -47,45 +51,30 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
     return builder.getCount();
   }
 
-  public findByAssociationAndTypeAndStatusAndCodes(association: Association, type: PortalAccountTypeConstant, status = GenericStatusConstant.ACTIVE, ...code: string[]):
-    Promise<PortalUser[]> {
-    return this.createQueryBuilder('portalUser')
-      .select()
-      .distinct()
-      .innerJoin(Membership, 'membership', 'membership.portalUser=portalUser.id')
-      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount=portalAccount.id')
-      .where('portalUser.status = :status')
-      .andWhere('portalUser.code IN (:...code)')
-      .andWhere('portalAccount.association = :association')
-      .andWhere('portalAccount.type = :type')
-      .setParameter('status', status)
-      .setParameter('association', association.id)
-      .setParameter('code', code)
-      .getMany();
+
+  public findByServiceFeeAndStatus(serviceFee: ServiceFee, limit = 10, offset = 0, status = GenericStatusConstant.ACTIVE) {
+    return this.findByServiceFeeAndStatusQueryBuilder(serviceFee, status, limit, offset)
+      .getManyAndCount();
   }
 
 
-  /**
-   * This is fetching all the members of an association;So it should be optimised
-   * @param association
-   * @param type
-   * @param status
-   */
-  public findAllByAssociationAndTypeAndStatus(association: Association, type: PortalAccountTypeConstant, status = GenericStatusConstant.ACTIVE) {
-    return this.createQueryBuilder('portalUser')
-      .select()
-      .distinct()
-      .innerJoin(Membership, 'membership', 'membership.portalUser=portalUser.id')
-      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount=portalAccount.id')
-      .where('portalUser.status = :status')
-      .andWhere('portalAccount.association = :association')
-      .andWhere('portalAccount.type = :type')
-      .setParameter('status', status)
-      .setParameter('association', association.id)
-      .setParameter('type', type)
-      .getMany();
+  public countByServiceFeeAndStatus(serviceFee: ServiceFee, limit = 10, offset = 0, status = GenericStatusConstant.ACTIVE) {
+    return this.findByServiceFeeAndStatusQueryBuilder(serviceFee, status, limit, offset)
+      .getCount();
   }
 
+
+  private findByServiceFeeAndStatusQueryBuilder(serviceFee: ServiceFee, status: GenericStatusConstant, limit: number, offset: number) {
+    return this.createQueryBuilder('portalUser')
+      .innerJoin(Membership, 'membership', 'membership.portalUser = portalUser.id')
+      .innerJoin(GroupMembership, 'membershipGroup', 'membershipGroup.membership = membership.id')
+      .innerJoin(Group, 'group', 'membershipGroup.group = group.id')
+      .innerJoin(GroupServiceFee, 'groupServiceFee', 'groupServiceFee.group = group.id')
+      .where('groupServiceFee.serviceFee = :service', { service: serviceFee.id })
+      .andWhere('portalUser.status = :status', { status })
+      .limit(limit)
+      .offset(offset);
+  }
 
   private getPortalUserNameOrEmailOrPhoneNumberSelectQueryBuilder(usernameOrEmailOrPhone: string) {
     return this

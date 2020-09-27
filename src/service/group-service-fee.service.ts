@@ -14,7 +14,7 @@ export class GroupServiceFeeService {
     let groupService = new GroupServiceFee();
     groupService.group = group;
     groupService.serviceFee = serviceFee;
-    return entityManager.save(group);
+    return entityManager.save(groupService);
   }
 
 }

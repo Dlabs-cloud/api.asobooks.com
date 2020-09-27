@@ -14,6 +14,10 @@ import { factory } from './factory';
 import { Association } from '../domain/entity/association.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { ServiceFee } from '../domain/entity/service.fee.entity';
+import { PortalUserRepository } from '../dao/portal-user.repository';
+import { ServiceFeeRepository } from '../dao/service-fee.repository';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { MembershipRepository } from '../dao/membership.repository';
 
 describe('Service fees set up test ', () => {
   let applicationContext: INestApplication;
@@ -27,32 +31,6 @@ describe('Service fees set up test ', () => {
     connection = getConnection();
   });
 
-  it('test that a service fee can be gotten by code', async () => {
-    let association = await factory().upset(Association).use(association => {
-      association.status = GenericStatusConstant.ACTIVE;
-      return association;
-    }).create();
-    let associationUser = await getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
-    let serviceFee = await factory().upset(ServiceFee).use((serviceFee) => {
-      serviceFee.association = association;
-      return serviceFee;
-    }).create();
-
-    let response = await request(applicationContext.getHttpServer())
-      .get(`/service-fees/${serviceFee.code}`)
-      .set('Authorization', associationUser.token)
-      .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code);
-    expect(response.status).toEqual(200);
-    let data = response.body.data;
-    expect(data.status).toEqual(GenericStatusConstant.ACTIVE);
-    expect(data.name).toEqual(serviceFee.name);
-    expect(data.code).toEqual(serviceFee.code);
-    expect(data.amountInMinorUnit).toStrictEqual(serviceFee.amountInMinorUnit.toString());
-    expect(data.description).toEqual(serviceFee.description);
-    expect(data.firstBillingDate).toBeDefined();
-    expect(data.nextBillingDate).toBeDefined();
-  });
-
   it('test that service fee can be created with recipients', async () => {
 
     let association = await factory().upset(Association).use(association => {
@@ -62,9 +40,13 @@ describe('Service fees set up test ', () => {
 
     let assoUser = await getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
     let awaitAssoUsers = [0, 1, 2, 3].map(number => {
-      return getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
+      return getAssociationUser(GenericStatusConstant.ACTIVE, null, association, PortalAccountTypeConstant.MEMBER_ACCOUNT);
     });
-    let usersIds = (await Promise.all(awaitAssoUsers)).map(assoUser => assoUser.user.membership.id);
+
+
+    let usersIds = (await Promise.all(awaitAssoUsers)).map(assoUser => assoUser.user.membership.portalUser.id);
+
+
     let requestPayload: ServiceFeeRequestDto = {
       amountInMinorUnit: 10_000_00,
       cycle: BillingCycleConstant.MONTHLY,
@@ -81,7 +63,15 @@ describe('Service fees set up test ', () => {
       .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
       .send(requestPayload);
     expect(response.status).toEqual(201);
-    //Todo  Test with count
+    let serviceCode = response.body.data.code;
+    let serviceFee = await connection.getCustomRepository(ServiceFeeRepository)
+      .findByCodeAndAssociation(serviceCode, association);
+
+    let portalUsersCount = await connection
+      .getCustomRepository(PortalUserRepository)
+      .countByServiceFeeAndStatus(serviceFee);
+
+    expect(portalUsersCount).toEqual(4);
 
 
   });
@@ -110,6 +100,34 @@ describe('Service fees set up test ', () => {
     expect(response.status).toEqual(201);
     expect(response.body.data.code).toBeDefined();
   });
+
+  it('test that a service fee can be gotten by code', async () => {
+    let association = await factory().upset(Association).use(association => {
+      association.status = GenericStatusConstant.ACTIVE;
+      return association;
+    }).create();
+    let associationUser = await getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
+    let serviceFee = await factory().upset(ServiceFee).use((serviceFee) => {
+      serviceFee.association = association;
+      return serviceFee;
+    }).create();
+
+    let response = await request(applicationContext.getHttpServer())
+      .get(`/service-fees/${serviceFee.code}`)
+      .set('Authorization', associationUser.token)
+      .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code);
+    expect(response.status).toEqual(200);
+    let data = response.body.data;
+    expect(data.status).toEqual(GenericStatusConstant.ACTIVE);
+    expect(data.name).toEqual(serviceFee.name);
+    expect(data.code).toEqual(serviceFee.code);
+    expect(data.amountInMinorUnit).toStrictEqual(serviceFee.amountInMinorUnit.toString());
+    expect(data.description).toEqual(serviceFee.description);
+    expect(data.firstBillingDate).toBeDefined();
+    expect(data.nextBillingDate).toBeDefined();
+  });
+
+
 
 
   afterAll(async () => {

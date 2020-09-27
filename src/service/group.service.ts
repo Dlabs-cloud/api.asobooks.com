@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Group } from '../domain/entity/group.entity';
 import { Connection, EntityManager } from 'typeorm';
 import { GroupDto } from '../dto/group.dto';
-import { MembershipGroup } from '../domain/entity/membership-group.entity';
+import { GroupMembership } from '../domain/entity/group-membership.entity';
 import { Membership } from '../domain/entity/membership.entity';
 import { GroupRepository } from '../dao/group.repository';
 import { MemberGroupRepository } from '../dao/member-group.repository';
@@ -23,28 +23,34 @@ export class GroupService {
   }
 
 
-  public async addMember(group: Group, membership: Membership, entityManager: EntityManager = null) {
-    let groupMember = await entityManager
+  public async addMember(entityManager: EntityManager, group: Group, ...memberships: Membership[]) {
+    let groupMembers = await entityManager
       .getCustomRepository(MemberGroupRepository)
-      .findByMembershipAndGroup(membership, group);
-    if (groupMember) {
-      return groupMember;
-    }
-    let membershipGroup = new MembershipGroup();
-    membershipGroup.group = group;
-    membershipGroup.membership = membership;
-    if (entityManager) {
-      return entityManager.save(membershipGroup);
-    }
-    return this.connection.getCustomRepository(GroupRepository).save(membershipGroup);
+      .findByGroupAndStatusInMembership(group, null, ...memberships);
+
+    let groupMemberships = memberships.filter(membership => {
+      return !!!groupMembers.find(groupMember => groupMember.membershipId === membership.id);
+    }).map(membership => {
+      let membershipGroup = new GroupMembership();
+      membershipGroup.group = group;
+      membershipGroup.membership = membership;
+      return membershipGroup;
+    });
+    return entityManager.save(groupMemberships);
   }
 
-  public async removeMember(group: Group, membership: Membership, entityManager: EntityManager) {
-    let groupMember = await this.connection
+  public removeMember(entityManager: EntityManager, group: Group, ...membership: Membership[]) {
+    return this.connection
       .getCustomRepository(MemberGroupRepository)
-      .findByMembershipAndGroup(membership, group);
-    groupMember.status = GenericStatusConstant.IN_ACTIVE;
-    await entityManager.save(groupMember);
+      .findByGroupAndStatusInMembership(group, null, ...membership)
+      .then(groupMembers => {
+        return groupMembers.map(groupMember => {
+          groupMember.status = GenericStatusConstant.IN_ACTIVE;
+          return entityManager.save(groupMember);
+        });
+      }).then(groupMemberships => {
+        return Promise.all(groupMemberships);
+      });
 
   }
 

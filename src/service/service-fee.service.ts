@@ -15,7 +15,7 @@ import { GroupRepository } from '../dao/group.repository';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { GroupServiceFeeService } from './group-service-fee.service';
 import { Membership } from '../domain/entity/membership.entity';
-import { MembershipGroup } from '../domain/entity/membership-group.entity';
+import { GroupMembership } from '../domain/entity/group-membership.entity';
 
 @Injectable()
 export class ServiceFeeService {
@@ -61,13 +61,15 @@ export class ServiceFeeService {
         name: `${serviceFee.name}-${serviceFee.type}`,
         type: GroupTypeConstant.SERVICE_FEE,
       });
-      let awaitMembershipGroups: Promise<MembershipGroup>[] = recipients.map(recipient => {
-        return this.groupService.addMember(group, recipient, entityManager);
-      });
-      await Promise.all(awaitMembershipGroups);
 
-      return serviceFee;
-
+      return this.groupService
+        .addMember(entityManager, group, ...recipients)
+        .then(result => {
+          return this.groupServiceFeeService
+            .createGroupForService(entityManager, group, serviceFee);
+        }).then(result => {
+          return serviceFee;
+        });
     });
 
   }

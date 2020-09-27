@@ -5,7 +5,7 @@ import { Association } from '../domain/entity/association.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { Membership } from '../domain/entity/membership.entity';
-import { MembershipGroup } from '../domain/entity/membership-group.entity';
+import { GroupMembership } from '../domain/entity/group-membership.entity';
 
 @EntityRepository(Group)
 export class GroupRepository extends BaseRepository<Group> {
@@ -30,7 +30,7 @@ export class GroupRepository extends BaseRepository<Group> {
     return this.createQueryBuilder('group')
       .select()
       .innerJoin(Association, 'association', 'group.association = association.id')
-      .innerJoin(MembershipGroup, 'membershipGroup', 'membershipGroup.group = group.id')
+      .innerJoin(GroupMembership, 'membershipGroup', 'membershipGroup.group = group.id')
       .where('membershipGroup.membership = :membership', { membership: membership.id })
       .andWhere('association.id = :association', { association: association.id })
       .andWhere('group.type = :type', { type: type })

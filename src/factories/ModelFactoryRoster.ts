@@ -21,7 +21,7 @@ import { ServiceFee } from '../domain/entity/service.fee.entity';
 import { ServiceFeeFactory } from './factory/service-fee.factory';
 import { Group } from '../domain/entity/group.entity';
 import { GroupModelFactory } from './factory/group-model.factory';
-import { MembershipGroup } from '../domain/entity/membership-group.entity';
+import { GroupMembership } from '../domain/entity/group-membership.entity';
 import { MembershipGroupModelFactory } from './factory/membership-group-model.factory';
 
 export class ModelFactoryRoster {
@@ -37,6 +37,6 @@ export class ModelFactoryRoster {
     modelFactory.register(Bank, BankFactory);
     modelFactory.register(Group, GroupModelFactory);
     modelFactory.register(ServiceFee, ServiceFeeFactory);
-    modelFactory.register(MembershipGroup, MembershipGroupModelFactory);
+    modelFactory.register(GroupMembership, MembershipGroupModelFactory);
   }
 }

@@ -1,5 +1,5 @@
 import { AssociationContext } from '../conf/security/annotations/association-context';
-import { Body, Controller, Delete, NotFoundException, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
 import { RequestPrincipalContext } from '../conf/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../conf/security/request-principal.service';
 import { MembershipFeeRequestDto } from '../dto/membership-fee.-request.dto';
@@ -12,8 +12,9 @@ import { MembershipRepository } from '../dao/membership.repository';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { ApiResponseDto } from '../dto/api-response.dto';
+import { PortalUserRepository } from '../dao/portal-user.repository';
 
-@Controller('service-fee')
+@Controller('service-fees')
 @AssociationContext()
 export class MembershipFeeController {
 
@@ -21,7 +22,7 @@ export class MembershipFeeController {
               private readonly groupService: GroupService) {
   }
 
-  @Post('/:code/member')
+  @Post('/:code/members')
   public async addMember(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
                          @Param('code') code: string,
                          @Body() request: MembershipFeeRequestDto) {
@@ -41,18 +42,45 @@ export class MembershipFeeController {
       type: GroupTypeConstant.SERVICE_FEE,
     });
 
-    await Promise
-      .all(memberships
-        .map(membership => this.groupService.addMember(group, membership)));
-    return new ApiResponseDto();
+    return this.connection.transaction(entityManager => {
+      return this.groupService.addMember(entityManager, group, ...memberships);
+    }).then(result => {
+      return new ApiResponseDto();
+    });
+
+
   }
 
 
-  @Delete('/:serviceCode/member/:userCode')
+  @Get('/:code/members')
+  public async getMembers(@RequestPrincipalContext()requestPrincipal: RequestPrincipal,
+                          @Param('code')code: string,
+                          @Query('limit')limit = 20,
+                          @Query('offset')offset = 0) {
+    let serviceFee = await this.connection
+      .getCustomRepository(ServiceFeeRepository)
+      .findByCodeAndAssociation(code, requestPrincipal.association);
+    if (serviceFee) {
+      new NotFoundException(`Service fee with code ${code} cannot be found`);
+    }
+    return this.connection
+      .getCustomRepository(PortalUserRepository)
+      .findByServiceFeeAndStatus(serviceFee, limit, offset)
+      .then(portalUserNumbers => {
+        return {
+          items: portalUserNumbers[0],
+          itemsPerPage: limit,
+          offset: offset,
+          total: portalUserNumbers[1],
+        };
+      });
+
+  }
+
+  @Delete('/:serviceCode/member')
   public async removeMember(@Param('serviceCode') serviceCode: string,
-                            @Param('userCode') userId: number,
-                            @RequestPrincipalContext() requestPrincipal: RequestPrincipal,
-  ) {
+                            @Body() membershipFeeRequestDto: MembershipFeeRequestDto,
+                            @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
 
 
     let memberships = await this.connection
@@ -61,17 +89,12 @@ export class MembershipFeeController {
         requestPrincipal.association,
         PortalAccountTypeConstant.MEMBER_ACCOUNT,
         GenericStatusConstant.ACTIVE,
-        ...[userId],
+        ...membershipFeeRequestDto.recipients,
       );
 
-    let membership = memberships[0];
 
-    if (!memberships && !membership) {
-      throw new NotFoundException(`user with code ${userId}does not exist`);
-    }
-
-
-    let serviceFee = await this.connection.getCustomRepository(ServiceFeeRepository).findByCodeAndAssociation(serviceCode, requestPrincipal.association);
+    let serviceFee = await this.connection.getCustomRepository(ServiceFeeRepository)
+      .findByCodeAndAssociation(serviceCode, requestPrincipal.association);
 
     let group = await this.connection.getCustomRepository(GroupRepository).findOneItemByStatus({
       name: `${serviceFee.name}-${serviceFee.type}`,
@@ -79,7 +102,7 @@ export class MembershipFeeController {
     });
 
     await this.connection.transaction(async entityManager => {
-      return this.groupService.removeMember(group, membership, entityManager);
+      return this.groupService.removeMember(entityManager, group, ...memberships);
     });
 
 

@@ -25,6 +25,7 @@ export class ServiceFeeController {
   public async createService(@Body() serviceFeeRequestDto: ServiceFeeRequestDto,
                              @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
 
+
     let recipients = serviceFeeRequestDto.recipients;
     let members: Membership[] = null;
     if (recipients) {
@@ -32,6 +33,7 @@ export class ServiceFeeController {
         .findByAssociationAndAccountTypeAndStatusAndUserIds(requestPrincipal.association,
           PortalAccountTypeConstant.MEMBER_ACCOUNT, GenericStatusConstant.ACTIVE,
           ...recipients);
+
     }
     let serviceFee = await this.serviceFeeService
       .createService(serviceFeeRequestDto, requestPrincipal.association, members);
@@ -50,4 +52,5 @@ export class ServiceFeeController {
     }
     return new ApiResponseDto(serviceFee);
   }
+
 }

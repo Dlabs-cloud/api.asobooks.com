@@ -4,6 +4,7 @@ import { Association } from './association.entity';
 import { PortalAccount } from './portal-account.entity';
 import { GroupTypeConstant } from '../enums/group-type.constant';
 import { GenericStatusConstant } from '../enums/generic-status-constant';
+import { ServiceFee } from './service.fee.entity';
 
 @Entity()
 export class Group extends BaseEntity {
@@ -19,4 +20,6 @@ export class Group extends BaseEntity {
     enum: GroupTypeConstant,
   })
   type: GroupTypeConstant;
+
+
 }
