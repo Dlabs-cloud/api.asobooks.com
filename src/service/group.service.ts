@@ -4,7 +4,6 @@ import { Connection, EntityManager } from 'typeorm';
 import { GroupDto } from '../dto/group.dto';
 import { GroupMembership } from '../domain/entity/group-membership.entity';
 import { Membership } from '../domain/entity/membership.entity';
-import { GroupRepository } from '../dao/group.repository';
 import { MemberGroupRepository } from '../dao/member-group.repository';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 
@@ -42,7 +41,7 @@ export class GroupService {
   public removeMember(entityManager: EntityManager, group: Group, ...membership: Membership[]) {
     return this.connection
       .getCustomRepository(MemberGroupRepository)
-      .findByGroupAndStatusInMembership(group, null, ...membership)
+      .findByGroupAndStatusInMembership(group, GenericStatusConstant.ACTIVE, ...membership)
       .then(groupMembers => {
         return groupMembers.map(groupMember => {
           groupMember.status = GenericStatusConstant.IN_ACTIVE;

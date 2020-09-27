@@ -12,6 +12,7 @@ import { AssociationController } from './association.controller';
 import { LoggedInUserInfoHandler } from './handlers/logged-in-user-info.handler';
 import { ServiceFeeController } from './service-fee.controller';
 import { MasterRecordController } from './master-record-controller';
+import { GroupServiceFeeController } from './group-service-fee.controller';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { MasterRecordController } from './master-record-controller';
     AssociationController,
     MasterRecordController,
     ServiceFeeController,
+    GroupServiceFeeController,
   ],
   providers: [
     ResponseTransformInterceptor,
