@@ -8,6 +8,10 @@ import { AssociationCodeSequence } from './sequenceGenerators/association-code.s
 import { ServiceFeeCodeSequence } from './sequenceGenerators/service-fee-code.sequence';
 import { MembershipCodeSequence } from './sequenceGenerators/membership-code.sequence';
 import { UnAuthorizedExceptionFilter } from './exception-filters/un-authorized-exception.filter';
+import { CronStartup } from './start-ups/cron.startup';
+import { ConfModule } from '../conf/conf.module';
+import { BullModule } from '@nestjs/bull';
+import { CronQueue } from './cron.enum';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -25,6 +29,15 @@ const unAuthorizedExceptionFilter = {
 };
 
 @Module({
+  imports: [
+    BullModule.registerQueue({
+      name: CronQueue.SUBSCRIPTION,
+      redis: {
+        port: 7565,
+        host: 'localhost',
+      },
+    }),
+  ],
   exports: [
     PortalAccountSequence,
     AssociationCodeSequence,
@@ -37,6 +50,7 @@ const unAuthorizedExceptionFilter = {
     AssociationCodeSequence,
     ServiceFeeCodeSequence,
     BankUploadStartup,
+    CronStartup,
     MembershipCodeSequence,
     illegalArgumentExceptionFilter,
     invalidTokenExceptionFilter,

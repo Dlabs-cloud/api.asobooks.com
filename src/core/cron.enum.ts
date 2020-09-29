@@ -1,0 +1,4 @@
+export enum CronQueue {
+  SUBSCRIPTION = 'SUBSCRIPTION',
+  BILL_GENERATION = 'BILL_GENERATION'
+}

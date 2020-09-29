@@ -9,8 +9,7 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class BankUploadStartup implements OnApplicationBootstrap {
-  constructor(private readonly connection: Connection,
-              private configService: ConfigService) {
+  constructor(private readonly connection: Connection) {
   }
 
   async onApplicationBootstrap() {
