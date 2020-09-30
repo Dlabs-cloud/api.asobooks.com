@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { UserManagementService } from '../service/user-management.service';
-import { RequestPrincipalContext } from '../conf/security/decorators/request-principal.docorator';
-import { RequestPrincipal } from '../conf/security/request-principal.service';
+import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
+import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { MemberSignUpDto } from '../dto/user/member-sign-up.dto';
 import { ApiResponseDto } from '../dto/api-response.dto';
-import { AssociationContext } from '../conf/security/annotations/association-context';
+import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
 import { Connection } from 'typeorm';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';

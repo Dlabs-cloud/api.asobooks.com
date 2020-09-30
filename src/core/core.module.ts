@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PortalAccountSequence } from './sequenceGenerators/portal-account.sequence';
 import { BankUploadStartup } from './start-ups/bank-upload.startup';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { IllegalArgumentExceptionFilter } from './exception-filters/illegal-argument-exception-filter';
 import { InvalidTokenExceptionFilter } from './exception-filters/invalid-token-exception.filter';
 import { AssociationCodeSequence } from './sequenceGenerators/association-code.sequence';
@@ -13,6 +13,13 @@ import { ConfModule } from '../conf/conf.module';
 import { BullModule } from '@nestjs/bull';
 import { CronQueue } from './cron.enum';
 import { SubscriptionCodeSequence } from './sequenceGenerators/subscription-code.sequence';
+import { QueueDataStoreConf } from '../conf/data-source/queue-data-store-conf';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
+import { AccessConstraintInterceptor } from '../dlabs-nest-starter/security/interceptors/access-constraint.interceptor';
+import { RemoteAddressInterceptor } from '../dlabs-nest-starter/security/interceptors/remote-address.interceptor';
+import { AssociationConstraintInterceptor } from '../dlabs-nest-starter/security/interceptors/association-constraint.interceptor';
+import { LoggerInterceptor } from '../dlabs-nest-starter/security/interceptors/logger.interceptor';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -31,13 +38,7 @@ const unAuthorizedExceptionFilter = {
 
 @Module({
   imports: [
-    BullModule.registerQueue({
-      name: CronQueue.SUBSCRIPTION,
-      redis: {
-        port: 6379,
-        host: 'localhost',
-      },
-    }),
+    BullModule.registerQueueAsync(...QueueDataStoreConf.createBullOptions()),
   ],
   exports: [
     PortalAccountSequence,
@@ -63,3 +64,4 @@ const unAuthorizedExceptionFilter = {
 
 export class CoreModule {
 }
+

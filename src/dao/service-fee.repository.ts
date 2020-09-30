@@ -4,6 +4,7 @@ import { EntityRepository } from 'typeorm';
 import { Association } from '../domain/entity/association.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Subscription } from '../domain/entity/subcription.entity';
+import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 
 @EntityRepository(ServiceFee)
 export class ServiceFeeRepository extends BaseRepository<ServiceFee> {
@@ -23,12 +24,12 @@ export class ServiceFeeRepository extends BaseRepository<ServiceFee> {
 
   public findServiceFeeBetweenNextBillingDate(startDate: Date,
                                               endDate: Date,
+                                              serviceType: ServiceTypeConstant,
                                               status = GenericStatusConstant.ACTIVE) {
-    return this.createQueryBuilder('serviceFee')
+
+    let serviceFeeSelectQueryBuilder = this.createQueryBuilder('serviceFee')
       .select()
       .where('serviceFee.status = :status')
-      .andWhere('serviceFee.nextBillingDate >= :startDate')
-      .andWhere('serviceFee.nextBillingDate <= :endDate')
       .andWhere(qb => {
         let query = qb.subQuery()
           .select('id')
@@ -37,11 +38,23 @@ export class ServiceFeeRepository extends BaseRepository<ServiceFee> {
           .getQuery();
         return `serviceFee.id NOT IN ${query}`;
       })
+      .andWhere('serviceFee.type = :type');
+
+    if (ServiceTypeConstant.RE_OCCURRING === serviceType) {
+      serviceFeeSelectQueryBuilder
+        .andWhere('serviceFee.nextBillingEndDate >= :startDate')
+        .andWhere('serviceFee.nextBillingEndDate <= :endDate');
+    } else {
+      serviceFeeSelectQueryBuilder
+        .andWhere('serviceFee.billingStartDate >= :startDate')
+        .andWhere('serviceFee.billingStartDate <= :endDate');
+    }
+    return serviceFeeSelectQueryBuilder
       .setParameter('status', status)
       .setParameter('startDate', startDate)
       .setParameter('endDate', endDate)
+      .setParameter('type', serviceType)
       .getMany();
-
   }
 
 

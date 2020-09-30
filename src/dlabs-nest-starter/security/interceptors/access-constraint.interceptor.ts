@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 import { AccessTypes } from '../accessTypes/access-types';
 import { Reflector } from '@nestjs/core';
 import { TokenTypeConstant } from '../../../domain/enums/token-type-constant';
-import { BEARER_TOKEN_SERVICE, IBearerTokenService } from '../../../contracts/i-bearer-token-service';
+import { BEARER_TOKEN_SERVICE, IBearerTokenService } from '../../interfaces/i-bearer-token-service';
 import { TokenPayloadDto } from '../../../dto/token-payload.dto';
 import { RequestPrincipal } from '../request-principal.service';
 

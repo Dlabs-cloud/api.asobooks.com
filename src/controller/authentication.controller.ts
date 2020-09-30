@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import { AuthenticationService } from '../service/authentication.service';
-import { Public } from '../conf/security/annotations/public';
+import { Public } from '../dlabs-nest-starter/security/annotations/public';
 import { LoginDto } from '../dto/auth/request/login.dto';
 import { LoginResponseDto } from '../dto/auth/response/login-response.dto';
 import { ApiResponseDto } from '../dto/api-response.dto';
@@ -18,8 +18,8 @@ import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { InvalidtokenException } from '../exception/invalidtoken.exception';
-import { RequestPrincipalContext } from '../conf/security/decorators/request-principal.docorator';
-import { RequestPrincipal } from '../conf/security/request-principal.service';
+import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
+import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { LoggedInUserInfoHandler } from './handlers/logged-in-user-info.handler';
 
 

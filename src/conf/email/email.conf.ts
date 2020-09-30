@@ -4,7 +4,6 @@ import { MailerOptions, MailerOptionsFactory } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 
-@Injectable()
 export class EmailMailerConfiguration {
 
 

@@ -9,7 +9,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { MembershipService } from './membership.service';
 import { UserManagementService } from './user-management.service';
 import { ValidationService } from './validation-service';
-import { BEARER_TOKEN_SERVICE } from '../contracts/i-bearer-token-service';
+import { BEARER_TOKEN_SERVICE } from '../dlabs-nest-starter/interfaces/i-bearer-token-service';
 import { BearerTokenService } from './bearer-token.service';
 import { AssociationService } from './association.service';
 import { FILE_SERVICE } from '../contracts/i-file-service';
@@ -20,6 +20,8 @@ import { ServiceFeeService } from './service-fee.service';
 import { EarlyAccessService } from './early-access.service';
 import { GroupService } from './group.service';
 import { GroupServiceFeeService } from './group-service-fee.service';
+import { SubscriptionService } from './subscription.service';
+import { ConfigModule } from '@nestjs/config';
 
 
 const emailValidationProvider = {
@@ -44,6 +46,7 @@ const fileServiceProvider = {
     DaoModule,
     CommonModule,
     CqrsModule,
+    ConfigModule
   ],
   exports: [
     AuthenticationService,
@@ -60,6 +63,7 @@ const fileServiceProvider = {
     ServiceFeeService,
     EarlyAccessService,
     GroupServiceFeeService,
+    SubscriptionService,
     GroupService,
   ],
   providers: [
@@ -69,6 +73,7 @@ const fileServiceProvider = {
     PortalAccountService,
     UserManagementService,
     BankInfoService,
+    SubscriptionService,
     GroupService,
     ServiceFeeService,
     AssociationFileService,

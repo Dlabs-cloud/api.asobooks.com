@@ -3,8 +3,8 @@ import { AssociationRequestDto } from '../dto/association/association-request.dt
 import { AssociationService } from '../service/association.service';
 import { ApiResponseDto } from '../dto/api-response.dto';
 import { ImageUploadInterceptor } from '../common/fileutils';
-import { RequestPrincipalContext } from '../conf/security/decorators/request-principal.docorator';
-import { RequestPrincipal } from '../conf/security/request-principal.service';
+import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
+import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { BaseController } from './BaseController';
 import { Some } from 'optional-typescript';
 import { FileTypeConstant } from '../domain/enums/file-type-constant';

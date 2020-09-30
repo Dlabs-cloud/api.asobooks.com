@@ -1,7 +1,7 @@
-import { AssociationContext } from '../conf/security/annotations/association-context';
+import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
 import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Query } from '@nestjs/common';
-import { RequestPrincipalContext } from '../conf/security/decorators/request-principal.docorator';
-import { RequestPrincipal } from '../conf/security/request-principal.service';
+import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
+import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { MembershipFeeRequestDto } from '../dto/membership-fee.-request.dto';
 import { GroupService } from '../service/group.service';
 import { Connection } from 'typeorm';

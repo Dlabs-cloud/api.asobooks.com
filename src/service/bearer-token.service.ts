@@ -1,4 +1,4 @@
-import { IBearerTokenService } from '../contracts/i-bearer-token-service';
+import { IBearerTokenService } from '../dlabs-nest-starter/interfaces/i-bearer-token-service';
 import { Injectable } from '@nestjs/common';
 import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';

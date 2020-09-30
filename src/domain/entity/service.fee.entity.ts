@@ -45,7 +45,13 @@ export class ServiceFee extends BaseEntity {
     type: 'timestamp',
     nullable: true,
   })
-  nextBillingDate?: Date;
+  nextBillingStartDate?: Date;
+
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
+  nextBillingEndDate?: Date;
 
   @Column({
     type: 'timestamp',

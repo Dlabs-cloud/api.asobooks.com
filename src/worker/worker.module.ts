@@ -8,28 +8,18 @@ import { SubscriptionGeneratorProcessor } from './processors/subscription-genera
 import { CronQueue } from '../core/cron.enum';
 import { CoreModule } from '../core/core.module';
 import { BullModule } from '@nestjs/bull';
+import { ServiceModule } from '../service/service.module';
+import { QueueDataStoreConf } from '../conf/data-source/queue-data-store-conf';
+import { ConfModule } from '../conf/conf.module';
 
 
 @Module({
   imports: [
-    BullModule.registerQueue({
-      name: CronQueue.SUBSCRIPTION,
-      redis: {
-        port: 6379,
-        host: 'localhost',
-      },
-    }),
+    ConfModule,
+    BullModule.registerQueueAsync(...QueueDataStoreConf.createBullOptions()),
     DaoModule,
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const ormConfig = new TypeOrmDatasourceConf(configService);
-        return ormConfig.getTypeOrmConfig();
-      },
-    }),
+    ServiceModule,
     DomainModule,
-    CoreModule,
   ],
   providers: [
     SubscriptionGeneratorProcessor,

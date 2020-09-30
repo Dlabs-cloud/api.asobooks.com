@@ -4,7 +4,7 @@ import { Connection } from 'typeorm';
 import { AddressRepository } from '../dao/address.repository';
 import { AddressDto } from '../dto/address.dto';
 import { CountryRepository } from '../dao/country.repository';
-import { RequestPrincipal } from '../conf/security/request-principal.service';
+import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { AssociationRepository } from '../dao/association.repository';

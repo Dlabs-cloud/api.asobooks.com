@@ -35,6 +35,15 @@ export class ServiceFeeRequestDto {
     message: 'startDate can only be in future or today',
   })
   billingStartDate?: string;
+
+  @IsDateFormat({
+    isBefore: false,
+    format: 'DD/MM/YYYY',
+  }, {
+    message: 'Due date can only be in the future',
+  })
+  dueDate: Date;
+
   @IsOptional()
   @IsArray()
   recipients?: number[];

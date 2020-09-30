@@ -37,13 +37,15 @@ export class ServiceFeeService {
       serviceFee.name = serviceFeeRequestDto.name;
       serviceFee.type = serviceFeeRequestDto.type;
       serviceFee.description = serviceFeeRequestDto.description;
-      if (ServiceTypeConstant.ONE_TIME === serviceFee.type){
-        serviceFee.dueDate = serviceFeeRequestDto.
+      if (ServiceTypeConstant.ONE_TIME === serviceFee.type) {
+        serviceFee.dueDate = serviceFeeRequestDto.dueDate;
+      } else {
+        serviceFee.nextBillingStartDate = serviceFee.billingStartDate;
+        serviceFee.nextBillingEndDate = this.calculateNextBillingDate(serviceFee.billingStartDate, serviceFee.cycle);
       }
       serviceFee.billingStartDate = moment(serviceFeeRequestDto.billingStartDate, 'DD/MM/YYYY')
         .startOf('day')
         .toDate();
-      serviceFee.nextBillingDate = this.calculateNextBillingDate(serviceFee.billingStartDate, serviceFee.cycle);
       serviceFee = await entityManager.save(serviceFee);
       if (!recipients) {
         let groups = await entityManager
@@ -77,7 +79,7 @@ export class ServiceFeeService {
   }
 
 
-  private calculateNextBillingDate(date: Date, cycle: BillingCycleConstant) {
+  public calculateNextBillingDate(date: Date, cycle: BillingCycleConstant) {
     switch (cycle) {
       case BillingCycleConstant.YEARLY:
         return moment(date)
@@ -101,11 +103,6 @@ export class ServiceFeeService {
       case BillingCycleConstant.BI_WEEKLY:
         return moment(date)
           .add(14, 'days')
-          .startOf('day')
-          .toDate();
-      case BillingCycleConstant.DAILY:
-        return moment(date)
-          .add(1, 'day')
           .startOf('day')
           .toDate();
       default:
