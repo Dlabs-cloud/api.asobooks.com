@@ -36,14 +36,20 @@ export class ServiceFee extends BaseEntity {
   })
   cycle: BillingCycleConstant;
 
-  @CreateDateColumn({
+  @Column({
     type: 'timestamp',
   })
-  firstBillingDate: Date;
+  billingStartDate: Date;
 
-  @CreateDateColumn({
+  @Column({
     type: 'timestamp',
     nullable: true,
   })
   nextBillingDate?: Date;
+
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
+  dueDate?: Date;
 }

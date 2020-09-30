@@ -32,9 +32,9 @@ export class ServiceFeeRequestDto {
     isBefore: false,
     format: 'DD/MM/YYYY',
   }, {
-    message: 'firstBillingDate can only be in future!!',
+    message: 'startDate can only be in future or today',
   })
-  firstBillingDate?: string;
+  billingStartDate?: string;
   @IsOptional()
   @IsArray()
   recipients?: number[];

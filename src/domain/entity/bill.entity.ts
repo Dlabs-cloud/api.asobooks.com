@@ -1,9 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 import { Subscription } from './subcription.entity';
-import { Address } from './address.entity';
-import { PortalUser } from './portal-user.entity';
-import { ServiceFee } from './service.fee.entity';
 import { Membership } from './membership.entity';
 
 @Entity()

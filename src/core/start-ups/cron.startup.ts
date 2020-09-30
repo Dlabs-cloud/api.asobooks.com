@@ -1,4 +1,4 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { CronQueue } from '../cron.enum';
 import { Queue } from 'bull';
@@ -11,9 +11,11 @@ export class CronStartup implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     await this.subscriptionCronQueue.add(null, {
       repeat: {
-        every: 3000
-      }
+        every: 10 * 1000,
+      },
     });
   }
+
+
 
 }

@@ -1,5 +1,6 @@
 import { BaseEntity } from '../../common/base.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
+import { ServiceFee } from './service.fee.entity';
 
 
 @Entity()
@@ -17,7 +18,17 @@ export class Subscription extends BaseEntity {
 
   @Column({
     type: 'timestamp',
+    nullable: true,
   })
-  endDate: Date;
+  endDate?: Date;
+
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
+  dueDate: Date;
+
+  @ManyToOne(() => ServiceFee)
+  serviceFee: ServiceFee;
 
 }

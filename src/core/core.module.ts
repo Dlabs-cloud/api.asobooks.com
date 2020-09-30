@@ -12,6 +12,7 @@ import { CronStartup } from './start-ups/cron.startup';
 import { ConfModule } from '../conf/conf.module';
 import { BullModule } from '@nestjs/bull';
 import { CronQueue } from './cron.enum';
+import { SubscriptionCodeSequence } from './sequenceGenerators/subscription-code.sequence';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -33,7 +34,7 @@ const unAuthorizedExceptionFilter = {
     BullModule.registerQueue({
       name: CronQueue.SUBSCRIPTION,
       redis: {
-        port: 7565,
+        port: 6379,
         host: 'localhost',
       },
     }),
@@ -44,12 +45,14 @@ const unAuthorizedExceptionFilter = {
     BankUploadStartup,
     ServiceFeeCodeSequence,
     MembershipCodeSequence,
+    SubscriptionCodeSequence,
   ],
   providers: [
     PortalAccountSequence,
     AssociationCodeSequence,
     ServiceFeeCodeSequence,
     BankUploadStartup,
+    SubscriptionCodeSequence,
     CronStartup,
     MembershipCodeSequence,
     illegalArgumentExceptionFilter,

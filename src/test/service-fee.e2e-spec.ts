@@ -51,7 +51,7 @@ describe('Service fees set up test ', () => {
       amountInMinorUnit: 10_000_00,
       cycle: BillingCycleConstant.MONTHLY,
       description: faker.random.words(10),
-      firstBillingDate: moment(faker.date.future()).format('DD/MM/YYYY'),
+      billingStartDate: moment(faker.date.future()).format('DD/MM/YYYY'),
       name: faker.random.words(2),
       type: faker.random.arrayElement(Object.values(ServiceTypeConstant)),
       recipients: usersIds,
@@ -82,7 +82,7 @@ describe('Service fees set up test ', () => {
       amountInMinorUnit: 1000000,
       cycle: BillingCycleConstant.MONTHLY,
       description: faker.random.words(10),
-      firstBillingDate: moment(faker.date.future()).format('DD/MM/YYYY'),
+      billingStartDate: moment(faker.date.future()).format('DD/MM/YYYY'),
       name: faker.random.words(2),
       type: faker.random.arrayElement(Object.values(ServiceTypeConstant)),
     };

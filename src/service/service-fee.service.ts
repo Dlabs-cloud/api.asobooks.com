@@ -5,7 +5,6 @@ import { Connection } from 'typeorm';
 import { ServiceFee } from '../domain/entity/service.fee.entity';
 import { ServiceFeeCodeSequence } from '../core/sequenceGenerators/service-fee-code.sequence';
 import * as moment from 'moment';
-import { PortalUser } from '../domain/entity/portal-user.entity';
 // import { SubscriptionService } from './subscription.service';
 import { EventBus } from '@nestjs/cqrs';
 import { BillingCycleConstant } from '../domain/enums/billing-cycle.constant';
@@ -15,7 +14,7 @@ import { GroupRepository } from '../dao/group.repository';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { GroupServiceFeeService } from './group-service-fee.service';
 import { Membership } from '../domain/entity/membership.entity';
-import { GroupMembership } from '../domain/entity/group-membership.entity';
+import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 
 @Injectable()
 export class ServiceFeeService {
@@ -38,10 +37,13 @@ export class ServiceFeeService {
       serviceFee.name = serviceFeeRequestDto.name;
       serviceFee.type = serviceFeeRequestDto.type;
       serviceFee.description = serviceFeeRequestDto.description;
-      serviceFee.firstBillingDate = moment(serviceFeeRequestDto.firstBillingDate, 'DD/MM/YYYY')
+      if (ServiceTypeConstant.ONE_TIME === serviceFee.type){
+        serviceFee.dueDate = serviceFeeRequestDto.
+      }
+      serviceFee.billingStartDate = moment(serviceFeeRequestDto.billingStartDate, 'DD/MM/YYYY')
         .startOf('day')
         .toDate();
-      serviceFee.nextBillingDate = ServiceFeeService.calculateNextBillingDate(serviceFee.firstBillingDate, serviceFee.cycle);
+      serviceFee.nextBillingDate = this.calculateNextBillingDate(serviceFee.billingStartDate, serviceFee.cycle);
       serviceFee = await entityManager.save(serviceFee);
       if (!recipients) {
         let groups = await entityManager
@@ -75,7 +77,7 @@ export class ServiceFeeService {
   }
 
 
-  private static calculateNextBillingDate(date: Date, cycle: BillingCycleConstant) {
+  private calculateNextBillingDate(date: Date, cycle: BillingCycleConstant) {
     switch (cycle) {
       case BillingCycleConstant.YEARLY:
         return moment(date)

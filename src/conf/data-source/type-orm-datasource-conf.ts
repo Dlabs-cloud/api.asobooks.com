@@ -18,6 +18,7 @@ export class TypeOrmDatasourceConf {
   }
 
   public getTypeOrmConfig(): TypeOrmModuleOptions {
+    console.log(this.configService.get<string>('DB_PASSWORD', 'postgres'));
     return {
       type: 'postgres',
       host: this.configService.get<string>('DB_HOST', 'localhost'),
@@ -25,8 +26,8 @@ export class TypeOrmDatasourceConf {
       password: this.configService.get<string>('DB_PASSWORD', 'postgres'),
       username: this.configService.get('DB_USERNAME', 'postgres'),
       database: this.configService.get('DB_DATABASE', 'postgres'),
-      dropSchema: this.refreshSchema(),
-      logging: this.configService.get('SHOW_LOG', false) === 'true',
+      dropSchema: false,
+      logging: true,
       entities: [__dirname + '/../../domain/entity/*.entity{.js,.ts}'],
       synchronize: true,
       ssl: this.isProduction(),
