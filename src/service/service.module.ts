@@ -22,6 +22,7 @@ import { GroupService } from './group.service';
 import { GroupServiceFeeService } from './group-service-fee.service';
 import { SubscriptionService } from './subscription.service';
 import { ConfigModule } from '@nestjs/config';
+import { BillService } from './bill.service';
 
 
 const emailValidationProvider = {
@@ -46,7 +47,7 @@ const fileServiceProvider = {
     DaoModule,
     CommonModule,
     CqrsModule,
-    ConfigModule
+    ConfigModule,
   ],
   exports: [
     AuthenticationService,
@@ -65,6 +66,7 @@ const fileServiceProvider = {
     GroupServiceFeeService,
     SubscriptionService,
     GroupService,
+    BillService,
   ],
   providers: [
     AuthenticationService,
@@ -83,6 +85,7 @@ const fileServiceProvider = {
     emailValidationProvider,
     bearerTokenServiceProvider,
     fileServiceProvider,
+    BillService,
   ],
 })
 export class ServiceModule {

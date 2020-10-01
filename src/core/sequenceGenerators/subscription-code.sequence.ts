@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class SubscriptionCodeSequence extends SequenceGeneratorImpl {
   constructor(private readonly connection: Connection) {
-    super('subscription_code_sequence', connection.createEntityManager());
+    super('subscription_code', connection.createEntityManager());
   }
 
   async next(): Promise<string> {

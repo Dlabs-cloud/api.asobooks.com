@@ -42,7 +42,7 @@ export class ServiceFeeRequestDto {
   }, {
     message: 'Due date can only be in the future',
   })
-  dueDate: Date;
+  dueDate?: Date;
 
   @IsOptional()
   @IsArray()

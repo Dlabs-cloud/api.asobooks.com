@@ -6,31 +6,35 @@ import { ServiceTypeConstant } from '../../domain/enums/service-type.constant';
 
 @Injectable()
 export class CronStartup implements OnApplicationBootstrap {
-  constructor(@InjectQueue(CronQueue.SUBSCRIPTION) private readonly subscriptionCronQueue: Queue) {
+  constructor(@InjectQueue(CronQueue.SUBSCRIPTION) private readonly subscriptionCronQueue: Queue,
+              @InjectQueue(CronQueue.BILL_GENERATION) private readonly billGenerationQueue: Queue) {
   }
 
   async onApplicationBootstrap() {
-    await this.subscriptionCronQueue.add({
-      'type': ServiceTypeConstant.RE_OCCURRING,
-    }, {
-      repeat: {
-        every: 1 * 1000,
-      },
-    });
-
-    await this.subscriptionCronQueue.add({
-      'type': ServiceTypeConstant.ONE_TIME,
-    }, {
-      repeat: {
-        every: 2 * 1000,
-      },
-    });
-
-    // await this.subscriptionCronQueue.add(QueueNames.ONETIME_SUBSCRIPTION_GENERATION, {
+/*
+    // await this.subscriptionCronQueue.add({
+    //   'type': ServiceTypeConstant.RE_OCCURRING,
+    // }, {
     //   repeat: {
-    //     every: 10 * 10,
+    //     every: 1 * 1000,
     //   },
     // });
+    //
+    // await this.subscriptionCronQueue.add({
+    //   'type': ServiceTypeConstant.ONE_TIME,
+    // }, {
+    //   repeat: {
+    //     every: 2 * 1000,
+    //   },
+    // });
+*/
+
+    await this.billGenerationQueue.add(null, {
+        repeat: {
+          every: 2 * 1000,
+        },
+      },
+    );
 
   }
 

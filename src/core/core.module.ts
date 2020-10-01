@@ -20,6 +20,7 @@ import { AccessConstraintInterceptor } from '../dlabs-nest-starter/security/inte
 import { RemoteAddressInterceptor } from '../dlabs-nest-starter/security/interceptors/remote-address.interceptor';
 import { AssociationConstraintInterceptor } from '../dlabs-nest-starter/security/interceptors/association-constraint.interceptor';
 import { LoggerInterceptor } from '../dlabs-nest-starter/security/interceptors/logger.interceptor';
+import { BillCodeSequence } from './sequenceGenerators/bill-code.sequence';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -46,12 +47,14 @@ const unAuthorizedExceptionFilter = {
     BankUploadStartup,
     ServiceFeeCodeSequence,
     MembershipCodeSequence,
+    BillCodeSequence,
     SubscriptionCodeSequence,
   ],
   providers: [
     PortalAccountSequence,
     AssociationCodeSequence,
     ServiceFeeCodeSequence,
+    BillCodeSequence,
     BankUploadStartup,
     SubscriptionCodeSequence,
     CronStartup,

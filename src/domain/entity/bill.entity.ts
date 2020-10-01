@@ -11,8 +11,6 @@ export class Bill extends BaseEntity {
   @ManyToOne(() => Membership)
   membership: Membership;
   @Column()
-  netArrears: number;
-  @Column()
   currentAmountInMinorUnit: number;
   @Column()
   description: string;

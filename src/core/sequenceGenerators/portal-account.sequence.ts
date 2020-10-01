@@ -6,7 +6,7 @@ import {zeroFills} from '../../common/UsefulUtils';
 @Injectable()
 export class PortalAccountSequence extends SequenceGeneratorImpl {
     constructor(private readonly connection: Connection) {
-        super('portal_account_code_sequence', connection.createEntityManager());
+        super('portal_account_code', connection.createEntityManager());
     }
 
     async next(): Promise<string> {

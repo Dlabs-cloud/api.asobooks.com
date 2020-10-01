@@ -4,9 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 export class QueueDataStoreConf {
   static createBullOptions(): BullModuleAsyncOptions[] {
-    console.log('Sstating to set up queue on main app');
     return Object.values(CronQueue).map(queue => {
-      console.log(queue);
       return {
         name: queue,
         imports: [ConfigModule],

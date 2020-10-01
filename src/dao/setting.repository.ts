@@ -7,8 +7,8 @@ import { Some } from 'optional-typescript';
 @EntityRepository(Setting)
 export class SettingRepository extends BaseRepository<Setting> {
 
-  async findInLabels(...labels: string[]): Promise<Setting[]> {
-    return await this.createQueryBuilder()
+  findInLabels(...labels: string[]): Promise<Setting[]> {
+    return this.createQueryBuilder()
       .where('label IN (:...labels)')
       .andWhere('status = :status')
       .setParameter('labels', labels)

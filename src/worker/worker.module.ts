@@ -11,6 +11,7 @@ import { BullModule } from '@nestjs/bull';
 import { ServiceModule } from '../service/service.module';
 import { QueueDataStoreConf } from '../conf/data-source/queue-data-store-conf';
 import { ConfModule } from '../conf/conf.module';
+import { BillGeneratorProcessor } from './processors/bill-generator.processor';
 
 
 @Module({
@@ -23,6 +24,7 @@ import { ConfModule } from '../conf/conf.module';
   ],
   providers: [
     SubscriptionGeneratorProcessor,
+    BillGeneratorProcessor
   ],
 })
 export class WorkerModule {

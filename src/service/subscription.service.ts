@@ -14,17 +14,23 @@ export class SubscriptionService {
               private readonly serviceFeeService: ServiceFeeService) {
   }
 
+
   public async createSubscription(entityManager: EntityManager, serviceFee: ServiceFee, subscription: SubscriptionRequestDto) {
     let sub = new Subscription();
     sub.serviceFee = serviceFee;
     sub.description = subscription.description;
     sub.code = await this.subscriptionCodeSequence.next();
-    if (ServiceTypeConstant.RE_OCCURRING == serviceFee.type) {
+    sub.serviceType = serviceFee.type;
+
+    if (ServiceTypeConstant.RE_OCCURRING === serviceFee.type) {
+
       sub.startDate = serviceFee.nextBillingStartDate;
       sub.endDate = serviceFee.nextBillingEndDate;
+
       return entityManager.save(sub).then(subscription => {
         serviceFee.nextBillingStartDate = sub.endDate;
-        serviceFee.nextBillingEndDate = this.serviceFeeService.calculateNextBillingDate(sub.endDate, serviceFee.cycle);
+        serviceFee.nextBillingEndDate = this.serviceFeeService
+          .calculateNextBillingDate(sub.endDate, serviceFee.cycle);
         return entityManager
           .save(serviceFee)
           .then(serviceFee => {
@@ -32,7 +38,9 @@ export class SubscriptionService {
           });
       });
     }
-    return subscription;
+    sub.startDate = serviceFee.billingStartDate;
+    sub.dueDate = serviceFee.dueDate;
+    return entityManager.save(sub);
   }
 
 }

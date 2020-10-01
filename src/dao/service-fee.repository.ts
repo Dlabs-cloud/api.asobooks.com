@@ -32,9 +32,10 @@ export class ServiceFeeRepository extends BaseRepository<ServiceFee> {
       .where('serviceFee.status = :status')
       .andWhere(qb => {
         let query = qb.subQuery()
-          .select('id')
+          .select('serviceFee.id')
           .from(Subscription, 'subscription')
-          .andWhere('status = :status')
+          .innerJoin(ServiceFee, 'serviceFee', 'serviceFee.id = subscription.serviceFee')
+          .andWhere('serviceFee.status = :status')
           .getQuery();
         return `serviceFee.id NOT IN ${query}`;
       })

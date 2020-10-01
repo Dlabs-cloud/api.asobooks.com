@@ -7,7 +7,7 @@ import { zeroFills } from '../../common/UsefulUtils';
 export class MembershipCodeSequence extends SequenceGeneratorImpl {
 
   constructor(private readonly connection: Connection) {
-    super('membership_code_sequence', connection.createEntityManager());
+    super('membership_code', connection.createEntityManager());
   }
 
   async next(): Promise<string> {

@@ -37,15 +37,17 @@ export class ServiceFeeService {
       serviceFee.name = serviceFeeRequestDto.name;
       serviceFee.type = serviceFeeRequestDto.type;
       serviceFee.description = serviceFeeRequestDto.description;
+      serviceFee.billingStartDate = moment(serviceFeeRequestDto.billingStartDate, 'DD/MM/YYYY')
+        .startOf('day')
+        .toDate();
       if (ServiceTypeConstant.ONE_TIME === serviceFee.type) {
         serviceFee.dueDate = serviceFeeRequestDto.dueDate;
+        serviceFee.cycle = BillingCycleConstant.ONE_OFF;
       } else {
         serviceFee.nextBillingStartDate = serviceFee.billingStartDate;
         serviceFee.nextBillingEndDate = this.calculateNextBillingDate(serviceFee.billingStartDate, serviceFee.cycle);
       }
-      serviceFee.billingStartDate = moment(serviceFeeRequestDto.billingStartDate, 'DD/MM/YYYY')
-        .startOf('day')
-        .toDate();
+
       serviceFee = await entityManager.save(serviceFee);
       if (!recipients) {
         let groups = await entityManager

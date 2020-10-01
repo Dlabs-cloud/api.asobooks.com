@@ -16,8 +16,10 @@ export class SubscriptionGeneratorProcessor {
   }
 
   @Process()
-  transcode(job: Job<{ type: ServiceTypeConstant }>) {
-    return this.generateSubscription(job.data.type);
+  async transcode(job: Job<{ type: ServiceTypeConstant }>) {
+    console.log('Starting up');
+    console.log(job.data.type);
+    await this.generateSubscription(job.data.type);
   }
 
 
@@ -31,6 +33,7 @@ export class SubscriptionGeneratorProcessor {
       .findServiceFeeBetweenNextBillingDate(startOfTheDay, endOfTheDay, serviceType)
       .then(serviceFees => {
         let subscriptions = serviceFees.map(serviceFee => {
+
           if (ServiceTypeConstant.RE_OCCURRING === serviceType) {
             description = `Subscription for ${serviceFee.name} for ${serviceFee.nextBillingStartDate} to ${serviceFee.nextBillingEndDate}`;
           } else {

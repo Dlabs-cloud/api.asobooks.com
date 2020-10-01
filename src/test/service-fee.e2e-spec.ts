@@ -62,6 +62,7 @@ describe('Service fees set up test ', () => {
       .set('Authorization', assoUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
       .send(requestPayload);
+    console.log(response.body);
     expect(response.status).toEqual(201);
     let serviceCode = response.body.data.code;
     let serviceFee = await connection.getCustomRepository(ServiceFeeRepository)
@@ -126,8 +127,6 @@ describe('Service fees set up test ', () => {
     expect(data.firstBillingDate).toBeDefined();
     expect(data.nextBillingDate).toBeDefined();
   });
-
-
 
 
   afterAll(async () => {
