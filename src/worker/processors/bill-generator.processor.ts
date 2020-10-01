@@ -13,6 +13,7 @@ import { GenericStatusConstant } from '../../domain/enums/generic-status-constan
 import { ServiceFeeRepository } from '../../dao/service-fee.repository';
 import { MembershipRepository } from '../../dao/membership.repository';
 import { BillService } from '../../service/bill.service';
+import { CollectionUtils } from '../../common/utils/collection-utils';
 
 @Processor(CronQueue.BILL_GENERATION)
 export class BillGeneratorProcessor {
@@ -49,7 +50,7 @@ export class BillGeneratorProcessor {
       })
       .take(200)
       .getRawMany();
-    let subscriptionsGroupBy = this.groupBy(subscriptionMemberships, (r) => r.subscriptionId);
+    let subscriptionsGroupBy = CollectionUtils.groupBy(subscriptionMemberships, (r) => r.subscriptionId);
     let subscriptionIds = subscriptionMemberships.map(result => result.subscriptionId);
     let membershipIds = subscriptionMemberships.map(result => result.membershipId);
     let serviceFeeIds = subscriptionMemberships.map(result => result.serviceFeeId);
@@ -77,11 +78,8 @@ export class BillGeneratorProcessor {
         });
       return Promise.all(bills);
     });
-    
+
   }
 
 
-  groupBy(xs, f) {
-    return xs.reduce((r, v, i, a, k = f(v)) => ((r[k] || (r[k] = [])).push(v), r), {});
-  }
 }
