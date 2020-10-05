@@ -1,10 +1,10 @@
 import { BullModuleAsyncOptions } from '@nestjs/bull';
-import { CronQueue } from '../../core/cron.enum';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Queues } from '../../core/cron.enum';
 
 export class QueueDataStoreConf {
   static createBullOptions(): BullModuleAsyncOptions[] {
-    return Object.values(CronQueue).map(queue => {
+    return Object.values(Queues).map(queue => {
       return {
         name: queue,
         imports: [ConfigModule],

@@ -1,6 +1,7 @@
-export enum CronQueue {
+export enum Queues {
   SUBSCRIPTION = 'SUBSCRIPTION',
-  BILL_GENERATION = 'BILL_GENERATION'
+  BILL_GENERATION = 'BILL_GENERATION',
+  EMAIL = 'EMAIL'
 }
 
 export enum QueueNames {

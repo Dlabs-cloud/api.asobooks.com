@@ -1,15 +1,15 @@
 import { Connection } from 'typeorm';
 import { Process, Processor } from '@nestjs/bull';
-import { CronQueue, QueueNames } from '../../core/cron.enum';
 import { Job } from 'bull';
 import { ServiceFeeRepository } from '../../dao/service-fee.repository';
 import * as moment from 'moment';
 import { SubscriptionRequestDto } from '../../dto/subscription.request.dto';
 import { SubscriptionService } from '../../service/subscription.service';
 import { ServiceTypeConstant } from '../../domain/enums/service-type.constant';
+import { Queues } from '../../core/cron.enum';
 
 
-@Processor(CronQueue.SUBSCRIPTION)
+@Processor(Queues.SUBSCRIPTION)
 export class SubscriptionGeneratorProcessor {
   constructor(private readonly connection: Connection,
               private readonly subscriptionService: SubscriptionService) {
@@ -17,8 +17,6 @@ export class SubscriptionGeneratorProcessor {
 
   @Process()
   async transcode(job: Job<{ type: ServiceTypeConstant }>) {
-    console.log('Starting up');
-    console.log(job.data.type);
     await this.generateSubscription(job.data.type);
   }
 

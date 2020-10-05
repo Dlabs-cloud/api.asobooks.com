@@ -1,5 +1,4 @@
 import { Process, Processor } from '@nestjs/bull';
-import { CronQueue } from '../../core/cron.enum';
 import { Connection } from 'typeorm';
 import { SubscriptionRepository } from '../../dao/subscription.repository';
 import { ServiceFee } from '../../domain/entity/service.fee.entity';
@@ -14,8 +13,9 @@ import { ServiceFeeRepository } from '../../dao/service-fee.repository';
 import { MembershipRepository } from '../../dao/membership.repository';
 import { BillService } from '../../service/bill.service';
 import { CollectionUtils } from '../../common/utils/collection-utils';
+import { Queues } from '../../core/cron.enum';
 
-@Processor(CronQueue.BILL_GENERATION)
+@Processor(Queues.BILL_GENERATION)
 export class BillGeneratorProcessor {
   constructor(private readonly connection: Connection, private readonly billService: BillService) {
   }

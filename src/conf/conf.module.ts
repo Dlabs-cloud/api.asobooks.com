@@ -1,26 +1,20 @@
 import { Module } from '@nestjs/common';
 import { WinstonModule } from 'nest-winston';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 import * as winston from 'winston';
-import { LoggerInterceptor } from '../dlabs-nest-starter/security/interceptors/logger.interceptor';
-import { AccessConstraintInterceptor } from '../dlabs-nest-starter/security/interceptors/access-constraint.interceptor';
-import { RemoteAddressInterceptor } from '../dlabs-nest-starter/security/interceptors/remote-address.interceptor';
 import { CommonModule } from '../common/common.module';
-import { DaoModule } from '../dao/dao.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { EmailMailerConfiguration } from './email/email.conf';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { S3Module } from 'nestjs-s3';
 import { AmazonSesConfig } from './file/amazon-ses.config';
-import { AssociationConstraintInterceptor } from '../dlabs-nest-starter/security/interceptors/association-constraint.interceptor';
 import { TypeOrmDatasourceConf } from './data-source/type-orm-datasource-conf';
 import { BullModule } from '@nestjs/bull';
 import { QueueDataStoreConf } from './data-source/queue-data-store-conf';
 
 @Module({
   imports: [
+    BullModule.registerQueueAsync(...QueueDataStoreConf.createBullOptions()),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -51,7 +45,7 @@ import { QueueDataStoreConf } from './data-source/queue-data-store-conf';
         new winston.transports.Console({ format: winston.format.json() }),
       ],
     })],
-  exports: [S3Module],
+  exports: [S3Module, BullModule, MailerModule],
   providers: [],
 })
 export class ConfModule {

@@ -7,14 +7,12 @@ import { GroupService } from '../service/group.service';
 import { Connection } from 'typeorm';
 import { GroupRepository } from '../dao/group.repository';
 import { ServiceFeeRepository } from '../dao/service-fee.repository';
-import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { MembershipRepository } from '../dao/membership.repository';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { ApiResponseDto } from '../dto/api-response.dto';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
-import { of } from 'rxjs';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 
 @Controller('service-fees')

@@ -24,7 +24,7 @@ export class EmailMailerConfiguration {
         },
       },
       defaults: {
-        from: this.configService.get<string>('EMAIL_SENDER', '"Socialite.io" <no-reply@dlabs.cloud>'),
+        from: this.configService.get<string>('EMAIL_SENDER', '"Asobooks.com" <no-reply@dlabs.cloud>'),
       },
       template: {
         dir: process.cwd() + '/views/email/',

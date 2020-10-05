@@ -23,6 +23,7 @@ import { GroupServiceFeeService } from './group-service-fee.service';
 import { SubscriptionService } from './subscription.service';
 import { ConfigModule } from '@nestjs/config';
 import { BillService } from './bill.service';
+import { ConfModule } from '../conf/conf.module';
 
 
 const emailValidationProvider = {
@@ -44,6 +45,7 @@ const fileServiceProvider = {
 @Module({
   imports: [
     CoreModule,
+    ConfModule,
     DaoModule,
     CommonModule,
     CqrsModule,

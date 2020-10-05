@@ -12,7 +12,6 @@ import { ConfigModule } from '@nestjs/config';
 import { HandlerModule } from './handler/handler.module';
 import { EarlyAccessService } from './service/early-access.service';
 import { EarlyAccessModule } from 'nestjs-early-access/dist/early-access.module';
-import { WorkerModule } from './worker/worker.module';
 import { DlabsNestStarterModule } from './dlabs-nest-starter/dlabs-nest-starter.module';
 
 @Module({
