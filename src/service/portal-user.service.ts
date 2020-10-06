@@ -13,6 +13,7 @@ export class PortalUserService {
               private readonly connection: Connection) {
   }
 
+
   async createPortalUser(entityManager: EntityManager, portalUserDto: PortalUserDto, status = GenericStatusConstant.ACTIVE) {
 
 

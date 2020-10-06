@@ -1,7 +1,6 @@
 import { Setting } from '../domain/entity/setting.entity';
 import { EntityManager, getConnection } from 'typeorm';
 import { SettingRepository } from '../dao/setting.repository';
-import { Some } from 'optional-typescript';
 import { ISendMailOptions } from '@nestjs-modules/mailer/dist/interfaces/send-mail-options.interface';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import { AuthenticationService } from '../service/authentication.service';
@@ -36,14 +35,15 @@ export const init = async (entityManager?: EntityManager) => {
     label: 'trusted_ip_address',
   });
 
-  await Some(setting).valueOrAsync(() => {
+  if (Setting) {
     const newSetting = new Setting();
     newSetting.label = 'trusted_ip_address';
     newSetting.value = '::ffff:127.0.0.1';
     return getConnection().transaction(async entityManager => {
       return await entityManager.save(newSetting);
     });
-  });
+  }
+
 
 };
 

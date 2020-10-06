@@ -2,7 +2,6 @@ import { BaseRepository } from '../common/BaseRepository';
 import { EntityRepository } from 'typeorm';
 import { Setting } from '../domain/entity/setting.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { Some } from 'optional-typescript';
 
 @EntityRepository(Setting)
 export class SettingRepository extends BaseRepository<Setting> {
@@ -23,14 +22,12 @@ export class SettingRepository extends BaseRepository<Setting> {
       .setParameter('label', label)
       .setParameter('status', GenericStatusConstant.ACTIVE)
       .getOne();
-    return (await Some<Setting>(setting)
-      .ifNoneAsync(async () => {
-        let newSetting = new Setting();
-        newSetting.label = label;
-        newSetting.value = defaultValue;
-        await this.save(newSetting);
-        return newSetting;
-      })).valueOrNull();
 
+    if (!setting) {
+      let newSetting = new Setting();
+      newSetting.label = label;
+      newSetting.value = defaultValue;
+      return this.save(newSetting);
+    }
   }
 }

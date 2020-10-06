@@ -6,7 +6,6 @@ import { Association } from '../domain/entity/association.entity';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { Membership } from '../domain/entity/membership.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { Some } from 'optional-typescript';
 import { ServiceFee } from '../domain/entity/service.fee.entity';
 import { GroupMembership } from '../domain/entity/group-membership.entity';
 import { GroupServiceFee } from '../domain/entity/group-sevice-fee.entity';
@@ -72,9 +71,9 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
       .innerJoin(GroupServiceFee, 'groupServiceFee', 'groupServiceFee.group = group.id')
       .where('groupServiceFee.serviceFee = :service', { service: serviceFee.id })
       .andWhere('portalUser.status = :status', { status })
-      .andWhere('group.status = :status', {status})
-      .andWhere('groupServiceFee.status = :status', {status})
-      .andWhere('membershipGroup.status = :status', {status})
+      .andWhere('group.status = :status', { status })
+      .andWhere('groupServiceFee.status = :status', { status })
+      .andWhere('membershipGroup.status = :status', { status })
       .limit(limit)
       .offset(offset);
   }
@@ -110,11 +109,11 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
       .setParameter('status', status)
       .setParameter('association', association.id);
 
-    Some(portalAccountType).ifPresent(type => {
+    if (portalAccountType) {
       builder
         .andWhere('portalAccount.type = :portalAccountType')
         .setParameter('portalAccountType', portalAccountType);
-    });
+    }
     return builder;
   }
 

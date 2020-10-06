@@ -4,7 +4,6 @@ import { Connection, EntityManager } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalAccountService } from './portal-account.service';
 import { UserUpdateDto } from '../dto/user/user-update.dto';
-import { Some } from 'optional-typescript';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { EventBus } from '@nestjs/cqrs';
 import { ForgotPasswordEvent } from '../event/forgot-password.event';
@@ -77,21 +76,25 @@ export class UserManagementService {
 
   public async updateUser(entityManager: EntityManager, portalUser: PortalUser, userUpdateDto: UserUpdateDto) {
 
-    Some(userUpdateDto.firstName).ifPresent((firstName) => {
-      portalUser.firstName = firstName;
-    });
-    Some(userUpdateDto.lastName).ifPresent((lastName) => {
-      portalUser.lastName = lastName;
-    });
-    Some(userUpdateDto.status).ifPresent(status => {
-      portalUser.status = status;
-    });
-    Some(userUpdateDto.phoneNumber).ifPresent(phoneNumber => {
-      portalUser.phoneNumber = phoneNumber;
-    });
-    Some(userUpdateDto.password).ifPresent(password => {
-      portalUser.password = password;
-    });
+    if(userUpdateDto.firstName){
+      portalUser.firstName = userUpdateDto.firstName;
+    }
+    if(userUpdateDto.lastName){
+      portalUser.lastName = userUpdateDto.lastName;
+    }
+
+    if(userUpdateDto.status){
+      portalUser.status = userUpdateDto.status;
+    }
+
+    if(userUpdateDto.phoneNumber){
+      portalUser.phoneNumber = userUpdateDto.phoneNumber;
+    }
+
+    if(userUpdateDto.password){
+      portalUser.password = userUpdateDto.password;
+    }
+
     portalUser.updatedAt = new Date();
     await entityManager.save(portalUser);
     return portalUser;

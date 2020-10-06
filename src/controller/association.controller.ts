@@ -6,7 +6,6 @@ import { ImageUploadInterceptor } from '../common/fileutils';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { BaseController } from './BaseController';
-import { Some } from 'optional-typescript';
 import { FileTypeConstant } from '../domain/enums/file-type-constant';
 
 @Controller('associations')
@@ -24,9 +23,10 @@ export class AssociationController extends BaseController {
                                  @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
 
 
-    Some(file).ifPresent(fileData => {
-      associationRequestDto.logo = this.requestToFile(fileData.buffer, fileData.originalname, fileData.mimetype, FileTypeConstant.IMAGE);
-    });
+    if (file) {
+      associationRequestDto.logo = this.requestToFile(file.buffer, file.originalname, file.mimetype, FileTypeConstant.IMAGE);
+    }
+
     let association = await this.associationService.createAssociation(associationRequestDto, requestPrincipal);
     return new ApiResponseDto(association, 201);
   }

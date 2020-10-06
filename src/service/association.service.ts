@@ -8,7 +8,6 @@ import { RequestPrincipal } from '../dlabs-nest-starter/security/request-princip
 import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { AssociationRepository } from '../dao/association.repository';
-import { Some } from 'optional-typescript';
 import { BankInfoService } from './bank-info.service';
 import { BankInfoDto } from '../dto/bank-info-dto';
 import { AssociationFileService } from './association-file.service';
@@ -45,9 +44,10 @@ export class AssociationService {
       if (!association) {
         throw new IllegalArgumentException('Association does not exist');
       }
-      Some(associationDto.name).ifPresent(associationName => {
+
+      if (associationDto.name) {
         association.name = associationDto.name;
-      });
+      }
 
       if (associationDto.address) {
         const addressDto = new AddressDto();
@@ -59,10 +59,9 @@ export class AssociationService {
           .saveAddress(entityManager, addressDto);
       }
 
-      Some(associationDto.type).ifPresent(type => {
-        association.type = type;
-      });
-
+      if (associationDto.type) {
+        association.type = associationDto.type;
+      }
 
       if (true === (association.name && association.type && associationDto.activateAssociation)) {
         association.status = GenericStatusConstant.ACTIVE;
