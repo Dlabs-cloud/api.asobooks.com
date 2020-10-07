@@ -25,7 +25,7 @@
     "start:prod": "node  dist/src/main.js",
     "worker:prod": "node  dist/src/worker.js",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "test": "ENV=test jest --runInBand",
+    "test": "ENV=test jest --runInBand --detectOpenHandles",
     "test:watch": "ENV=test jest --watch",
     "test:cov": "ENV=test jest --coverage --runInBand",
     "test:debug": "ENV=test node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",

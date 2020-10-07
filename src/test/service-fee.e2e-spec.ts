@@ -124,8 +124,7 @@ describe('Service fees set up test ', () => {
     expect(data.code).toEqual(serviceFee.code);
     expect(data.amountInMinorUnit).toStrictEqual(serviceFee.amountInMinorUnit.toString());
     expect(data.description).toEqual(serviceFee.description);
-    expect(data.firstBillingDate).toBeDefined();
-    expect(data.nextBillingDate).toBeDefined();
+    expect(data.billingStartDate).toBeDefined();
   });
 
 
