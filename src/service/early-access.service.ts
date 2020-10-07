@@ -17,35 +17,41 @@ export class EarlyAccessService implements EarlyAccessRepository {
   }
 
   async create(email: string, name?: string): Promise<boolean> {
-    let earlyAccessRepository = this.connection.getCustomRepository(EAccessRepository);
-    let settingRepository = await this.connection.getCustomRepository(SettingRepository);
-    let coFounderEmail = await settingRepository.findByLabel('co_founder_email', 'faith@asobooks.com');
-    let count = await earlyAccessRepository.count({ email });
+    try {
+      let earlyAccessRepository = this.connection.getCustomRepository(EAccessRepository);
+      let settingRepository = await this.connection.getCustomRepository(SettingRepository);
+      let coFounderEmail = await settingRepository.findByLabel('co_founder_email', 'faith@asobooks.com');
+      let count = await earlyAccessRepository.count({ email });
 
-    if (count) {
+      if (count) {
+        return Promise.resolve(true);
+      }
+      let earlyAccess = new EarlyAccess();
+      earlyAccess.email = email;
+      earlyAccess.name = name;
+
+      await earlyAccessRepository.save(earlyAccess);
+
+
+      const data = {
+        subject: 'Welcome',
+        data: {
+          'email': earlyAccess.email,
+        },
+        templateName: 'early-access',
+        from: coFounderEmail.value,
+        reply: coFounderEmail.value,
+        to: earlyAccess.email,
+      };
+
+
+      await this.emailQueue.add(data);
+
       return Promise.resolve(true);
+    } catch (e) {
+      console.log(e);
     }
-    let earlyAccess = new EarlyAccess();
-    earlyAccess.email = email;
-    earlyAccess.name = name;
-    
-    await earlyAccessRepository.save(earlyAccess);
 
-    const data = {
-      subject: 'Welcome',
-      data: {
-        'email': earlyAccess.email,
-      },
-      templateName: 'early-access',
-      from: coFounderEmail.value,
-      reply: coFounderEmail.value,
-      to: earlyAccess.email,
-    };
-
-
-    await this.emailQueue.add(data);
-
-    return Promise.resolve(true);
   }
 
 

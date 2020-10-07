@@ -40,6 +40,11 @@ services:
     depends_on:
       - postgres
       - redis
+    command:
+      [
+        'node',
+        'dist/src/main.js'
+      ]
 
   worker:
     image: uncletee/asobooks-api
@@ -61,6 +66,11 @@ services:
       MAILER_HOST:  ${MAILER_HOST}
       EMAIL_USER: ${EMAIL_USER}
       EMAIL_PASS: ${EMAIL_PASS}
+    command:
+      [
+        'node',
+        'dist/src/main.js'
+      ]
     depends_on:
       - app
 

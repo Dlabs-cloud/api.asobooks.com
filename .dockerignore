@@ -5,9 +5,9 @@
 .dockerignore
 
 # Build dependencies
-dist
-node_modules
 coverage
+
+*.d.ts
 
 # Environment (contains sensitive data)
 .env

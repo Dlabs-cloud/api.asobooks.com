@@ -11,7 +11,7 @@ export class EmailProcessor {
   }
 
   @Process()
-  async handle(job: Job<EmailQueueDto<any>>) {
+  handle(job: Job<EmailQueueDto<any>>) {
     let data = job.data;
     let sendMailOptions = {
       to: data.to,
@@ -22,7 +22,10 @@ export class EmailProcessor {
       replyTo: data.reply,
     };
 
-    return this.mailerService.sendMail(sendMailOptions);
+    this.mailerService.sendMail(sendMailOptions).then(result => {
+    }).catch(err => {
+      console.log('Email Sending queue error');
+    });
 
 
   }

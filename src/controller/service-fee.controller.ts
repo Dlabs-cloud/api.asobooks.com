@@ -17,8 +17,7 @@ import { Membership } from '../domain/entity/membership.entity';
 export class ServiceFeeController {
 
   constructor(private readonly serviceFeeService: ServiceFeeService,
-              private readonly connection: Connection,
-              private readonly membershipRepository: MembershipRepository) {
+              private readonly connection: Connection) {
   }
 
   @Post()

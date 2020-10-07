@@ -1,25 +1,12 @@
-FROM node:12.13-alpine As development
+FROM node:14.10.1-alpine3.12
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY package*.json ./
+COPY .docker/node_modules ./node_modules
+COPY assets/  ./assets
+COPY docs/  ./docs
+COPY views ./views
+COPY dist/ ./dist
+RUN ls -la
 
-RUN npm ci
-
-COPY . .
-
-RUN npm run build
-
-FROM node:12.13-alpine as production
-
-WORKDIR /usr/src/app
-
-COPY package*.json ./
-
-RUN npm ci
-
-COPY . .
-
-COPY --from=development /usr/src/app/dist ./dist
-
-CMD ["node", "dist/src/main.js"]
+CMD ["node","dist/src/main.js" ]
