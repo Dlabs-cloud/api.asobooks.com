@@ -10,9 +10,28 @@ import { ServiceModule } from './service/service.module';
 import { ControllerModule } from './controller/controller.module';
 import { ConfigModule } from '@nestjs/config';
 import { HandlerModule } from './handler/handler.module';
+import { EarlyAccessService } from './service/early-access.service';
+import { EarlyAccessModule } from 'nestjs-early-access/dist/early-access.module';
+import { DlabsNestStarterModule } from './dlabs-nest-starter/dlabs-nest-starter.module';
 
 @Module({
   imports: [
+    EarlyAccessModule.registerAsync({
+      inject: [EarlyAccessService],
+      imports: [ServiceModule],
+      useFactory: (earlyAccessService: EarlyAccessService) => {
+        return {
+          repository: earlyAccessService,
+          enabled: true,
+          url: '/',
+          template: {
+            viewDir: `${process.cwd()}/views`,
+            assetsDir: `${process.cwd()}/assets`,
+            index: 'index',
+          },
+        };
+      },
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [ConfModule.environment + '.env'],
@@ -25,6 +44,7 @@ import { HandlerModule } from './handler/handler.module';
     ServiceModule,
     HandlerModule,
     ControllerModule,
+    DlabsNestStarterModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -8,13 +8,13 @@ import { Bank } from './bank.entity';
 @Entity()
 export class Association extends BaseEntity {
   @Column()
-  name: string;
+  name?: string;
   @Column({
     type: 'enum',
     enum: AssociationTypeConstant,
     nullable: true,
   })
-  type: AssociationTypeConstant;
+  type?: AssociationTypeConstant;
 
   @OneToOne(() => Address)
   @JoinColumn({ name: 'addressId' })

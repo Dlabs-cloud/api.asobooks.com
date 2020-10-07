@@ -15,7 +15,6 @@ export class AssociationFile extends BaseEntity {
   @Column({
     type: 'enum',
     enum: AssociationFileTypeConstant,
-
   })
   type: AssociationFileTypeConstant;
 

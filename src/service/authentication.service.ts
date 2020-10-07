@@ -11,7 +11,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { NewUserAccountSignUpEvent } from '../event/new-user-account-sign-up.event';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
-import { BEARER_TOKEN_SERVICE, IBearerTokenService } from '../contracts/i-bearer-token-service';
+import { BEARER_TOKEN_SERVICE, IBearerTokenService } from '../dlabs-nest-starter/interfaces/i-bearer-token-service';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { Association } from '../domain/entity/association.entity';
 import { AssociationService } from './association.service';

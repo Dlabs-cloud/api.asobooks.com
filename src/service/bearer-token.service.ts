@@ -1,4 +1,4 @@
-import { IBearerTokenService } from '../contracts/i-bearer-token-service';
+import { IBearerTokenService } from '../dlabs-nest-starter/interfaces/i-bearer-token-service';
 import { Injectable } from '@nestjs/common';
 import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
@@ -8,7 +8,6 @@ import { Connection } from 'typeorm';
 import { InvalidtokenException } from '../exception/invalidtoken.exception';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
-import { Some } from 'optional-typescript';
 
 
 @Injectable()
@@ -52,18 +51,20 @@ export class BearerTokenService implements IBearerTokenService<TokenPayloadDto> 
         portalUser: portalUser,
       };
 
-      if (Some(portalAccountId).hasValue) {
+      if (portalAccountId) {
         const portalAccount = await this.connection
           .getCustomRepository(PortalAccountRepository)
           .findOneItemByStatus({
             id: portalAccountId,
           }, accountStatus);
 
-        Some(portalAccount).ifNone(() => {
+        if(!portalAccount){
           throw new InvalidtokenException('Invalid token');
-        });
+        }
+
         tokenPayload.portalAccount = portalAccount;
       }
+
       return tokenPayload;
     } catch (e) {
 

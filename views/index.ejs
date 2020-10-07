@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="icon" href="/svg/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Rajdhani:600" rel="stylesheet" type="text/css">
+    <link href="/css/early-access.css" rel="stylesheet">
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pontano+Sans&display=swap" rel="stylesheet">
+
+    <title>Asobooks Early Access</title>
+</head>
+<body class="h-screen w-full overflow-hidden">
+<div id="app" class="flex flex-col w-full h-screen">
+    <nav class="container w-full flex justify-between items-center">
+        <div class="py-2">
+            <a href="/home" class="block mt-1 no-underline">
+                    <span class="text-5xl font-logo uppercase font-black tracking-tight block text-indigo-dark">
+                        <!-- Asobooks -->
+                        <img src="/svg/logo.svg" class="block mt-10 w-32"/>
+                    </span>
+            </a>
+        </div>
+
+    </nav>
+    <main class="mt-10 md:mt-12 flex-1 h-screen">
+        <div class="container flex flex-col md:flex-row items-top justify-between">
+            <div class="md:pr-5 lg:pr-10 md:w-2/5">
+                <div class="text-center md:text-left mt-24">
+                    <h1 class="text-2xl lg:text-3xl text-indigo-darker font-logo font-extrabold uppercase leading-none"
+                        style="font-family: Gilroy-Bold;">
+                        Enabling Real Time Membership Management.
+                    </h1>
+                    <h4 class="text-base font-light leading-normal grey-soft mt-2">
+                        Manage your clubs, estates, communities, gyms <br> and all membership groups with our off the shelf solution.
+                    </h4>
+                </div>
+                <div class="mt-10">
+                    <form action="#" method="post">
+                        <div class="flex flex-col lg:flex-row font-light">
+                            <input required
+                                   type="email"
+                                   name="email"
+                                   placeholder="Email Address"
+                                   class="p-4 w-full lg:w-3/5 rounded-lg lg:rounded-r-none bg-grey-lighter focus:bg-grey-light focus:outline-none"
+                            />
+                            <button type="submit"
+                                    class="mt-2 lg:mt-0 p-4 lg:px-0 w-full lg:w-2/5 rounded-lg lg:rounded-l-none bg-indigo-dark shadow-lg
+                                       lg:shadow-none text-sm text-white uppercase focus:outline-none"
+                            >
+                                Get early access<sup>†</sup>
+                            </button>
+                        </div>
+                    </form>
+                    <% if (isSubscribed === 'true') { %>
+
+                        <small class="mt-2 text-indigo-dark">Thank you for reaching out. We contact you once we go
+                            live</small>
+                    <% } %>
+                    <% if (isSubscribed === 'false') { %>
+                        <small class="mt-2 text-indigo-dark">Something went wrong on our side we will still keep in
+                            touch</small>
+                    <% } %>
+                    <div class="mt-10">
+                    <span class="text-xs text-grey font-light tracking-wide">
+                        <sup>†</sup>No spam mail. We promise.
+                    </span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-16 md:mt-0 md:pl-5 lg:pl-10 md:w-3/5 text-center md:text-left">
+                <img src="/svg/undraw_collaborators_prrw.svg" class="hidden md:block lg:block"/>
+            </div>
+        </div>
+    </main>
+    <footer class="mt-20 md:mt-32 container py-5">
+            <span class="block text-sm text-center">
+                2020 Asobooks
+            </span>
+    </footer>
+</div>
+</body>
+</html>

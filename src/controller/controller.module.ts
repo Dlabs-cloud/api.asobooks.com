@@ -6,12 +6,13 @@ import { CommonModule } from '../common/common.module';
 import { TestController } from './test.controller';
 import { AuthenticationController } from './authentication.controller';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { ResponseTransformInterceptor } from './response-transform.interceptor';
+import { ResponseTransformInterceptor } from './interceptors/response-transform.interceptor';
 import { MembershipManagementController } from './membership-management.controller';
 import { AssociationController } from './association.controller';
 import { LoggedInUserInfoHandler } from './handlers/logged-in-user-info.handler';
 import { ServiceFeeController } from './service-fee.controller';
 import { MasterRecordController } from './master-record-controller';
+import { GroupServiceFeeController } from './group-service-fee.controller';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { MasterRecordController } from './master-record-controller';
     AssociationController,
     MasterRecordController,
     ServiceFeeController,
+    GroupServiceFeeController,
   ],
   providers: [
     ResponseTransformInterceptor,

@@ -1,7 +1,6 @@
 import { Setting } from '../domain/entity/setting.entity';
 import { EntityManager, getConnection } from 'typeorm';
 import { SettingRepository } from '../dao/setting.repository';
-import { Some } from 'optional-typescript';
 import { ISendMailOptions } from '@nestjs-modules/mailer/dist/interfaces/send-mail-options.interface';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import { AuthenticationService } from '../service/authentication.service';
@@ -24,6 +23,10 @@ import { BankUploadStartup } from '../core/start-ups/bank-upload.startup';
 import { BankUploadStartupMock } from './mocks/bank-upload-startup.mock';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { Membership } from '../domain/entity/membership.entity';
+import { GroupMembership } from '../domain/entity/group-membership.entity';
+import { Group } from '../domain/entity/group.entity';
+import { GroupTypeConstant } from '../domain/enums/group-type.constant';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 
 
 export const init = async (entityManager?: EntityManager) => {
@@ -32,14 +35,15 @@ export const init = async (entityManager?: EntityManager) => {
     label: 'trusted_ip_address',
   });
 
-  await Some(setting).valueOrAsync(() => {
+  if (Setting) {
     const newSetting = new Setting();
     newSetting.label = 'trusted_ip_address';
     newSetting.value = '::ffff:127.0.0.1';
     return getConnection().transaction(async entityManager => {
       return await entityManager.save(newSetting);
     });
-  });
+  }
+
 
 };
 
@@ -78,50 +82,70 @@ export const mockNewSignUpUser = async (authenticationService: AuthenticationSer
   return newUser;
 };
 
-export const getTestUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association) => {
+export const getTestUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association, accountType = PortalAccountTypeConstant.MEMBER_ACCOUNT) => {
   status = status ?? GenericStatusConstant.ACTIVE;
   association = association ?? await factory().upset(Association).use(association => {
     association.status = status;
     return association;
   }).create();
-  const portalAccount = await factory().upset(PortalAccount).use(portalAccount => {
-    portalAccount.status = status;
-    portalAccount.association = association;
-    return portalAccount;
-  }).create();
+  const portalAccount = await factory()
+    .upset(PortalAccount)
+    .use(portalAccount => {
+      portalAccount.status = status;
+      portalAccount.association = association;
+      portalAccount.type = accountType;
+      return portalAccount;
+    }).create();
   portalUser = portalUser ?? await factory().upset(PortalUser).use(portalUser => {
     portalUser.status = status;
     return portalUser;
   }).create();
 
-  let membership = await (factory().upset(Membership).use(membership => {
-    membership.portalAccount = portalAccount;
-    membership.portalUser = portalUser;
-    membership.status = status;
-    return membership;
-  }).create());
+  let membership = await (factory()
+    .upset(Membership)
+    .use(membership => {
+      membership.portalAccount = portalAccount;
+      membership.portalUser = portalUser;
+      membership.status = status;
+      return membership;
+    }).create());
+  let group = await factory().upset(Group).use(group => {
+    group.association = association;
+    group.type = GroupTypeConstant.GENERAL;
+    return group;
+  }).create();
+  await factory().upset(GroupMembership).use(membershipGroup => {
+    membershipGroup.membership = membership;
+    membershipGroup.group = group;
+    return membershipGroup;
+  }).create();
+
   return { membership, association };
 };
 
-export const getAssociationUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association) => {
+export const getAssociationUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association, accountType = PortalAccountTypeConstant.EXECUTIVE_ACCOUNT) => {
   status = status ?? GenericStatusConstant.ACTIVE;
-  association = association ?? await factory().upset(Association).use(association => {
-    association.status = status;
-    return association;
-  }).create();
-  let token = await getLoginUser(status, portalUser, association);
+  association = association ?? await factory()
+    .upset(Association)
+    .use(association => {
+      association.status = status;
+      return association;
+    })
+    .create();
+  let loginDetails = await getLoginUser(status, portalUser, association, accountType);
 
   const response = {
-    token: token,
+    token: loginDetails.token,
     association,
+    user: loginDetails.user,
 
   };
   return Promise.resolve(response);
 };
 
-export const getLoginUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association): Promise<string> => {
+export const getLoginUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association, accountType = PortalAccountTypeConstant.EXECUTIVE_ACCOUNT) => {
   status = status ?? GenericStatusConstant.ACTIVE;
-  const testUser = await getTestUser(status, portalUser, association);
+  const testUser = await getTestUser(status, portalUser, association, accountType);
 
   const jwtPayload: JwtPayloadDto = {
     sub: testUser.membership.portalUser.id,
@@ -134,6 +158,11 @@ export const getLoginUser = async (status?: GenericStatusConstant, portalUser?: 
   return authenticationUtils.generateGenericToken(jwtPayload).then(token => {
     const authorizationToken = `Bearer ${token}`;
     return Promise.resolve(authorizationToken);
+  }).then(token => {
+    return {
+      token,
+      user: testUser,
+    };
   });
 
 

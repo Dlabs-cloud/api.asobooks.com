@@ -13,8 +13,9 @@ export function IsDateFormat(param: DateValidator, options?: ValidationOptions) 
         validate(value: any, args: ValidationArguments) {
           const param = args.constraints[0] as DateValidator;
 
+
           if (!value) {
-            return Promise.resolve(false);
+            return Promise.resolve(true);
           }
           let momentDate = moment(value, param.format);
           if (param.isBefore) {

@@ -8,6 +8,11 @@ import { AssociationCodeSequence } from './sequenceGenerators/association-code.s
 import { ServiceFeeCodeSequence } from './sequenceGenerators/service-fee-code.sequence';
 import { MembershipCodeSequence } from './sequenceGenerators/membership-code.sequence';
 import { UnAuthorizedExceptionFilter } from './exception-filters/un-authorized-exception.filter';
+import { BullModule } from '@nestjs/bull';
+import { SubscriptionCodeSequence } from './sequenceGenerators/subscription-code.sequence';
+import { QueueDataStoreConf } from '../conf/data-source/queue-data-store-conf';
+import { BillCodeSequence } from './sequenceGenerators/bill-code.sequence';
+import { ConfModule } from '../conf/conf.module';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -25,18 +30,26 @@ const unAuthorizedExceptionFilter = {
 };
 
 @Module({
+  imports: [
+    ConfModule,
+  ],
   exports: [
     PortalAccountSequence,
     AssociationCodeSequence,
     BankUploadStartup,
     ServiceFeeCodeSequence,
     MembershipCodeSequence,
+    BillCodeSequence,
+    SubscriptionCodeSequence,
   ],
   providers: [
     PortalAccountSequence,
     AssociationCodeSequence,
     ServiceFeeCodeSequence,
+    BillCodeSequence,
     BankUploadStartup,
+    SubscriptionCodeSequence,
+    // CronStartup,
     MembershipCodeSequence,
     illegalArgumentExceptionFilter,
     invalidTokenExceptionFilter,
@@ -46,3 +59,4 @@ const unAuthorizedExceptionFilter = {
 
 export class CoreModule {
 }
+

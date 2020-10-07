@@ -2,13 +2,13 @@ import { BaseRepository } from '../common/BaseRepository';
 import { EntityRepository } from 'typeorm';
 import { Setting } from '../domain/entity/setting.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { Some } from 'optional-typescript';
+import { settings } from 'cluster';
 
 @EntityRepository(Setting)
 export class SettingRepository extends BaseRepository<Setting> {
 
-  async findInLabels(...labels: string[]): Promise<Setting[]> {
-    return await this.createQueryBuilder()
+  findInLabels(...labels: string[]): Promise<Setting[]> {
+    return this.createQueryBuilder()
       .where('label IN (:...labels)')
       .andWhere('status = :status')
       .setParameter('labels', labels)
@@ -17,20 +17,19 @@ export class SettingRepository extends BaseRepository<Setting> {
   }
 
   async findByLabel(label: string, defaultValue: string) {
-    let setting = await this.createQueryBuilder()
+    return this.createQueryBuilder()
       .where('label=:label')
       .andWhere('status = :status')
       .setParameter('label', label)
       .setParameter('status', GenericStatusConstant.ACTIVE)
-      .getOne();
-    return (await Some<Setting>(setting)
-      .ifNoneAsync(async () => {
+      .getOne().then(setting => {
+        if (setting) {
+          return Promise.resolve(setting);
+        }
         let newSetting = new Setting();
         newSetting.label = label;
         newSetting.value = defaultValue;
-        await this.save(newSetting);
-        return newSetting;
-      })).valueOrNull();
-
+        return this.save(newSetting);
+      });
   }
 }

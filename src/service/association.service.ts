@@ -4,11 +4,10 @@ import { Connection } from 'typeorm';
 import { AddressRepository } from '../dao/address.repository';
 import { AddressDto } from '../dto/address.dto';
 import { CountryRepository } from '../dao/country.repository';
-import { RequestPrincipal } from '../conf/security/request-principal.service';
+import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { AssociationRepository } from '../dao/association.repository';
-import { Some } from 'optional-typescript';
 import { BankInfoService } from './bank-info.service';
 import { BankInfoDto } from '../dto/bank-info-dto';
 import { AssociationFileService } from './association-file.service';
@@ -16,6 +15,9 @@ import { IllegalArgumentException } from '../exception/illegal-argument.exceptio
 import { MembershipService } from './membership.service';
 import { BankInfoRepository } from '../dao/bank-info.repository';
 import { BankRepository } from '../dao/bank.repository';
+import { GroupService } from './group.service';
+import { GroupDto } from '../dto/group.dto';
+import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 
 
 @Injectable()
@@ -24,6 +26,7 @@ export class AssociationService {
   constructor(private readonly connection: Connection,
               private readonly bankInfoService: BankInfoService,
               private readonly membershipService: MembershipService,
+              private readonly groupService: GroupService,
               private readonly associationFileService: AssociationFileService) {
   }
 
@@ -39,11 +42,12 @@ export class AssociationService {
         .findByPortalAccount(portalAccount, GenericStatusConstant.PENDING_ACTIVATION);
 
       if (!association) {
-        throw new IllegalArgumentException('Association already exist ');
+        throw new IllegalArgumentException('Association does not exist');
       }
-      Some(associationDto.name).ifPresent(associationName => {
+
+      if (associationDto.name) {
         association.name = associationDto.name;
-      });
+      }
 
       if (associationDto.address) {
         const addressDto = new AddressDto();
@@ -55,12 +59,20 @@ export class AssociationService {
           .saveAddress(entityManager, addressDto);
       }
 
-      Some(associationDto.type).ifPresent(type => {
-        association.type = type;
-      });
+      if (associationDto.type) {
+        association.type = associationDto.type;
+      }
 
-      if (association.name && association.type && associationDto.activateAssociation) {
+      if (true === (association.name && association.type && associationDto.activateAssociation)) {
         association.status = GenericStatusConstant.ACTIVE;
+        const group: GroupDto = {
+          association: association,
+          name: `${association.name.toLowerCase()} general group`,
+          type: GroupTypeConstant.GENERAL,
+
+        };
+        await this.groupService.createGroup(entityManager, group);
+
       } else {
         association.status = GenericStatusConstant.PENDING_ACTIVATION;
       }
@@ -87,11 +99,9 @@ export class AssociationService {
           await this.bankInfoService.create(entityManager, bankInfoData, association);
         }
 
-
       }
 
       await entityManager.save(association);
-
       if (associationDto.logo) {
         await this.associationFileService.createLogo(entityManager, association, associationDto.logo);
       }

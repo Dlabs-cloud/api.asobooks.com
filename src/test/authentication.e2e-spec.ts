@@ -168,7 +168,7 @@ describe('AuthController', () => {
     }).create();
     let response = await request(applicationContext.getHttpServer())
       .get('/me')
-      .set('Authorization', await getLoginUser(null, null, association));
+      .set('Authorization', (await getLoginUser(null, null, association)).token);
     let responseData = response.body.data;
 
 

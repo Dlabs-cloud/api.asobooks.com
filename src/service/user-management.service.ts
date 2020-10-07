@@ -4,7 +4,6 @@ import { Connection, EntityManager } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalAccountService } from './portal-account.service';
 import { UserUpdateDto } from '../dto/user/user-update.dto';
-import { Some } from 'optional-typescript';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { EventBus } from '@nestjs/cqrs';
 import { ForgotPasswordEvent } from '../event/forgot-password.event';
@@ -22,6 +21,10 @@ import { PortalAccountDto } from '../dto/portal-account.dto';
 import { MembershipDto } from '../dto/membership.dto';
 import { AssociationMembershipSignUpEvent } from '../event/AssociationMembershipSignUpEvent';
 import { PortalUserRepository } from '../dao/portal-user.repository';
+import { GroupService } from './group.service';
+import { GroupRepository } from '../dao/group.repository';
+import { GroupTypeConstant } from '../domain/enums/group-type.constant';
+import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 
 @Injectable()
 export class UserManagementService {
@@ -31,6 +34,7 @@ export class UserManagementService {
               private readonly portalAccountService: PortalAccountService,
               private readonly membershipService: MembershipService,
               private readonly portalUserService: PortalUserService,
+              private readonly groupService: GroupService,
               private readonly eventBus: EventBus) {
   }
 
@@ -72,21 +76,25 @@ export class UserManagementService {
 
   public async updateUser(entityManager: EntityManager, portalUser: PortalUser, userUpdateDto: UserUpdateDto) {
 
-    Some(userUpdateDto.firstName).ifPresent((firstName) => {
-      portalUser.firstName = firstName;
-    });
-    Some(userUpdateDto.lastName).ifPresent((lastName) => {
-      portalUser.lastName = lastName;
-    });
-    Some(userUpdateDto.status).ifPresent(status => {
-      portalUser.status = status;
-    });
-    Some(userUpdateDto.phoneNumber).ifPresent(phoneNumber => {
-      portalUser.phoneNumber = phoneNumber;
-    });
-    Some(userUpdateDto.password).ifPresent(password => {
-      portalUser.password = password;
-    });
+    if(userUpdateDto.firstName){
+      portalUser.firstName = userUpdateDto.firstName;
+    }
+    if(userUpdateDto.lastName){
+      portalUser.lastName = userUpdateDto.lastName;
+    }
+
+    if(userUpdateDto.status){
+      portalUser.status = userUpdateDto.status;
+    }
+
+    if(userUpdateDto.phoneNumber){
+      portalUser.phoneNumber = userUpdateDto.phoneNumber;
+    }
+
+    if(userUpdateDto.password){
+      portalUser.password = userUpdateDto.password;
+    }
+
     portalUser.updatedAt = new Date();
     await entityManager.save(portalUser);
     return portalUser;
@@ -94,7 +102,7 @@ export class UserManagementService {
 
 
   public async createAssociationMember(membershipSignUp: MemberSignUpDto, association: Association) {
-    return  await this.connection.transaction(async entityManager => {
+    return await this.connection.transaction(async entityManager => {
       let portalUser = await this.connection.getCustomRepository(PortalUserRepository)
         .findByUserNameOrEmailOrPhoneNumberAndNotDeleted(membershipSignUp.email);
       if (portalUser) {
@@ -127,10 +135,22 @@ export class UserManagementService {
       }
 
       const membershipDto: MembershipDto = { association, portalAccount, portalUser };
-      await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE);
 
+      let membership = await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE);
+
+      let groups = await entityManager
+        .getCustomRepository(GroupRepository)
+        .findByAssociation(association, GroupTypeConstant.GENERAL);
+
+
+      if (!groups && groups.length < 0) {
+        throw new IllegalArgumentException('Association does dont have a general group');
+      }
+      let group = groups[0];
+
+      await this.groupService.addMember(entityManager, group, membership);
       this.eventBus.publish(new AssociationMembershipSignUpEvent(portalUser));
-      return portalUser;
+      return membership;
     });
 
   }

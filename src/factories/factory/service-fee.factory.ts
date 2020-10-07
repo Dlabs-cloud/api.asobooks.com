@@ -16,8 +16,9 @@ export class ServiceFeeFactory implements FactoryHelper<ServiceFee> {
     serviceFee.name = faker.random.words(2);
     serviceFee.code = faker.random.uuid();
     serviceFee.description = faker.lorem.sentence();
-    serviceFee.firstBillingDate = moment(faker.date.future(), 'DD/MM/YYYY').startOf('day').toDate();
-    serviceFee.nextBillingDate = serviceFee.firstBillingDate;
+    serviceFee.billingStartDate = moment(faker.date.future(), 'DD/MM/YYYY').startOf('day').toDate();
+    serviceFee.nextBillingStartDate = serviceFee.billingStartDate;
+    serviceFee.dueDate = moment(faker.date.future(), 'DD/MM/YYYY').startOf('day').toDate();
     return serviceFee;
   }
 

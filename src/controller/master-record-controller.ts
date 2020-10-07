@@ -5,7 +5,7 @@ import { BankRepository } from '../dao/bank.repository';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { ApiResponseDto } from '../dto/api-response.dto';
 import { CountryRepository } from '../dao/country.repository';
-import { Public } from '../conf/security/annotations/public';
+import { Public } from '../dlabs-nest-starter/security/annotations/public';
 import { NameCodeDto } from '../dto/master-records/name-code.dto';
 
 @Public()

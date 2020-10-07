@@ -13,8 +13,8 @@ import { EmailMailerConfiguration } from '../conf/email/email.conf';
       ],
     }),
   ],
-  exports: [WinstonModule, AuthenticationUtils, EmailMailerConfiguration],
-  providers: [AuthenticationUtils, EmailMailerConfiguration],
+  exports: [WinstonModule, AuthenticationUtils],
+  providers: [AuthenticationUtils],
 })
 export class CommonModule {
 }
