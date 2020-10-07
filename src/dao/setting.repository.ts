@@ -23,11 +23,14 @@ export class SettingRepository extends BaseRepository<Setting> {
       .setParameter('status', GenericStatusConstant.ACTIVE)
       .getOne();
 
-    if (!setting) {
-      let newSetting = new Setting();
-      newSetting.label = label;
-      newSetting.value = defaultValue;
-      return this.save(newSetting);
+    if (Setting) {
+      return setting;
     }
+
+    let newSetting = new Setting();
+    newSetting.label = label;
+    newSetting.value = defaultValue;
+    return this.save(newSetting);
+
   }
 }

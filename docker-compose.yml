@@ -17,8 +17,7 @@ services:
     ports:
       - "6379:6379"
   app:
-    container_name: aso_books_app
-    build: .
+    image: uncletee/asobooks-api
     ports:
       - 3000:3000
     environment:
@@ -41,11 +40,9 @@ services:
     depends_on:
       - postgres
       - redis
+
   worker:
-    container_name: aso_books_worker
-    build:
-      context: .
-      dockerfile: worker.Dockerfile
+    image: uncletee/asobooks-api
     ports:
       - 4001:4001
     environment:

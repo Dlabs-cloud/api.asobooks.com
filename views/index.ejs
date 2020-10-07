@@ -54,8 +54,14 @@
                             </button>
                         </div>
                     </form>
-                    <% if (isSubscribed) { %>
-                        <small class="mt-2 text-indigo-dark">Thank you for reaching out. We contact you once we go live</small>
+                    <% if (isSubscribed === 'true') { %>
+
+                        <small class="mt-2 text-indigo-dark">Thank you for reaching out. We contact you once we go
+                            live</small>
+                    <% } %>
+                    <% if (isSubscribed === 'false') { %>
+                        <small class="mt-2 text-indigo-dark">Something went wrong on our side we will still keep in
+                            touch</small>
                     <% } %>
                     <div class="mt-10">
                     <span class="text-xs text-grey font-light tracking-wide">

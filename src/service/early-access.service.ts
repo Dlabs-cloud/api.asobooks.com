@@ -7,9 +7,8 @@ import { EarlyAccessRepository } from 'nestjs-early-access/index';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import { Queues } from '../core/cron.enum';
-import { EmailQueueDto } from '../dto/email-queue.dto';
-import { EarlyAccessDto } from '../dto/early-access.dto';
 import { SettingRepository } from '../dao/setting.repository';
+import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 
 @Injectable()
 export class EarlyAccessService implements EarlyAccessRepository {
@@ -24,33 +23,31 @@ export class EarlyAccessService implements EarlyAccessRepository {
     let count = await earlyAccessRepository.count({ email });
 
     if (count) {
-      //  return Promise.resolve(true);
+      return Promise.resolve(true);
     }
     let earlyAccess = new EarlyAccess();
     earlyAccess.email = email;
     earlyAccess.name = name;
+    
+    await earlyAccessRepository.save(earlyAccess);
 
-    return earlyAccessRepository.save(earlyAccess).then(earlyAccess => {
+    const data = {
+      subject: 'Welcome',
+      data: {
+        'email': earlyAccess.email,
+      },
+      templateName: 'early-access',
+      from: coFounderEmail.value,
+      reply: coFounderEmail.value,
+      to: earlyAccess.email,
+    };
 
-      const data: EmailQueueDto<EarlyAccessDto> = {
-        subject: 'Welcome',
-        data: {
-          'email': earlyAccess.email,
-        },
-        templateName: 'early-access',
-        from: coFounderEmail.value,
-        reply: coFounderEmail.value,
-        to: earlyAccess.email,
-      };
 
-      return this.emailQueue.add(data).then((value => {
-        return Promise.resolve(true);
-      }));
-    }).catch(failure => {
-      return Promise.resolve(false);
-    });
+    await this.emailQueue.add(data);
 
+    return Promise.resolve(true);
   }
+
 
   delete(email: string): Promise<boolean> {
 
@@ -64,7 +61,9 @@ export class EarlyAccessService implements EarlyAccessRepository {
         .catch(() => Promise.resolve(false)));
   }
 
+
   find(email: string) {
+
     return this.connection
       .getCustomRepository(EAccessRepository)
       .findOneItemByStatus({ email });

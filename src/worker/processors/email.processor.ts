@@ -21,6 +21,9 @@ export class EmailProcessor {
       from: data.from,
       replyTo: data.reply,
     };
-    await this.mailerService.sendMail(sendMailOptions);
+
+    return this.mailerService.sendMail(sendMailOptions);
+
+
   }
 }
