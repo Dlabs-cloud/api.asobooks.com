@@ -1,4 +1,4 @@
-export class FileUploadResponse {
+export class FileUploadResponseDto {
   hostIdentifier: string;
   servingUrl: string;
 }

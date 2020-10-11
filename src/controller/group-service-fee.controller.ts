@@ -98,7 +98,7 @@ export class GroupServiceFeeController {
     return paginatedResponseDto;
   }
 
-  @Delete('/:serviceCode/members')
+  @Patch('/:serviceCode/members')
   public async removeMember(@Param('serviceCode') serviceCode: string,
                             @Body() membershipFeeRequestDto: MembershipFeeRequestDto,
                             @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {

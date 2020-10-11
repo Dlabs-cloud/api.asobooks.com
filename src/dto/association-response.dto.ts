@@ -1,4 +1,4 @@
-export class AssociationResponse {
+export class AssociationResponseDto {
   logoServingUrl?: string;
   id: number;
 
