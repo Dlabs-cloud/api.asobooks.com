@@ -39,7 +39,7 @@ async function mockGroupServiceFee(association: Association) {
     });
 }
 
-describe('membership-group-service-fee', () => {
+describe('group-service-fee-controller', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
   beforeAll(async () => {
@@ -78,7 +78,7 @@ describe('membership-group-service-fee', () => {
 
   });
 
-  it('test that a user can be removed from a service fee', async () => {
+  it('Test that a user can be removed from a service fee', async () => {
     let association = await factory().create(Association);
     let adminUser = await getAssociationUser(null, null, association);
 
@@ -106,9 +106,13 @@ describe('membership-group-service-fee', () => {
     });
 
     let mockedUsersInServiceFee = groupMemberships.map(groupMembership => groupMembership.membership.portalUser.id);
+    let queries = mockedUsersInServiceFee.map(id => {
+      return `userId=${id}`;
+    }).join('&');
 
+    const payload = `/service-fees/${groupServiceFee.serviceFee.code}/members?${queries}`;
     await request(applicationContext.getHttpServer())
-      .delete(`/service-fees/${groupServiceFee.serviceFee.code}/members`)
+      .delete(payload)
       .send({ recipients: mockedUsersInServiceFee })
       .set('Authorization', adminUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', adminUser.association.code)

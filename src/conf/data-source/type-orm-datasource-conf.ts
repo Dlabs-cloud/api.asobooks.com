@@ -18,7 +18,6 @@ export class TypeOrmDatasourceConf {
   }
 
   public getTypeOrmConfig(): TypeOrmModuleOptions {
-    console.log(this.configService.get<string>('DB_PASSWORD', 'postgres'));
     return {
       type: 'postgres',
       host: this.configService.get<string>('DB_HOST', 'localhost'),

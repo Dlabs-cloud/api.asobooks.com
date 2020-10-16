@@ -8,7 +8,7 @@ import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
 
 
-describe('Membership-management-controller ', () => {
+describe('Master Record controller ', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
   beforeAll(async () => {
@@ -18,14 +18,14 @@ describe('Membership-management-controller ', () => {
     connection = getConnection();
   });
 
-  it('Get all master-records', function() {
-    factory().createMany(2, Bank);
+  it('Get all master-records', async function() {
+    await factory().createMany(2, Bank);
     return request(applicationContext.getHttpServer())
       .get(`/master-records/banks`)
       .expect(200);
   });
 
-  it('Get all countries', function() {
+  it('Get all countries', async function() {
     return request(applicationContext.getHttpServer())
       .get(`/master-records/counties`)
       .expect(200);

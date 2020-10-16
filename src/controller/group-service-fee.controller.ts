@@ -98,9 +98,9 @@ export class GroupServiceFeeController {
     return paginatedResponseDto;
   }
 
-  @Patch('/:serviceCode/members')
+  @Delete('/:serviceCode/members')
   public async removeMember(@Param('serviceCode') serviceCode: string,
-                            @Body() membershipFeeRequestDto: MembershipFeeRequestDto,
+                            @Query('userId') userIds: number[],
                             @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
 
 
@@ -110,7 +110,7 @@ export class GroupServiceFeeController {
         requestPrincipal.association,
         PortalAccountTypeConstant.MEMBER_ACCOUNT,
         GenericStatusConstant.ACTIVE,
-        ...membershipFeeRequestDto.recipients,
+        ...userIds,
       );
 
 
