@@ -13,4 +13,10 @@ import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 export class SubscriptionRepository extends BaseRepository<Subscription> {
 
 
+  findByServiceFee(serviceFee: ServiceFee, status = GenericStatusConstant.ACTIVE) {
+    return this.findItem({
+      serviceFee: serviceFee,
+    });
+  }
+
 }

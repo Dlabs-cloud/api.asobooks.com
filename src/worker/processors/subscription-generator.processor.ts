@@ -21,14 +21,14 @@ export class SubscriptionGeneratorProcessor {
   }
 
 
-  private generateSubscription(serviceType: ServiceTypeConstant) {
+  generateSubscription(serviceType: ServiceTypeConstant) {
     let startOfTheDay = moment().startOf('day').toDate();
     let endOfTheDay = moment().endOf('day').toDate();
     let description = '';
 
     return this.connection
       .getCustomRepository(ServiceFeeRepository)
-      .findServiceFeeBetweenNextBillingDate(startOfTheDay, endOfTheDay, serviceType)
+      .findForAllGeneratedSubscriptionsByStateDateAndEndDateAndStatusType(startOfTheDay, endOfTheDay, serviceType)
       .then(serviceFees => {
         let subscriptions = serviceFees.map(serviceFee => {
 

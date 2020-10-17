@@ -22,10 +22,10 @@ export class ServiceFeeRepository extends BaseRepository<ServiceFee> {
       .getOne();
   }
 
-  public findServiceFeeBetweenNextBillingDate(startDate: Date,
-                                              endDate: Date,
-                                              serviceType: ServiceTypeConstant,
-                                              status = GenericStatusConstant.ACTIVE) {
+  public findForAllGeneratedSubscriptionsByStateDateAndEndDateAndStatusType(startDate: Date,
+                                                                            endDate: Date,
+                                                                            serviceType: ServiceTypeConstant,
+                                                                            status = GenericStatusConstant.ACTIVE) {
 
     let serviceFeeSelectQueryBuilder = this.createQueryBuilder('serviceFee')
       .select()

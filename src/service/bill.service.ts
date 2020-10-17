@@ -22,7 +22,7 @@ export class BillService {
         if (subscription.serviceType === ServiceTypeConstant.ONE_TIME) {
           bill.description = `Bill for ${subscription.serviceFee.name}`;
         } else {
-          bill.description = `Bill for ${subscription.serviceFee.name}(${subscription.startDate} - ${subscription.endDate}`;
+          bill.description = `Bill for ${subscription.serviceFee.name} (${subscription.startDate} - ${subscription.endDate}`;
         }
         bill.disCountInPercentage = 0;
         bill.vatInPercentage = 0;

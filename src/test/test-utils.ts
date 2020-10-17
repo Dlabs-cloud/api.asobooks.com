@@ -27,6 +27,7 @@ import { GroupMembership } from '../domain/entity/group-membership.entity';
 import { Group } from '../domain/entity/group.entity';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { WorkerModule } from '../worker/worker.module';
 
 
 export const init = async (entityManager?: EntityManager) => {
@@ -47,14 +48,6 @@ export const init = async (entityManager?: EntityManager) => {
 
 };
 
-
-export const mockLoginUser = async function(authenticationService: AuthenticationService) {
-  const signUpUser = await this.mockActiveSignUpUser(authenticationService);
-  const loginDto = new LoginDto();
-  loginDto.username = signUpUser.username;
-  loginDto.password = signUpUser.password;
-  return await authenticationService.loginUser(loginDto);
-};
 
 export const mockNewSignUpUser = async (authenticationService: AuthenticationService): Promise<SignUpDto> => {
 
@@ -175,7 +168,7 @@ export const mockSendEmail = () => jest.fn().mockImplementation((sendEmailOption
 
 export function baseTestingModule() {
   return Test.createTestingModule({
-    imports: [AppModule, ServiceModule],
+    imports: [AppModule, ServiceModule, WorkerModule],
     providers: [AppService],
   }).overrideProvider(MailerService)
     .useValue({

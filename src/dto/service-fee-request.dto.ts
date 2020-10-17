@@ -25,7 +25,7 @@ export class ServiceFeeRequestDto {
   @ValidateIf(o => o.type === ServiceTypeConstant.RE_OCCURRING, {
     message: 'Billing cycle must be provided if the type is RE_OCCURRING',
   })
-  cycle: BillingCycleConstant;
+  cycle?: BillingCycleConstant;
 
   @IsNotEmpty()
   @IsDateFormat({
