@@ -11,7 +11,7 @@ coverage
 
 # Environment (contains sensitive data)
 .env
-
+.idea
 Dockerfile
 README.md
 Dockerfile.worker
