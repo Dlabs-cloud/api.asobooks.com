@@ -108,7 +108,7 @@ export class ServiceFeeService {
           .startOf('day')
           .toDate();
       default:
-        throw new IllegalArgumentException('Type should be specified');
+        throw new IllegalArgumentException('cycle should be specified');
 
     }
   }

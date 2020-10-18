@@ -22,14 +22,14 @@ export class MasterRecordController extends BaseController {
       .connection
       .getCustomRepository(BankRepository)
       .find({ status: GenericStatusConstant.ACTIVE });
-    banks = banks.map(bank => {
+    let banksReponse = banks.map(bank => {
       return {
         code: bank.code,
         name: bank.name,
 
       };
     });
-    return new ApiResponseDto(banks);
+    return new ApiResponseDto(banksReponse);
   }
 
   @Get('/counties')
@@ -39,12 +39,12 @@ export class MasterRecordController extends BaseController {
       .getCustomRepository(CountryRepository)
       .find({ status: GenericStatusConstant.ACTIVE });
 
-    countries = countries.map(country => {
+    let countriesReponse = countries.map(country => {
       return {
         code: country.code,
         name: country.name,
       };
     });
-    return new ApiResponseDto(countries);
+    return new ApiResponseDto(countriesReponse);
   }
 }

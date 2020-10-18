@@ -65,7 +65,7 @@ export class BillGeneratorProcessor {
       .getCustomRepository(ServiceFeeRepository)
       .findById(GenericStatusConstant.ACTIVE, ...serviceFeeIds);
 
-    return subscriptions.map(subscription => {
+    let map: Promise<Bill[]>[] = subscriptions.map(subscription => {
       subscription.serviceFee = serviceFees
         .find(serviceFee => serviceFee.id === subscription.serviceFeeId);
 
@@ -78,6 +78,7 @@ export class BillGeneratorProcessor {
         });
       return Promise.all(bills);
     });
+    return Promise.all(map);
 
   }
 

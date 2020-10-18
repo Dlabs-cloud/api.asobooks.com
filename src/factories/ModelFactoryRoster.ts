@@ -22,7 +22,7 @@ import { ServiceFeeFactory } from './factory/service-fee.factory';
 import { Group } from '../domain/entity/group.entity';
 import { GroupModelFactory } from './factory/group-model.factory';
 import { GroupMembership } from '../domain/entity/group-membership.entity';
-import { MembershipGroupModelFactory } from './factory/membership-group-model.factory';
+import { GroupMembershipModelFactory } from './factory/group-membership-model.factory';
 import { GroupServiceFee } from '../domain/entity/group-sevice-fee.entity';
 import { GroupServiceFeeModelFactory } from './factory/group-service-fee-model.factory';
 import { Subscription } from '../domain/entity/subcription.entity';
@@ -41,7 +41,7 @@ export class ModelFactoryRoster {
     modelFactory.register(Bank, BankFactory);
     modelFactory.register(Group, GroupModelFactory);
     modelFactory.register(ServiceFee, ServiceFeeFactory);
-    modelFactory.register(GroupMembership, MembershipGroupModelFactory);
+    modelFactory.register(GroupMembership, GroupMembershipModelFactory);
     modelFactory.register(GroupServiceFee, GroupServiceFeeModelFactory);
     modelFactory.register(Subscription, SubscriptionModelFactory);
   }

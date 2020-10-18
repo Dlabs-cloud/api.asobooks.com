@@ -25,7 +25,7 @@ describe('Master Record controller ', () => {
       .expect(200);
   });
 
-  it('Get all countries', async function() {
+  it('Get all countries', async () => {
     return request(applicationContext.getHttpServer())
       .get(`/master-records/counties`)
       .expect(200);
