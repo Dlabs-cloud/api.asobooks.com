@@ -66,7 +66,7 @@ describe('Membership-management-controller ', () => {
       .expect(201);
   });
 
-  it('Test that an when a member is created he his added to the association general group', async () => {
+  it('Test that when a member is created he is added to the association general group', async () => {
     let membershipSignUpDto: MemberSignUpDto = {
       address: {
         address: faker.address.streetAddress(),

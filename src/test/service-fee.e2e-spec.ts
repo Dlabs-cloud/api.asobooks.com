@@ -18,6 +18,8 @@ import { PortalUserRepository } from '../dao/portal-user.repository';
 import { ServiceFeeRepository } from '../dao/service-fee.repository';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { MembershipRepository } from '../dao/membership.repository';
+import {ServiceFeeFilterDto} from "../dto/service-fee-filter.dto";
+import {count} from "rxjs/operators";
 
 describe('Service fees set up test ', () => {
   let applicationContext: INestApplication;
@@ -62,7 +64,7 @@ describe('Service fees set up test ', () => {
       .set('Authorization', assoUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
       .send(requestPayload);
-    console.log(response.body);
+    // console.log(response.body);
     expect(response.status).toEqual(201);
     let serviceCode = response.body.data.code;
     let serviceFee = await connection.getCustomRepository(ServiceFeeRepository)
@@ -76,7 +78,6 @@ describe('Service fees set up test ', () => {
 
 
   });
-
 
   it('test that set up fee can be created', async () => {
     let requestPayload: ServiceFeeRequestDto = {
@@ -126,6 +127,31 @@ describe('Service fees set up test ', () => {
     expect(data.description).toEqual(serviceFee.description);
     expect(data.billingStartDate).toBeDefined();
   });
+
+  it('can get all association service fee', async () =>{
+    let association = await factory().upset(Association).use(association => {
+      association.status = GenericStatusConstant.ACTIVE;
+      return association;
+    }).create();
+    let associationUser = await getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
+    let serviceFee = await factory().upset(ServiceFee).use((serviceFee) => {
+      serviceFee.association = association;
+      return serviceFee;
+    }).create();
+    let serviceFeeFilterDto: ServiceFeeFilterDto = {
+      limit: 100,
+      offset: 0
+    };
+    let totalExistingValue = await connection.getCustomRepository(ServiceFeeRepository).getAllServiceFeeByAssociationCodeAndStatus(associationUser.association, GenericStatusConstant.ACTIVE, serviceFeeFilterDto) ;
+
+    let response = await request(applicationContext.getHttpServer())
+        .get(`/service-fees`)
+        .set('Authorization', associationUser.token)
+        .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
+        .expect(200);
+
+    expect(1).toEqual(totalExistingValue.length);
+  })
 
 
   afterAll(async () => {
