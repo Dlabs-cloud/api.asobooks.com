@@ -37,3 +37,4 @@ lerna-debug.log*
 /coverage/
 /data/
 /.docker/
+test.env
