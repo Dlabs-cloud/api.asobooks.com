@@ -3,7 +3,7 @@ import { Column, Entity } from 'typeorm';
 import { FileTypeConstant } from '../enums/file-type-constant';
 
 @Entity()
-export class File extends BaseEntity {
+export class FileResource extends BaseEntity {
   @Column()
   servingUrl: string;
   @Column()

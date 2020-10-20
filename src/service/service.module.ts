@@ -1,30 +1,24 @@
-import { Module } from '@nestjs/common';
-import { CoreModule } from '../core/core.module';
-import { DaoModule } from '../dao/dao.module';
-import { AuthenticationService } from './authentication.service';
+import { forwardRef, Module } from '@nestjs/common';
+import { ASSOCIATION_SERVICE, CACHE_ASSOCIATION_SERVICE } from './association-service';
+import { AssociationServiceImpl } from '../service-impl/association.service-impl';
+import { CachedAssociationServiceImpl } from '../service-impl/cached-association.service-impl';
 import { CommonModule } from '../common/common.module';
-import { PortalUserService } from './portal-user.service';
-import { PortalAccountService } from './portal-account.service';
-import { CqrsModule } from '@nestjs/cqrs';
-import { MembershipService } from './membership.service';
-import { UserManagementService } from './user-management.service';
-import { ValidationService } from './validation-service';
+import { ServiceImplModule } from '../service-impl/serviceImplModule';
+import { ValidationService } from '../service-impl/validation-service';
 import { BEARER_TOKEN_SERVICE } from '../dlabs-nest-starter/interfaces/i-bearer-token-service';
-import { BearerTokenService } from './bearer-token.service';
-import { AssociationService } from './association.service';
+import { BearerTokenService } from '../service-impl/bearer-token.service';
 import { FILE_SERVICE } from '../contracts/i-file-service';
-import { AmazonS3FileService } from './amazon-s3-file.service';
-import { BankInfoService } from './bank-info.service';
-import { AssociationFileService } from './association-file.service';
-import { ServiceFeeService } from './service-fee.service';
-import { EarlyAccessService } from './early-access.service';
-import { GroupService } from './group.service';
-import { GroupServiceFeeService } from './group-service-fee.service';
-import { SubscriptionService } from './subscription.service';
-import { ConfigModule } from '@nestjs/config';
-import { BillService } from './bill.service';
-import { ConfModule } from '../conf/conf.module';
+import { AmazonS3FileService } from '../service-impl/amazon-s3-file.service';
 
+const associationService = {
+  provide: ASSOCIATION_SERVICE,
+  useClass: AssociationServiceImpl,
+};
+
+const cachedAssociationService = {
+  provide: CACHE_ASSOCIATION_SERVICE,
+  useClass: CachedAssociationServiceImpl,
+};
 
 const emailValidationProvider = {
   provide: 'EMAIL_VALIDATION_SERVICE',
@@ -41,54 +35,19 @@ const fileServiceProvider = {
   useClass: AmazonS3FileService,
 };
 
-
 @Module({
-  imports: [
-    CoreModule,
-    ConfModule,
-    DaoModule,
-    CommonModule,
-    CqrsModule,
-    ConfigModule,
-  ],
-  exports: [
-    AuthenticationService,
-    PortalUserService,
-    PortalAccountService,
-    MembershipService,
-    UserManagementService,
-    AssociationService,
-    BankInfoService,
+  imports: [CommonModule, forwardRef(() => ServiceImplModule)],
+  exports: [cachedAssociationService,
+    associationService,
     emailValidationProvider,
-    bearerTokenServiceProvider,
     fileServiceProvider,
-    AssociationFileService,
-    ServiceFeeService,
-    EarlyAccessService,
-    GroupServiceFeeService,
-    SubscriptionService,
-    GroupService,
-    BillService,
+    bearerTokenServiceProvider,
   ],
-  providers: [
-    AuthenticationService,
-    PortalUserService,
-    EarlyAccessService,
-    PortalAccountService,
-    UserManagementService,
-    BankInfoService,
-    SubscriptionService,
-    GroupService,
-    ServiceFeeService,
-    AssociationFileService,
-    MembershipService,
-    AssociationService,
-    GroupServiceFeeService,
+  providers: [cachedAssociationService,
+    associationService,
     emailValidationProvider,
-    bearerTokenServiceProvider,
     fileServiceProvider,
-    BillService,
-  ],
+    bearerTokenServiceProvider],
 })
 export class ServiceModule {
 }

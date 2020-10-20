@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { UserManagementService } from '../service/user-management.service';
+import { UserManagementService } from '../service-impl/user-management.service';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { MemberSignUpDto } from '../dto/user/member-sign-up.dto';

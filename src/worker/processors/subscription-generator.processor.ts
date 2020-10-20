@@ -4,7 +4,7 @@ import { Job } from 'bull';
 import { ServiceFeeRepository } from '../../dao/service-fee.repository';
 import * as moment from 'moment';
 import { SubscriptionRequestDto } from '../../dto/subscription.request.dto';
-import { SubscriptionService } from '../../service/subscription.service';
+import { SubscriptionService } from '../../service-impl/subscription.service';
 import { ServiceTypeConstant } from '../../domain/enums/service-type.constant';
 import { Queues } from '../../core/cron.enum';
 

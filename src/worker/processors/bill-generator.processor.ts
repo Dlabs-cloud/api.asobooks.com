@@ -11,7 +11,7 @@ import { Subscription } from '../../domain/entity/subcription.entity';
 import { GenericStatusConstant } from '../../domain/enums/generic-status-constant';
 import { ServiceFeeRepository } from '../../dao/service-fee.repository';
 import { MembershipRepository } from '../../dao/membership.repository';
-import { BillService } from '../../service/bill.service';
+import { BillService } from '../../service-impl/bill.service';
 import { CollectionUtils } from '../../common/utils/collection-utils';
 import { Queues } from '../../core/cron.enum';
 

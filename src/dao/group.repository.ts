@@ -27,7 +27,7 @@ export class GroupRepository extends BaseRepository<Group> {
     return this.createQueryBuilder('group')
       .select()
       .innerJoin(GroupServiceFee, 'groupService', 'groupService.group = group.id')
-      .where('groupService.serviceFee = :service', { service: serviceFee.id })
+      .where('groupService.serviceFee = :service-impl', { service: serviceFee.id })
       .andWhere('group.status = :status', { status })
       .getMany();
   }

@@ -18,10 +18,13 @@ import { BankRepository } from '../dao/bank.repository';
 import { GroupService } from './group.service';
 import { GroupDto } from '../dto/group.dto';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
+import { AssociationService } from '../service/association-service';
+import { Association } from '../domain/entity/association.entity';
+
 
 
 @Injectable()
-export class AssociationService {
+export class AssociationServiceImpl implements AssociationService {
 
   constructor(private readonly connection: Connection,
               private readonly bankInfoService: BankInfoService,
@@ -30,7 +33,8 @@ export class AssociationService {
               private readonly associationFileService: AssociationFileService) {
   }
 
-  createAssociation(associationDto: AssociationRequestDto, requestPrincipal: RequestPrincipal) {
+
+  createAssociation(associationDto: AssociationRequestDto, requestPrincipal: RequestPrincipal): Promise<Association> {
     return this.connection.transaction(async entityManager => {
 
       associationDto.activateAssociation = associationDto.activateAssociation ?? false;
@@ -63,20 +67,6 @@ export class AssociationService {
         association.type = associationDto.type;
       }
 
-      if (true === (association.name && association.type && associationDto.activateAssociation)) {
-        association.status = GenericStatusConstant.ACTIVE;
-        const group: GroupDto = {
-          association: association,
-          name: `${association.name.toLowerCase()} general group`,
-          type: GroupTypeConstant.GENERAL,
-
-        };
-        await this.groupService.createGroup(entityManager, group);
-
-      } else {
-        association.status = GenericStatusConstant.PENDING_ACTIVATION;
-      }
-
 
       if (associationDto.bankInfo) {
         let bankInfoData: BankInfoDto = {
@@ -105,7 +95,25 @@ export class AssociationService {
       if (associationDto.logo) {
         await this.associationFileService.createLogo(entityManager, association, associationDto.logo);
       }
+
+
+      if (true === (association.name && association.type && associationDto.activateAssociation)) {
+        association.status = GenericStatusConstant.ACTIVE;
+        const group: GroupDto = {
+          association: association,
+          name: `${association.name.toLowerCase()} general group`,
+          type: GroupTypeConstant.GENERAL,
+
+        };
+        await this.groupService.createGroup(entityManager, group);
+
+      } else {
+        association.status = GenericStatusConstant.PENDING_ACTIVATION;
+      }
+
+
       return association;
+
 
     });
 

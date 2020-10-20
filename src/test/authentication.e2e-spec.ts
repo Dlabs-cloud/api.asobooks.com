@@ -1,11 +1,11 @@
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
-import { AuthenticationService } from '../service/authentication.service';
+import { AuthenticationService } from '../service-impl/authentication.service';
 import { IEmailValidationService } from '../contracts/i-email-validation-service';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { TestingModule } from '@nestjs/testing';
-import { ServiceModule } from '../service/service.module';
+import { ServiceImplModule } from '../service-impl/serviceImplModule';
 import { baseTestingModule, getLoginUser, getTestUser } from './test-utils';
 import { getConnection } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
@@ -22,6 +22,7 @@ import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { Association } from '../domain/entity/association.entity';
 import { Membership } from '../domain/entity/membership.entity';
+import { ServiceModule } from '../service/service.module';
 
 describe('AuthController', () => {
   let applicationContext: INestApplication;
@@ -39,7 +40,7 @@ describe('AuthController', () => {
 
     connection = getConnection();
     authenticationService = applicationContext
-      .select(ServiceModule)
+      .select(ServiceImplModule)
       .get(AuthenticationService, { strict: true });
     emailValidationService = applicationContext.select(ServiceModule).get('EMAIL_VALIDATION_SERVICE', { strict: true });
     let testUser = await getTestUser(GenericStatusConstant.ACTIVE);

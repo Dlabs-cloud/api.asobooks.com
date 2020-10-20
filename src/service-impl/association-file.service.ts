@@ -6,12 +6,12 @@ import { AssociationFileRepository } from '../dao/association.file.repository';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Association } from '../domain/entity/association.entity';
 import { FILE_SERVICE, IFileService } from '../contracts/i-file-service';
-import { File } from '../domain/entity/file.entity';
+import { FileResource } from '../domain/entity/file.entity';
 import { AssociationFile } from '../domain/entity/association-file.entity';
 
 @Injectable()
 export class AssociationFileService {
-  constructor(@Inject(FILE_SERVICE) private readonly fileService: IFileService<File>) {
+  constructor(@Inject(FILE_SERVICE) private readonly fileService: IFileService) {
   }
 
   async createLogo(entityManager: EntityManager, association: Association, fileDto: FileDto) {
@@ -23,7 +23,7 @@ export class AssociationFileService {
       await entityManager.save(associationFile);
     }
     let newAssociationFile = new AssociationFile();
-    newAssociationFile.file = await this.fileService.upload(entityManager, fileDto);
+    newAssociationFile.file = await this.fileService.uploadAndPersist(entityManager, fileDto);
     newAssociationFile.association = association;
     newAssociationFile.type = AssociationFileTypeConstant.LOGO;
     await entityManager.save(newAssociationFile);

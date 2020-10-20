@@ -5,8 +5,8 @@ import { baseTestingModule } from './test-utils';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { getConnection } from 'typeorm';
 import { WorkerModule } from '../worker/worker.module';
-import { ServiceModule } from '../service/service.module';
-import { ServiceFeeService } from '../service/service-fee.service';
+import { ServiceImplModule } from '../service-impl/serviceImplModule';
+import { ServiceFeeService } from '../service-impl/service-fee.service';
 import { factory } from './factory';
 import { ServiceFee } from '../domain/entity/service.fee.entity';
 import { BillGeneratorProcessor } from '../worker/processors/bill-generator.processor';
@@ -37,7 +37,7 @@ describe('Subscription-generator-processor  ', () => {
       .select(WorkerModule)
       .get(BillGeneratorProcessor, { strict: true });
     serviceFeeService = applicationContext
-      .select(ServiceModule)
+      .select(ServiceImplModule)
       .get(ServiceFeeService, { strict: true });
 
 

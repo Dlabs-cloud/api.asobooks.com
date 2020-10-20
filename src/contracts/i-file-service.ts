@@ -4,6 +4,9 @@ import { BaseEntity } from '../common/base.entity';
 
 export const FILE_SERVICE = 'FILE_SERVICE';
 
-export interface IFileService<SAVEDENTITY extends BaseEntity> {
-   upload(entityManager, file: FileDto): Promise<SAVEDENTITY>;
+export interface IFileService {
+  uploadAndPersist(entityManager, file: FileDto);
+
+  upload(file: FileDto): Promise<{ servingUrl, hostIdentifier }>;
+
 }

@@ -14,7 +14,7 @@ import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { BEARER_TOKEN_SERVICE, IBearerTokenService } from '../dlabs-nest-starter/interfaces/i-bearer-token-service';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { Association } from '../domain/entity/association.entity';
-import { AssociationService } from './association.service';
+import { AssociationServiceImpl } from './association.service-impl';
 import { AssociationCodeSequence } from '../core/sequenceGenerators/association-code.sequence';
 import { MembershipService } from './membership.service';
 import { MembershipDto } from '../dto/membership.dto';
@@ -30,7 +30,7 @@ export class AuthenticationService {
               @Inject(BEARER_TOKEN_SERVICE) private readonly bearerTokenService: IBearerTokenService<TokenPayloadDto>,
               private readonly connection: Connection,
               private readonly portalUserService: PortalUserService,
-              private readonly associationService: AssociationService,
+              private readonly associationService: AssociationServiceImpl,
               private readonly associationCodeSequence: AssociationCodeSequence,
               private readonly membershipService: MembershipService,
               private readonly portalAccountService: PortalAccountService,
