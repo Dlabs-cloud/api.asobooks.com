@@ -17,6 +17,7 @@ import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { GroupRepository } from '../dao/group.repository';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { MembershipRepository } from '../dao/membership.repository';
+import {GenericStatusConstant} from "../domain/enums/generic-status-constant";
 
 describe('Membership-management-controller ', () => {
   let applicationContext: INestApplication;
@@ -122,6 +123,38 @@ describe('Membership-management-controller ', () => {
 
     let responseData = response.body.data;
     expect(responseData.total).toEqual(totalExistingValue);
+
+  });
+
+  it('can get an association members by username', async () => {
+    let portalUserQuery = await connection.getCustomRepository(PortalUserRepository).getByAssociationAndAccountType(associationUser.association, PortalAccountTypeConstant.MEMBER_ACCOUNT, GenericStatusConstant.ACTIVE, 1);
+    let portalUser = portalUserQuery[0][0]
+    let response = await request(applicationContext.getHttpServer())
+        .get(`/membership-management/${portalUser.username}`)
+        .set('Authorization', associationUser.token)
+        .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
+        .expect(200);
+
+    let responseData = response.body.data;
+    expect(responseData.username).toBe(portalUser.username);
+
+  });
+
+  it('can update an association members details', async () => {
+    let portalUserQuery = await connection.getCustomRepository(PortalUserRepository).getByAssociationAndAccountType(associationUser.association, PortalAccountTypeConstant.MEMBER_ACCOUNT, GenericStatusConstant.ACTIVE, 1);
+    let portalUser = portalUserQuery[0][0]
+    const userUpdateDto = {
+      firstName: 'Zidane'
+    }
+    let response = await request(applicationContext.getHttpServer())
+        .patch(`/membership-management/${portalUser.username}`)
+        .send(userUpdateDto)
+        .set('Authorization', associationUser.token)
+        .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
+        .expect(200);
+
+    let responseData = response.body.data;
+    expect(responseData.firstName).toBe('Zidane');
 
   });
 

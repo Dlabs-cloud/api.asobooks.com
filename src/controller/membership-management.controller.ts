@@ -1,17 +1,19 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { UserManagementService } from '../service/user-management.service';
-import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
-import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
-import { MemberSignUpDto } from '../dto/user/member-sign-up.dto';
-import { ApiResponseDto } from '../dto/api-response.dto';
-import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
-import { Connection } from 'typeorm';
-import { PortalUserRepository } from '../dao/portal-user.repository';
-import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
-import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { PaginatedResponseDto } from '../dto/paginated-response.dto';
-import { PortalUser } from '../domain/entity/portal-user.entity';
-import { PortalUserDto } from '../dto/portal-user.dto';
+import {Body, Controller, Get, Param, Patch, Post, Query} from '@nestjs/common';
+import {UserManagementService} from '../service/user-management.service';
+import {RequestPrincipalContext} from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
+import {RequestPrincipal} from '../dlabs-nest-starter/security/request-principal.service';
+import {MemberSignUpDto} from '../dto/user/member-sign-up.dto';
+import {ApiResponseDto} from '../dto/api-response.dto';
+import {AssociationContext} from '../dlabs-nest-starter/security/annotations/association-context';
+import {Connection} from 'typeorm';
+import {PortalUserRepository} from '../dao/portal-user.repository';
+import {PortalAccountTypeConstant} from '../domain/enums/portal-account-type-constant';
+import {GenericStatusConstant} from '../domain/enums/generic-status-constant';
+import {PaginatedResponseDto} from '../dto/paginated-response.dto';
+import {PortalUser} from '../domain/entity/portal-user.entity';
+import {PortalUserDto} from '../dto/portal-user.dto';
+import {getManager} from "typeorm/index";
+import {UserUpdateDto} from "../dto/user/user-update.dto";
 
 
 @Controller('membership-management')
@@ -59,5 +61,22 @@ export class MembershipManagementController {
     return new ApiResponseDto(response, 200);
   }
 
+  @Patch('/:username')
+  public async updateAssociationMember(@RequestPrincipalContext() requestPrincipal: RequestPrincipal, @Param('username') username: string, @Body() userUpdateDto: UserUpdateDto){
+    const entityManager = getManager();
+    let portalUsers = await this.connection
+        .getCustomRepository(PortalUserRepository)
+        .findByUserNameOrEmailOrPhoneNumberAndStatus(username, GenericStatusConstant.ACTIVE);
+    portalUsers = await this.userManagementService.updateUser(entityManager, portalUsers, userUpdateDto)
+    return new ApiResponseDto(portalUsers, 200);
+  }
+
+  @Get('/:username')
+  public async getAssociationMember(@RequestPrincipalContext() requestPrincipal: RequestPrincipal, @Param('username') username: string){
+    let portalUsers = await this.connection
+        .getCustomRepository(PortalUserRepository)
+        .findByUserNameOrEmailOrPhoneNumberAndStatus(username, GenericStatusConstant.ACTIVE);
+    return new ApiResponseDto(portalUsers, 200);
+  }
 
 }
