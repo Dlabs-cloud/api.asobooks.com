@@ -6,9 +6,10 @@ import { ServiceImplModule } from '../service-impl/serviceImplModule';
 import { ConfigModule } from '@nestjs/config';
 import { ForgotPasswordHandler } from './forgot-password-handler';
 import { ServiceModule } from '../service/service.module';
+import { ConfModule } from '../conf/conf.module';
 
 @Module({
-  imports: [DaoModule, ServiceModule, ConfigModule],
+  imports: [DaoModule, ServiceModule, ConfigModule, ConfModule],
   controllers: [],
   providers: [NewUserAccountSignUpHandler, ForgotPasswordHandler],
 })

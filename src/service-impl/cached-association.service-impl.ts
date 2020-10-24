@@ -5,6 +5,7 @@ import { CacheService } from '../common/utils/cache.service';
 import { FILE_SERVICE, IFileService } from '../contracts/i-file-service';
 import { Inject } from '@nestjs/common';
 import { AssociationOnboardingDto } from '../dto/association-onboarding.dto';
+import { FileDto } from '../dto/file.dto';
 
 
 export class CachedAssociationServiceImpl implements AssociationService {
@@ -17,7 +18,7 @@ export class CachedAssociationServiceImpl implements AssociationService {
   async createAssociation(associationDto: AssociationRequestDto, requestPrincipal: RequestPrincipal) {
     const key = `${requestPrincipal.portalUser.email}-association-onboarding`;
     let existingData = (await this.cacheService.get(key)) as AssociationOnboardingDto;
-    if (!existingData) {
+    if (existingData) {
       Object.keys(existingData).forEach(key => {
         existingData[key] = associationDto[key];
       });
@@ -27,8 +28,7 @@ export class CachedAssociationServiceImpl implements AssociationService {
 
 
     if (associationDto.logo) {
-      let uploadResponse = await this.fileService.upload(associationDto.logo);
-      existingData.logoServingUrl = uploadResponse.servingUrl;
+      existingData.logo = await this.fileService.upload(associationDto.logo as FileDto);
     }
 
     return this.cacheService.set(key, existingData).then(value => {

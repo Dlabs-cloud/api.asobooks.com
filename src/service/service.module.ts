@@ -9,6 +9,7 @@ import { BEARER_TOKEN_SERVICE } from '../dlabs-nest-starter/interfaces/i-bearer-
 import { BearerTokenService } from '../service-impl/bearer-token.service';
 import { FILE_SERVICE } from '../contracts/i-file-service';
 import { AmazonS3FileService } from '../service-impl/amazon-s3-file.service';
+import { ConfigModule } from '@nestjs/config';
 
 const associationService = {
   provide: ASSOCIATION_SERVICE,
@@ -36,7 +37,7 @@ const fileServiceProvider = {
 };
 
 @Module({
-  imports: [CommonModule, forwardRef(() => ServiceImplModule)],
+  imports: [CommonModule, forwardRef(() => ServiceImplModule), ConfigModule],
   exports: [cachedAssociationService,
     associationService,
     emailValidationProvider,

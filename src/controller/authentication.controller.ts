@@ -43,7 +43,7 @@ export class AuthenticationController {
     if (existingIngPortalUser) {
       throw new IllegalArgumentException('portal user with email or user name is already existing');
     }
-    Inject()
+
     const membership = await this.authenticationService.signPrincipalUser(signUpRequestDto);
     return new ApiResponseDto(membership.portalUser, 201);
   }

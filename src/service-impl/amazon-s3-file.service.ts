@@ -6,6 +6,7 @@ import { PutObjectRequest } from 'aws-sdk/clients/s3';
 import { ConfigService } from '@nestjs/config';
 import { EntityManager } from 'typeorm';
 import { FileResource } from '../domain/entity/file.entity';
+import { FileUploadResponseDto } from '../dto/file-upload.response.dto';
 
 
 @Injectable()
@@ -18,21 +19,23 @@ export class AmazonS3FileService implements IFileService {
   uploadAndPersist(entityManager: EntityManager, fileDto: FileDto): Promise<FileResource> {
 
     return this.upload(fileDto).then(response => {
-      let file = new FileResource();
-      file.name = fileDto.name;
-      file.contentType = fileDto.contentType;
-      file.servingUrl = response.servingUrl;
-      file.type = fileDto.fileType;
-      file.hostIdentifier = response.hostIdentifier;
-      return entityManager.save(file);
+      return this.save(entityManager, response);
     }).catch(reason => {
       throw new HttpException('Cannot upload image at this time', HttpStatus.BAD_GATEWAY);
     });
-
-
   }
 
-  async upload(file: FileDto): Promise<{ servingUrl, hostIdentifier }> {
+  save(entityManager: EntityManager, uploadResponse: FileUploadResponseDto) {
+    let fileResource = new FileResource();
+    fileResource.name = uploadResponse.name;
+    fileResource.contentType = uploadResponse.contentType;
+    fileResource.servingUrl = uploadResponse.servingUrl;
+    fileResource.type = uploadResponse.fileType;
+    fileResource.hostIdentifier = uploadResponse.hostIdentifier;
+    return entityManager.save(fileResource);
+  }
+
+  async upload(file: FileDto): Promise<FileUploadResponseDto> {
     const region = this.configService.get<string>('AMAZON_REGION', 'eu-west-2');
     const payload: PutObjectRequest = {
       Key: file.name,
@@ -43,11 +46,15 @@ export class AmazonS3FileService implements IFileService {
     };
     const servingUrl = `https://s3.${region}.amazonaws.com/${payload.Bucket}/${payload.Key}`;
     return this.s3.putObject(payload).promise().then(response => {
-      return Promise.resolve({
-          servingUrl: servingUrl,
-          hostIdentifier: response.ETag,
-        },
-      );
+      let value: FileUploadResponseDto = {
+        contentType: file.contentType,
+        fileType: undefined,
+        name: file.name,
+        servingUrl: servingUrl,
+        hostIdentifier: response.ETag,
+      };
+      return Promise.resolve(value,
+      )
 
     });
 

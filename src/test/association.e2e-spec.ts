@@ -22,6 +22,7 @@ import { Bank } from '../domain/entity/bank.entity';
 import { BankInfoRepository } from '../dao/bank-info.repository';
 import { AssociationServiceImpl } from '../service-impl/association.service-impl';
 import { ServiceModule } from '../service/service.module';
+import { CACHE_ASSOCIATION_SERVICE } from '../service/association-service';
 
 async function associationUpdate(loginToken: string) {
   let association = await factory().upset(Association).use(association => {
@@ -66,8 +67,8 @@ describe('AssociationController', () => {
       .select(ServiceImplModule)
       .get(AuthenticationService, { strict: true });
     associationService = applicationContext
-      .select(ServiceImplModule)
-      .get(AssociationServiceImpl, { strict: true });
+      .select(ServiceModule)
+      .get(CACHE_ASSOCIATION_SERVICE, { strict: true });
     emailValidationService = applicationContext.select(ServiceModule).get('EMAIL_VALIDATION_SERVICE', { strict: true });
 
 
@@ -87,6 +88,10 @@ describe('AssociationController', () => {
 
   });
 
+  it('Test that an association can created and seeded to DB', async () => {
+
+  });
+
   it('Test that updating of association creates right records', async () => {
     const __ret = await associationUpdate(loginToken);
 
@@ -100,9 +105,9 @@ describe('AssociationController', () => {
       .set('Authorization', loginToken)
       .send(payload);
     expect(response.status).toEqual(201);
-    let number = await connection.getCustomRepository(BankInfoRepository).countByAssociation(__ret.association);
-    expect(number).toEqual(1);
-
+    expect(response.body.activateAssociation).toEqual(false);
+    expect(response.body.address).toBeDefined();
+    expect(response.body.type).toBeDefined();
   });
   afterAll(async () => {
     await connection.close();

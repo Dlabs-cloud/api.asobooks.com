@@ -9,6 +9,8 @@ import { BaseController } from './BaseController';
 import { FileTypeConstant } from '../domain/enums/file-type-constant';
 import { AssociationService, CACHE_ASSOCIATION_SERVICE } from '../service/association-service';
 import { CacheService } from '../common/utils/cache.service';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { AssociationOnboardingDto } from '../dto/association-onboarding.dto';
 
 @Controller('associations')
 export class AssociationController extends BaseController {
@@ -20,6 +22,11 @@ export class AssociationController extends BaseController {
   @UseInterceptors(
     ImageUploadInterceptor('logo'),
   )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Onboard associations',
+    type: AssociationOnboardingDto,
+  })
   @Put('/onboard')
   public async createAssociation(@UploadedFile() file,
                                  @Body() associationRequestDto: AssociationRequestDto,

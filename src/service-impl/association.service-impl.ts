@@ -20,7 +20,7 @@ import { GroupDto } from '../dto/group.dto';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { AssociationService } from '../service/association-service';
 import { Association } from '../domain/entity/association.entity';
-
+import { FileUploadResponseDto } from '../dto/file-upload.response.dto';
 
 
 @Injectable()
@@ -86,14 +86,15 @@ export class AssociationServiceImpl implements AssociationService {
             .findOneItemByStatus({ code: bankInfoData.bankCode });
           await entityManager.save(bankInfo);
         } else {
-          await this.bankInfoService.create(entityManager, bankInfoData, association);
+          // await this.bankInfoService.create(entityManager, bankInfoData, association);
         }
 
       }
 
       await entityManager.save(association);
       if (associationDto.logo) {
-        await this.associationFileService.createLogo(entityManager, association, associationDto.logo);
+        let fileUploadResponseDto = associationDto.logo as FileUploadResponseDto;
+        await this.associationFileService.createLogo(entityManager, association, fileUploadResponseDto);
       }
 
 
