@@ -3,7 +3,7 @@ import { EntityManager, getConnection } from 'typeorm';
 import { SettingRepository } from '../dao/setting.repository';
 import { ISendMailOptions } from '@nestjs-modules/mailer/dist/interfaces/send-mail-options.interface';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
-import { AuthenticationService } from '../service/authentication.service';
+import { AuthenticationService } from '../service-impl/authentication.service';
 import * as faker from 'faker';
 import { LoginDto } from '../dto/auth/request/login.dto';
 import { AssociationTypeConstant } from '../domain/enums/association-type-constant';
@@ -16,7 +16,7 @@ import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../app.module';
-import { ServiceModule } from '../service/service.module';
+import { ServiceImplModule } from '../service-impl/serviceImplModule';
 import { AppService } from '../app.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { BankUploadStartup } from '../core/start-ups/bank-upload.startup';
@@ -168,7 +168,7 @@ export const mockSendEmail = () => jest.fn().mockImplementation((sendEmailOption
 
 export function baseTestingModule() {
   return Test.createTestingModule({
-    imports: [AppModule, ServiceModule, WorkerModule],
+    imports: [AppModule, ServiceImplModule, WorkerModule],
     providers: [AppService],
   }).overrideProvider(MailerService)
     .useValue({

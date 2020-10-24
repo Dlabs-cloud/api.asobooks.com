@@ -39,7 +39,7 @@ async function mockGroupServiceFee(association: Association) {
     });
 }
 
-describe('group-service-fee-controller', () => {
+describe('group-service-impl-fee-controller', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
   beforeAll(async () => {
@@ -52,7 +52,7 @@ describe('group-service-fee-controller', () => {
   });
 
 
-  it('Test that a member can be added to a service fee', async () => {
+  it('Test that a member can be added to a service-impl fee', async () => {
     let association = await factory().create(Association);
     let adminUser = await getAssociationUser(null, null, association);
     let users = [0, 1, 2, 3].map(number => {
@@ -78,7 +78,7 @@ describe('group-service-fee-controller', () => {
 
   });
 
-  it('Test that a user can be removed from a service fee', async () => {
+  it('Test that a user can be removed from a service-impl fee', async () => {
     let association = await factory().create(Association);
     let adminUser = await getAssociationUser(null, null, association);
 

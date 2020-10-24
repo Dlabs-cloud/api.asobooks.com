@@ -8,7 +8,7 @@ import { PortalAccountModelFactory } from './factory/portal-account-model.factor
 import { Membership } from '../domain/entity/membership.entity';
 import { MembershipModelFactory } from './factory/membership-model.factory';
 import { FileModelFactory } from './factory/file-model.factory';
-import { File } from '../domain/entity/file.entity';
+import { FileResource } from '../domain/entity/file.entity';
 import { Address } from '../domain/entity/address.entity';
 import { AddressModelFactory } from './factory/address-model.factory';
 import { Country } from '../domain/entity/country.entity';
@@ -34,7 +34,7 @@ export class ModelFactoryRoster {
     modelFactory.register<PortalUser, PortalUserModelFactory>(PortalUser, PortalUserModelFactory);
     modelFactory.register(PortalAccount, PortalAccountModelFactory);
     modelFactory.register(Membership, MembershipModelFactory);
-    modelFactory.register(File, FileModelFactory);
+    modelFactory.register(FileResource, FileModelFactory);
     modelFactory.register(Address, AddressModelFactory);
     modelFactory.register(Country, CountryModelFactory);
     modelFactory.register(Association, AssociationModelFactory);

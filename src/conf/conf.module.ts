@@ -8,9 +8,9 @@ import { EmailMailerConfiguration } from './email/email.conf';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { S3Module } from 'nestjs-s3';
 import { AmazonSesConfig } from './file/amazon-ses.config';
-import { TypeOrmDatasourceConf } from './data-source/type-orm-datasource-conf';
+import { TypeOrmDatasourceConf } from './data-source/type-orm-datasource.conf';
 import { BullModule } from '@nestjs/bull';
-import { QueueDataStoreConf } from './data-source/queue-data-store-conf';
+import { QueueDataStoreConf } from './data-source/queue-data-store.conf';
 
 @Module({
   imports: [

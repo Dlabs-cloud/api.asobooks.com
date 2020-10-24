@@ -3,7 +3,7 @@ import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Query }
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { MembershipFeeRequestDto } from '../dto/membership-fee.-request.dto';
-import { GroupService } from '../service/group.service';
+import { GroupService } from '../service-impl/group.service';
 import { Connection } from 'typeorm';
 import { GroupRepository } from '../dao/group.repository';
 import { ServiceFeeRepository } from '../dao/service-fee.repository';
@@ -15,7 +15,7 @@ import { PortalUserRepository } from '../dao/portal-user.repository';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 
-@Controller('service-fees')
+@Controller('service-impl-fees')
 @AssociationContext()
 export class GroupServiceFeeController {
 
@@ -45,7 +45,7 @@ export class GroupServiceFeeController {
     let group = await this.connection.getCustomRepository(GroupRepository).findByServiceFee(serviceFee);
 
     if (!group) {
-      throw new IllegalArgumentException('Group for service fee cannot be found');
+      throw new IllegalArgumentException('Group for service-impl fee cannot be found');
     }
     return this.connection.transaction(entityManager => {
       return this.groupService.addMember(entityManager, group[0], ...memberships);

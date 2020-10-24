@@ -1,13 +1,13 @@
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
 import { SubscriptionGeneratorProcessor } from '../worker/processors/subscription-generator.processor';
-import { ServiceFeeService } from '../service/service-fee.service';
+import { ServiceFeeService } from '../service-impl/service-fee.service';
 import { TestingModule } from '@nestjs/testing';
 import { baseTestingModule } from './test-utils';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { getConnection } from 'typeorm';
 import { WorkerModule } from '../worker/worker.module';
-import { ServiceModule } from '../service/service.module';
+import { ServiceImplModule } from '../service-impl/serviceImplModule';
 import { factory } from './factory';
 import { ServiceFee } from '../domain/entity/service.fee.entity';
 import * as moment from 'moment';
@@ -34,7 +34,7 @@ describe('Bill-generator-processor  ', () => {
       .select(WorkerModule)
       .get(SubscriptionGeneratorProcessor, { strict: true });
     serviceFeeService = applicationContext
-      .select(ServiceModule)
+      .select(ServiceImplModule)
       .get(ServiceFeeService, { strict: true });
 
 
@@ -56,7 +56,7 @@ describe('Bill-generator-processor  ', () => {
   });
 
 
-  it('test that a reOccurring subscriptions can be created from a service fee', async () => {
+  it('test that a reOccurring subscriptions can be created from a service-impl fee', async () => {
     let serviceFee = await factory().upset(ServiceFee).use(serviceFee => {
       serviceFee.billingStartDate = new Date();
       serviceFee.type = ServiceTypeConstant.RE_OCCURRING;
@@ -77,7 +77,7 @@ describe('Bill-generator-processor  ', () => {
 
   });
 
-  it('Test that a one time subscription can be created from a service fee', async () => {
+  it('Test that a one time subscription can be created from a service-impl fee', async () => {
 
     let serviceFee = await factory().upset(ServiceFee).use(serviceFee => {
       serviceFee.billingStartDate = new Date();

@@ -10,7 +10,7 @@ import { MembershipCodeSequence } from './sequenceGenerators/membership-code.seq
 import { UnAuthorizedExceptionFilter } from './exception-filters/un-authorized-exception.filter';
 import { BullModule } from '@nestjs/bull';
 import { SubscriptionCodeSequence } from './sequenceGenerators/subscription-code.sequence';
-import { QueueDataStoreConf } from '../conf/data-source/queue-data-store-conf';
+import { QueueDataStoreConf } from '../conf/data-source/queue-data-store.conf';
 import { BillCodeSequence } from './sequenceGenerators/bill-code.sequence';
 import { ConfModule } from '../conf/conf.module';
 

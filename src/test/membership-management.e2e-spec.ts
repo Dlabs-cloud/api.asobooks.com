@@ -3,14 +3,14 @@ import { Connection } from 'typeorm/connection/Connection';
 import { TestingModule } from '@nestjs/testing';
 import { baseTestingModule, getAssociationUser } from './test-utils';
 import { getConnection } from 'typeorm';
-import { ServiceModule } from '../service/service.module';
-import { AuthenticationService } from '../service/authentication.service';
+import { ServiceImplModule } from '../service-impl/serviceImplModule';
+import { AuthenticationService } from '../service-impl/authentication.service';
 import * as request from 'supertest';
 import { MemberSignUpDto } from '../dto/user/member-sign-up.dto';
 import * as faker from 'faker';
 import { factory } from './factory';
 import { Country } from '../domain/entity/country.entity';
-import { UserManagementService } from '../service/user-management.service';
+import { UserManagementService } from '../service-impl/user-management.service';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
@@ -34,11 +34,11 @@ describe('Membership-management-controller ', () => {
     connection = getConnection();
 
     authenticationService = applicationContext
-      .select(ServiceModule)
+      .select(ServiceImplModule)
       .get(AuthenticationService, { strict: true });
 
     userManagementService = applicationContext
-      .select(ServiceModule)
+      .select(ServiceImplModule)
       .get(UserManagementService, { strict: true });
 
 

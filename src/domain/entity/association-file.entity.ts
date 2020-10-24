@@ -1,4 +1,4 @@
-import { File } from './file.entity';
+import { FileResource } from './file.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { Association } from './association.entity';
 import { BaseEntity } from '../../common/base.entity';
@@ -7,8 +7,8 @@ import { GenericStatusConstant } from '../enums/generic-status-constant';
 
 @Entity()
 export class AssociationFile extends BaseEntity {
-  @ManyToOne(() => File)
-  file: File;
+  @ManyToOne(() => FileResource)
+  file: FileResource;
   @ManyToOne(() => Association)
   association: Association;
 

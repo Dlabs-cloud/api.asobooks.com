@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
-import { AuthenticationService } from '../service/authentication.service';
+import { AuthenticationService } from '../service-impl/authentication.service';
 import { Public } from '../dlabs-nest-starter/security/annotations/public';
 import { LoginDto } from '../dto/auth/request/login.dto';
 import { LoginResponseDto } from '../dto/auth/response/login-response.dto';
@@ -8,7 +8,7 @@ import { ApiResponseDto } from '../dto/api-response.dto';
 import { ChangePasswordDto } from '../dto/auth/request/change-password.dto';
 import { PasswordResetDto } from '../dto/auth/request/password-reset.dto';
 import { PortalUserRepository } from '../dao/portal-user.repository';
-import { UserManagementService } from '../service/user-management.service';
+import { UserManagementService } from '../service-impl/user-management.service';
 import { Connection } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
@@ -43,7 +43,7 @@ export class AuthenticationController {
     if (existingIngPortalUser) {
       throw new IllegalArgumentException('portal user with email or user name is already existing');
     }
-    Inject()
+
     const membership = await this.authenticationService.signPrincipalUser(signUpRequestDto);
     return new ApiResponseDto(membership.portalUser, 201);
   }

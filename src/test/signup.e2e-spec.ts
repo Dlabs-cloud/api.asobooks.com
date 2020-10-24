@@ -3,8 +3,8 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { getConnection } from 'typeorm';
 import { Connection } from 'typeorm/connection/Connection';
-import { AuthenticationService } from '../service/authentication.service';
-import { ServiceModule } from '../service/service.module';
+import { AuthenticationService } from '../service-impl/authentication.service';
+import { ServiceImplModule } from '../service-impl/serviceImplModule';
 import { baseTestingModule, getTestUser, mockNewSignUpUser, PRINCIPAL_USER_REQUEST_DATA } from './test-utils';
 import * as faker from 'faker';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
@@ -19,6 +19,7 @@ import { AssociationRepository } from '../dao/association.repository';
 import { AssociationTypeConstant } from '../domain/enums/association-type-constant';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { MembershipRepository } from '../dao/membership.repository';
+import { ServiceModule } from '../service/service.module';
 
 describe('SignUp ', () => {
   let applicationContext: INestApplication;
@@ -36,7 +37,7 @@ describe('SignUp ', () => {
 
     connection = getConnection();
     authenticationService = applicationContext
-      .select(ServiceModule)
+      .select(ServiceImplModule)
       .get(AuthenticationService, { strict: true });
     emailValidationService = applicationContext.select(ServiceModule).get('EMAIL_VALIDATION_SERVICE', { strict: true });
 

@@ -9,6 +9,10 @@ import { SettingRepository } from '../dao/setting.repository';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
+import { InjectQueue } from '@nestjs/bull';
+import { Queues } from '../core/cron.enum';
+import { Queue } from 'bull';
+import { EmailQueueDto } from '../dto/email-queue.dto';
 
 
 @EventsHandler(NewUserAccountSignUpEvent)
@@ -16,6 +20,7 @@ export class NewUserAccountSignUpHandler implements IEventHandler<NewUserAccount
 
   constructor(private readonly connection: Connection,
               private readonly mailerService: MailerService,
+              @InjectQueue(Queues.EMAIL) private readonly emailQueue: Queue,
               @Inject('EMAIL_VALIDATION_SERVICE') private emailValidationService: IEmailValidationService<PortalUser, PortalAccount, TokenPayloadDto>) {
   }
 
@@ -27,20 +32,18 @@ export class NewUserAccountSignUpHandler implements IEventHandler<NewUserAccount
       .findByLabel('front_end_url', 'http://localhost:3000/api/v1');
     let callBackToken = await this.emailValidationService.createCallBackToken(portalUser, TokenTypeConstant.PRINCIPAL_USER_SIGN_UP, portalAccount);
     const callBackUrl = `${urlSetting.value}/validate-principal/${callBackToken}`;
-    try {
-      const response = await this.mailerService.sendMail({
-        to: portalUser.email,
-        subject: `Welcome to AsoBooks`,
-        template: 'admin-signup',
-        context: {
-          firstName: portalUser.firstName,
-          callbackUrl: callBackUrl,
-        },
-      });
+    const emailTemplateData: EmailQueueDto<{ firstName, callbackUrl }> = {
+      data: {
+        callbackUrl: callBackUrl,
+        firstName: portalUser.firstName,
+      },
+      subject: `Welcome to AsoBooks`,
+      templateName: 'admin-signup',
+      to: portalUser.email,
 
-    } catch (e) {
-      console.log(e);
-    }
+    };
+    return this.emailQueue.add(emailTemplateData);
+
 
   }
 
