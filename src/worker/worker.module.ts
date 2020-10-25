@@ -17,8 +17,8 @@ import { BillGeneratorProcessor } from './processors/bill-generator.processor';
   ],
   providers: [
     EmailProcessor,
-    SubscriptionGeneratorProcessor,
-    BillGeneratorProcessor,
+    // SubscriptionGeneratorProcessor,
+    // BillGeneratorProcessor,
   ],
 })
 export class WorkerModule {

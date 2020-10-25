@@ -21,7 +21,7 @@ export class EmailProcessor {
       from: jobData.from,
       replyTo: jobData.reply,
     };
-    
+
     this.mailerService.sendMail(sendMailOptions).then(result => {
     }).catch(err => {
       console.log(err);
