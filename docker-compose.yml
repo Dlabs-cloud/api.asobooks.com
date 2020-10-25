@@ -1,23 +1,14 @@
 version: '3'
 services:
 
-  postgres:
-    image: postgres
-    environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_DATABASE}
-    ports:
-      - "5674:5432"
-    volumes:
-      - ./data/db_data:/var/lib/postgresql/data
-  redis:
-    image: redis
-    container_name: redis
+  redis_cache:
+    image: bitnami/redis
     ports:
       - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
   app:
-    image: uncletee/asobooks-api
+    image: asobooks-api
     ports:
       - 3000:3000
     environment:
@@ -30,7 +21,7 @@ services:
       DB_DATABASE: ${DB_DATABASE}
       DB_PORT: 5432
       REDIS_PORT: 6379
-      REDIS_HOST: redis
+      REDIS_HOST: redis_cache
       PROJECT_NAME: AsoBooks
       VERSION: 1
       AUTH_SECRET: ${AUTH_SECRET}
@@ -39,7 +30,7 @@ services:
       AMAZON_S3_BUCKET: ${AMAZON_S3_BUCKET}
     depends_on:
       - postgres
-      - redis
+      - redis_cache
     command:
       [
         'node',
@@ -47,7 +38,7 @@ services:
       ]
 
   worker:
-    image: uncletee/asobooks-api
+    image: asobooks-api
     ports:
       - 4001:4001
     environment:
@@ -60,7 +51,7 @@ services:
       DB_DATABASE: ${DB_DATABASE}
       DB_PORT: 5432
       REDIS_PORT: 6379
-      REDIS_HOST: redis
+      REDIS_HOST: redis_cache
       PROJECT_NAME: AsoBooks
       EMAIL_PORT: 587
       MAILER_HOST:  ${MAILER_HOST}

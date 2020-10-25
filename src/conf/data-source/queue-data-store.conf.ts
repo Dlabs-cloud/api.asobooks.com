@@ -4,7 +4,9 @@ import { Queues } from '../../core/cron.enum';
 
 export class QueueDataStoreConf {
   static createBullOptions(): BullModuleAsyncOptions[] {
+
     return Object.values(Queues).map(queue => {
+
       return {
         name: queue,
         imports: [ConfigModule],
@@ -12,8 +14,8 @@ export class QueueDataStoreConf {
         useFactory: (configService: ConfigService) => {
           return {
             redis: {
-              port: configService.get<number>('REDIS_PORT', 6379),
-              host: configService.get<string>('REDIS_HOST', 'localhost'),
+              port: 1223,
+              host: 'redis_cache',
             },
           };
         },

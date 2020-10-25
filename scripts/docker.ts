@@ -9,5 +9,5 @@ shell.exec('npm i --production');
 shell.exec('npm run build');
 shell.cd('..');
 shell.exec('pwd');
-shell.exec(`docker build -t uncletee/asobooks-api .`);
+shell.exec(`docker build -t asobooks-api .`);
 shell.rm('-r', tempDir);

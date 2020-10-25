@@ -11,10 +11,17 @@ import { AmazonSesConfig } from './file/amazon-ses.config';
 import { TypeOrmDatasourceConf } from './data-source/type-orm-datasource.conf';
 import { BullModule } from '@nestjs/bull';
 import { QueueDataStoreConf } from './data-source/queue-data-store.conf';
+import { Queues } from '../core/cron.enum';
 
 @Module({
   imports: [
-    BullModule.registerQueueAsync(...QueueDataStoreConf.createBullOptions()),
+    BullModule.registerQueue({
+      name: Queues.EMAIL,
+      redis: {
+        port: 6379,
+        host: 'redis_cache',
+      },
+    }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
