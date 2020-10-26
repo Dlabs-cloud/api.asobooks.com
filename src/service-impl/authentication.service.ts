@@ -79,7 +79,6 @@ export class AuthenticationService {
         association,
         portalAccount: executivePortalAccount,
         portalUser,
-
       };
       const membership = await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.PENDING_ACTIVATION);
 

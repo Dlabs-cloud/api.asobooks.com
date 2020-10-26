@@ -69,7 +69,7 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
       .innerJoin(GroupMembership, 'membershipGroup', 'membershipGroup.membership = membership.id')
       .innerJoin(Group, 'group', 'membershipGroup.group = group.id')
       .innerJoin(GroupServiceFee, 'groupServiceFee', 'groupServiceFee.group = group.id')
-      .where('groupServiceFee.serviceFee = :service-impl', { service: serviceFee.id })
+      .where('groupServiceFee.serviceFee = :service', { service: serviceFee.id })
       .andWhere('portalUser.status = :status', { status })
       .andWhere('group.status = :status', { status })
       .andWhere('groupServiceFee.status = :status', { status })

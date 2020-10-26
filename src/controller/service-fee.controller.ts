@@ -12,7 +12,7 @@ import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { MembershipRepository } from '../dao/membership.repository';
 import { Membership } from '../domain/entity/membership.entity';
 
-@Controller('service-impl-fees')
+@Controller('service-fees')
 @AssociationContext()
 export class ServiceFeeController {
 

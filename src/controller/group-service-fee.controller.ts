@@ -15,7 +15,7 @@ import { PortalUserRepository } from '../dao/portal-user.repository';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 
-@Controller('service-impl-fees')
+@Controller('service-fees')
 @AssociationContext()
 export class GroupServiceFeeController {
 

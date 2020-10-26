@@ -13,13 +13,14 @@ import { BullModule } from '@nestjs/bull';
 import { QueueDataStoreConf } from './data-source/queue-data-store.conf';
 import { Queues } from '../core/cron.enum';
 
+
 @Module({
   imports: [
     BullModule.registerQueue({
       name: Queues.EMAIL,
       redis: {
-        port: 6379,
-        host: 'redis_cache',
+        port:	7898,
+        host: 'localhost',
       },
     }),
     MailerModule.forRootAsync({

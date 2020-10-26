@@ -1,14 +1,24 @@
 version: '3'
 services:
 
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+    ports:
+      - "5674:5432"
+    volumes:
+      - ./data/db_data:/var/lib/postgresql/data
   redis_cache:
     image: bitnami/redis
     ports:
-      - "6379:6379"
+      - "7898:6379"
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
   app:
-    image: asobooks-api
+    image: uncletee/asobooks-api
     ports:
       - 3000:3000
     environment:
@@ -38,7 +48,7 @@ services:
       ]
 
   worker:
-    image: asobooks-api
+    image: uncletee/asobooks-api
     ports:
       - 4001:4001
     environment:

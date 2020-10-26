@@ -20,11 +20,14 @@ export class PortalUser extends BaseEntity {
   password: string;
   @Column()
   email: string;
-  @Column()
+
+  @Column({
+    nullable: true,
+  })
   phoneNumber: string;
 
   @ManyToOne(() => PortalUser, {
-    nullable: true
+    nullable: true,
   })
   createdBy: PortalUser;
 }

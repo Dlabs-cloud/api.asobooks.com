@@ -14,8 +14,8 @@ export class QueueDataStoreConf {
         useFactory: (configService: ConfigService) => {
           return {
             redis: {
-              port: 1223,
-              host: 'redis_cache',
+              port: 7898,
+              host: 'localhost'
             },
           };
         },

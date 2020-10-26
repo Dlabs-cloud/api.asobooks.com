@@ -184,6 +184,5 @@ export const PRINCIPAL_USER_REQUEST_DATA = {
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
   password: faker.random.alphaNumeric() + faker.random.uuid(),
-  phoneNumber: faker.phone.phoneNumber(),
   associationType: AssociationTypeConstant.COOPERATIVE,
 };

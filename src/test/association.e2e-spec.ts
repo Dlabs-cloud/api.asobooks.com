@@ -105,7 +105,6 @@ describe('AssociationController', () => {
       .set('Authorization', loginToken)
       .send(payload);
     expect(response.status).toEqual(201);
-    expect(response.body.activateAssociation).toEqual(false);
     expect(response.body.address).toBeDefined();
     expect(response.body.type).toBeDefined();
   });

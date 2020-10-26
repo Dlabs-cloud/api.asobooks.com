@@ -30,7 +30,7 @@ describe('Service fees set up test ', () => {
     connection = getConnection();
   });
 
-  it('test that service-impl fee can be created with recipients', async () => {
+  it('test that service fee can be created with recipients', async () => {
 
     let association = await factory().upset(Association).use(association => {
       association.status = GenericStatusConstant.ACTIVE;
@@ -57,7 +57,7 @@ describe('Service fees set up test ', () => {
     };
 
     let response = await request(applicationContext.getHttpServer())
-      .post('/service-impl-fees')
+      .post('/service-fees')
       .set('Authorization', assoUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
       .send(requestPayload);
@@ -93,7 +93,7 @@ describe('Service fees set up test ', () => {
     let associationUser = await getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
 
     let response = await request(applicationContext.getHttpServer())
-      .post('/service-impl-fees')
+      .post('/service-fees')
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
       .send(requestPayload);
@@ -101,7 +101,7 @@ describe('Service fees set up test ', () => {
     expect(response.body.data.code).toBeDefined();
   });
 
-  it('test that a service-impl fee can be gotten by code', async () => {
+  it('test that a service fee can be gotten by code', async () => {
     let association = await factory().upset(Association).use(association => {
       association.status = GenericStatusConstant.ACTIVE;
       return association;
