@@ -102,4 +102,16 @@ export class AuthenticationController {
 
   }
 
+  @Public()
+  @Post('/verification/token')
+  public async sendVerificationToken(@Body() passwordResetDto: PasswordResetDto) {
+    let portalUser = await this.connection
+        .getCustomRepository(PortalUserRepository)
+        .findByUserNameOrEmailOrPhoneNumberAndStatus(passwordResetDto.email, GenericStatusConstant.PENDING_ACTIVATION);
+    if (portalUser) {
+      await this.authenticationService.sendVerificationToken(portalUser);
+    }
+    return new ApiResponseDto(null, 200, 'A verification link will been sent to the email if its exists');
+  }
+
 }
