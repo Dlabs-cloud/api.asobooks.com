@@ -61,7 +61,7 @@ describe('AuthController', () => {
       .expect(401);
   });
 
-  it('Test that a user that us inactive cannot login', async () => {
+  it('Test that a user that is inactive cannot login', async () => {
     const password = faker.random.uuid();
     const hashPassword = await (new AuthenticationUtils()).hashPassword(password);
     const portalUser = await factory().upset(PortalUser).use(portalUser => {
@@ -77,7 +77,7 @@ describe('AuthController', () => {
 
     return request(applicationContext.getHttpServer())
       .post('/login')
-      .send(loginData).expect(401);
+      .send(loginData).expect(406);
 
   });
 
