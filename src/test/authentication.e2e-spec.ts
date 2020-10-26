@@ -1,28 +1,29 @@
-import { INestApplication } from '@nestjs/common';
-import { Connection } from 'typeorm/connection/Connection';
-import { AuthenticationService } from '../service-impl/authentication.service';
-import { IEmailValidationService } from '../contracts/i-email-validation-service';
-import { PortalUser } from '../domain/entity/portal-user.entity';
-import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { TestingModule } from '@nestjs/testing';
-import { ServiceImplModule } from '../service-impl/serviceImplModule';
-import { baseTestingModule, getLoginUser, getTestUser } from './test-utils';
-import { getConnection } from 'typeorm';
-import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import {INestApplication} from '@nestjs/common';
+import {Connection} from 'typeorm/connection/Connection';
+import {AuthenticationService} from '../service-impl/authentication.service';
+import {IEmailValidationService} from '../contracts/i-email-validation-service';
+import {PortalUser} from '../domain/entity/portal-user.entity';
+import {PortalAccount} from '../domain/entity/portal-account.entity';
+import {TestingModule} from '@nestjs/testing';
+import {ServiceImplModule} from '../service-impl/serviceImplModule';
+import {baseTestingModule, getLoginUser, getTestUser} from './test-utils';
+import {getConnection} from 'typeorm';
+import {GenericStatusConstant} from '../domain/enums/generic-status-constant';
 import * as request from 'supertest';
-import { LoginDto } from '../dto/auth/request/login.dto';
-import { factory } from './factory';
-import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
+import {LoginDto} from '../dto/auth/request/login.dto';
+import {factory} from './factory';
+import {AuthenticationUtils} from '../common/utils/authentication-utils.service';
 import * as faker from 'faker';
-import { PasswordResetDto } from '../dto/auth/request/password-reset.dto';
-import { PortalUserRepository } from '../dao/portal-user.repository';
-import { TokenTypeConstant } from '../domain/enums/token-type-constant';
-import { ChangePasswordDto } from '../dto/auth/request/change-password.dto';
-import { TokenPayloadDto } from '../dto/token-payload.dto';
-import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
-import { Association } from '../domain/entity/association.entity';
-import { Membership } from '../domain/entity/membership.entity';
-import { ServiceModule } from '../service/service.module';
+import {PasswordResetDto} from '../dto/auth/request/password-reset.dto';
+import {PortalUserRepository} from '../dao/portal-user.repository';
+import {TokenTypeConstant} from '../domain/enums/token-type-constant';
+import {ChangePasswordDto} from '../dto/auth/request/change-password.dto';
+import {TokenPayloadDto} from '../dto/token-payload.dto';
+import {ValidatorTransformPipe} from '../conf/validator-transform.pipe';
+import {Association} from '../domain/entity/association.entity';
+import {Membership} from '../domain/entity/membership.entity';
+import {ServiceModule} from '../service/service.module';
+import {PortalAccountRepository} from "../dao/portal-account.repository";
 
 describe('AuthController', () => {
   let applicationContext: INestApplication;
@@ -201,6 +202,22 @@ describe('AuthController', () => {
     expect(response.status).toEqual(200);
   });
 
+  it('should send verification mail to user', async () => {
+    let testUser = await getTestUser()
+    let portalUser = testUser.membership.portalUser
+    let portalAccount = testUser.membership.portalAccount
+    portalAccount.status = GenericStatusConstant.PENDING_ACTIVATION;
+    await connection.getCustomRepository(PortalAccountRepository).save(portalAccount);
+    const payload: PasswordResetDto = {
+      email: portalUser.email
+    }
+
+    await request(applicationContext.getHttpServer())
+        .post(`/verification/token`)
+        .send(payload)
+        .expect(200);
+
+  });
 
   afterAll(async () => {
     await connection.close();

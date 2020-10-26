@@ -10,9 +10,9 @@ export class NotActiveExceptionFilter implements ExceptionFilter<UnAuthorizedExc
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
         response
-            .status(429)
+            .status(406)
             .json({
-                code: 429,
+                code: 406,
                 message: exception.message,
             });
     }

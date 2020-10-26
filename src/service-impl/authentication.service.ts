@@ -24,6 +24,7 @@ import {PortalUserDto} from '../dto/portal-user.dto';
 import {UnAuthorizedException} from '../exception/unAuthorized.exception';
 import {PortalUser} from "../domain/entity/portal-user.entity";
 import {PortalAccountRepository} from "../dao/portal-account.repository";
+import {NotActiveException} from "../exception/notActive.exception";
 
 @Injectable()
 export class AuthenticationService {
@@ -99,7 +100,7 @@ export class AuthenticationService {
       .then(async portalUserValue => {
         if (portalUserValue) {
           if (portalUserValue.status === GenericStatusConstant.PENDING_ACTIVATION) {
-            throw  new UnAuthorizedException('Account not verified.');
+            throw  new NotActiveException('Account not verified.');
           }
           const isTrue = await this.authenticationUtils
               .comparePassword(loginDto.password, portalUserValue.password);
