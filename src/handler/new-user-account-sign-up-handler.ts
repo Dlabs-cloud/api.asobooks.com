@@ -41,7 +41,7 @@ export class NewUserAccountSignUpHandler implements IEventHandler<NewUserAccount
       templateName: 'admin-signup',
       to: portalUser.email,
     };
-    
+
     return this.emailQueue.add(emailTemplateData);
 
   }
