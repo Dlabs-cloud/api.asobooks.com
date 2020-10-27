@@ -21,11 +21,9 @@ export class EmailProcessor {
       from: jobData.from,
       replyTo: jobData.reply,
     };
-
-    this.mailerService.sendMail(sendMailOptions).then(result => {
-    }).catch(err => {
+    this.mailerService.sendMail(sendMailOptions)
+      .catch(err => {
       console.log(err);
-      console.log('Email Sending queue error');
     });
 
 

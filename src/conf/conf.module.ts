@@ -16,13 +16,7 @@ import { Queues } from '../core/cron.enum';
 
 @Module({
   imports: [
-    BullModule.registerQueue({
-      name: Queues.EMAIL,
-      redis: {
-        port:	7898,
-        host: 'localhost',
-      },
-    }),
+    BullModule.registerQueueAsync(...QueueDataStoreConf.createBullOptions()),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
