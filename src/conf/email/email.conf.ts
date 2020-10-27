@@ -1,6 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import { Injectable } from '@nestjs/common';
-import { MailerOptions, MailerOptionsFactory } from '@nestjs-modules/mailer';
+import { MailerOptions } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 
@@ -12,7 +11,6 @@ export class EmailMailerConfiguration {
 
 
   public getEmailConfig(): MailerOptions {
-
     return {
       transport: {
         host: this.configService.get<string>('MAILER_HOST', 'smtp.example.com'),
