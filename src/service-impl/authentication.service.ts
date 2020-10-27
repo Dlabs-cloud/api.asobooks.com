@@ -117,7 +117,7 @@ export class AuthenticationService {
 
   }
 
-  public async sendVerificationToken(portalUser: PortalUser) {
+  public async sendPrincipalVerificationEmail(portalUser: PortalUser) {
     return this.connection.getCustomRepository(PortalAccountRepository).findFirstByPortalUserAndStatus(portalUser, false, GenericStatusConstant.PENDING_ACTIVATION)
       .then(async portalAccount => {
         if (portalAccount) {

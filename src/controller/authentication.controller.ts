@@ -1,4 +1,14 @@
-import { Body, ConflictException, Controller, ForbiddenException, Get, Inject, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  ConflictException,
+  Controller,
+  ForbiddenException,
+  Get,
+  Inject,
+  NotFoundException,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import { AuthenticationService } from '../service-impl/authentication.service';
 import { Public } from '../dlabs-nest-starter/security/annotations/public';
@@ -103,15 +113,16 @@ export class AuthenticationController {
   }
 
   @Public()
-  @Post('/verification/token')
+  @Post('/validate-principal')
   public async sendVerificationToken(@Body() passwordResetDto: PasswordResetDto) {
     let portalUser = await this.connection
       .getCustomRepository(PortalUserRepository)
       .findByUserNameOrEmailOrPhoneNumberAndStatus(passwordResetDto.email, GenericStatusConstant.PENDING_ACTIVATION);
+
     if (portalUser) {
-      await this.authenticationService.sendVerificationToken(portalUser);
+      return this.authenticationService.sendPrincipalVerificationEmail(portalUser).then();
     }
-    throw new ForbiddenException('Account is already active');
+    throw new IllegalArgumentException('Pending account does not exist');
   }
 
 }
