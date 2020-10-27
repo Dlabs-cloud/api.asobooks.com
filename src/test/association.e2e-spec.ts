@@ -1,11 +1,11 @@
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
-import { AuthenticationService } from '../service/authentication.service';
+import { AuthenticationService } from '../service-impl/authentication.service';
 import { IEmailValidationService } from '../contracts/i-email-validation-service';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { TestingModule } from '@nestjs/testing';
-import { ServiceModule } from '../service/service.module';
+import { ServiceImplModule } from '../service-impl/serviceImplModule';
 import { baseTestingModule, getLoginUser } from './test-utils';
 import { getConnection } from 'typeorm';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
@@ -20,7 +20,9 @@ import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { Bank } from '../domain/entity/bank.entity';
 import { BankInfoRepository } from '../dao/bank-info.repository';
-import { AssociationService } from '../service/association.service';
+import { AssociationServiceImpl } from '../service-impl/association.service-impl';
+import { ServiceModule } from '../service/service.module';
+import { CACHE_ASSOCIATION_SERVICE } from '../service/association-service';
 
 async function associationUpdate(loginToken: string) {
   let association = await factory().upset(Association).use(association => {
@@ -51,7 +53,7 @@ describe('AssociationController', () => {
   let authenticationService: AuthenticationService;
   let loginToken: string;
   let emailValidationService: IEmailValidationService<PortalUser, PortalAccount, TokenPayloadDto>;
-  let associationService: AssociationService;
+  let associationService: AssociationServiceImpl;
 
 
   beforeAll(async () => {
@@ -62,11 +64,11 @@ describe('AssociationController', () => {
 
     connection = getConnection();
     authenticationService = applicationContext
-      .select(ServiceModule)
+      .select(ServiceImplModule)
       .get(AuthenticationService, { strict: true });
     associationService = applicationContext
       .select(ServiceModule)
-      .get(AssociationService, { strict: true });
+      .get(CACHE_ASSOCIATION_SERVICE, { strict: true });
     emailValidationService = applicationContext.select(ServiceModule).get('EMAIL_VALIDATION_SERVICE', { strict: true });
 
 
@@ -86,6 +88,10 @@ describe('AssociationController', () => {
 
   });
 
+  it('Test that an association can created and seeded to DB', async () => {
+
+  });
+
   it('Test that updating of association creates right records', async () => {
     const __ret = await associationUpdate(loginToken);
 
@@ -99,9 +105,8 @@ describe('AssociationController', () => {
       .set('Authorization', loginToken)
       .send(payload);
     expect(response.status).toEqual(201);
-    let number = await connection.getCustomRepository(BankInfoRepository).countByAssociation(__ret.association);
-    expect(number).toEqual(1);
-
+    expect(response.body.address).toBeDefined();
+    expect(response.body.type).toBeDefined();
   });
   afterAll(async () => {
     await connection.close();

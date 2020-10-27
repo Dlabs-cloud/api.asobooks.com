@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ServiceModule } from '../service/service.module';
+import { ServiceImplModule } from '../service-impl/serviceImplModule';
 import { DaoModule } from '../dao/dao.module';
 import { CoreModule } from '../core/core.module';
 import { CommonModule } from '../common/common.module';
@@ -13,9 +13,11 @@ import { LoggedInUserInfoHandler } from './handlers/logged-in-user-info.handler'
 import { ServiceFeeController } from './service-fee.controller';
 import { MasterRecordController } from './master-record-controller';
 import { GroupServiceFeeController } from './group-service-fee.controller';
+import { ServiceModule } from '../service/service.module';
 
 @Module({
   imports: [
+    ServiceImplModule,
     ServiceModule,
     DaoModule,
     CoreModule,

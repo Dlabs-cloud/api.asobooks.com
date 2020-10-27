@@ -8,7 +8,7 @@ import { PortalAccountModelFactory } from './factory/portal-account-model.factor
 import { Membership } from '../domain/entity/membership.entity';
 import { MembershipModelFactory } from './factory/membership-model.factory';
 import { FileModelFactory } from './factory/file-model.factory';
-import { File } from '../domain/entity/file.entity';
+import { FileResource } from '../domain/entity/file.entity';
 import { Address } from '../domain/entity/address.entity';
 import { AddressModelFactory } from './factory/address-model.factory';
 import { Country } from '../domain/entity/country.entity';
@@ -22,9 +22,11 @@ import { ServiceFeeFactory } from './factory/service-fee.factory';
 import { Group } from '../domain/entity/group.entity';
 import { GroupModelFactory } from './factory/group-model.factory';
 import { GroupMembership } from '../domain/entity/group-membership.entity';
-import { MembershipGroupModelFactory } from './factory/membership-group-model.factory';
+import { GroupMembershipModelFactory } from './factory/group-membership-model.factory';
 import { GroupServiceFee } from '../domain/entity/group-sevice-fee.entity';
 import { GroupServiceFeeModelFactory } from './factory/group-service-fee-model.factory';
+import { Subscription } from '../domain/entity/subcription.entity';
+import { SubscriptionModelFactory } from './factory/subscription-model.factory';
 
 export class ModelFactoryRoster {
   static register(modelFactory: ModelFactory) {
@@ -32,14 +34,15 @@ export class ModelFactoryRoster {
     modelFactory.register<PortalUser, PortalUserModelFactory>(PortalUser, PortalUserModelFactory);
     modelFactory.register(PortalAccount, PortalAccountModelFactory);
     modelFactory.register(Membership, MembershipModelFactory);
-    modelFactory.register(File, FileModelFactory);
+    modelFactory.register(FileResource, FileModelFactory);
     modelFactory.register(Address, AddressModelFactory);
     modelFactory.register(Country, CountryModelFactory);
     modelFactory.register(Association, AssociationModelFactory);
     modelFactory.register(Bank, BankFactory);
     modelFactory.register(Group, GroupModelFactory);
     modelFactory.register(ServiceFee, ServiceFeeFactory);
-    modelFactory.register(GroupMembership, MembershipGroupModelFactory);
+    modelFactory.register(GroupMembership, GroupMembershipModelFactory);
     modelFactory.register(GroupServiceFee, GroupServiceFeeModelFactory);
+    modelFactory.register(Subscription, SubscriptionModelFactory);
   }
 }

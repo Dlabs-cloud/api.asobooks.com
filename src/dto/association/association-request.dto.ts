@@ -14,6 +14,8 @@ import { IsEntityExist } from '../../common/class-validators/entity-constraint.v
 import { AssociationAddressRequestDto } from './association-address-request.dto';
 import { BankInfoRequestDto } from '../user/bank-info-request.dto';
 import { Type } from 'class-transformer';
+import { ApiHideProperty } from '@nestjs/swagger';
+import { FileUploadResponseDto } from '../file-upload.response.dto';
 
 export class AssociationRequestDto {
   @IsString()
@@ -35,6 +37,7 @@ export class AssociationRequestDto {
   @IsOptional()
   @Type(() => BankInfoRequestDto)
   bankInfo?: BankInfoRequestDto;
-  logo?: FileDto;
+  @ApiHideProperty()
+  logo?: FileDto | FileUploadResponseDto;
 
 }

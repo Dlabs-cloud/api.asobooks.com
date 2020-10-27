@@ -4,7 +4,7 @@ import { FactoryHelper } from '../../common/test-starter/orm-faker/contracts/Fac
 import { Membership } from '../../domain/entity/membership.entity';
 import { Group } from '../../domain/entity/group.entity';
 
-export class MembershipGroupModelFactory implements FactoryHelper<GroupMembership> {
+export class GroupMembershipModelFactory implements FactoryHelper<GroupMembership> {
 
   async apply(faker: Faker.FakerStatic, modelFactory: ModelFactory): Promise<GroupMembership> {
     let membershipGroup = new GroupMembership();

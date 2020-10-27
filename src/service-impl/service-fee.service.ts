@@ -5,7 +5,7 @@ import { Connection } from 'typeorm';
 import { ServiceFee } from '../domain/entity/service.fee.entity';
 import { ServiceFeeCodeSequence } from '../core/sequenceGenerators/service-fee-code.sequence';
 import * as moment from 'moment';
-// import { SubscriptionService } from './subscription.service';
+// import { SubscriptionService } from './subscription.service-impl';
 import { EventBus } from '@nestjs/cqrs';
 import { BillingCycleConstant } from '../domain/enums/billing-cycle.constant';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
@@ -108,7 +108,7 @@ export class ServiceFeeService {
           .startOf('day')
           .toDate();
       default:
-        throw new IllegalArgumentException('Type should be specified');
+        throw new IllegalArgumentException('cycle should be specified');
 
     }
   }

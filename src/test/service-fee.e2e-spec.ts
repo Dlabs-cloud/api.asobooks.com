@@ -17,7 +17,6 @@ import { ServiceFee } from '../domain/entity/service.fee.entity';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { ServiceFeeRepository } from '../dao/service-fee.repository';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
-import { MembershipRepository } from '../dao/membership.repository';
 
 describe('Service fees set up test ', () => {
   let applicationContext: INestApplication;
@@ -62,7 +61,7 @@ describe('Service fees set up test ', () => {
       .set('Authorization', assoUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
       .send(requestPayload);
-    console.log(response.body);
+
     expect(response.status).toEqual(201);
     let serviceCode = response.body.data.code;
     let serviceFee = await connection.getCustomRepository(ServiceFeeRepository)

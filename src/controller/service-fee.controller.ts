@@ -2,7 +2,7 @@ import { Body, Controller, Get, NotFoundException, Param, Post } from '@nestjs/c
 import { ServiceFeeRequestDto } from '../dto/service-fee-request.dto';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
-import { ServiceFeeService } from '../service/service-fee.service';
+import { ServiceFeeService } from '../service-impl/service-fee.service';
 import { ApiResponseDto } from '../dto/api-response.dto';
 import { Connection } from 'typeorm';
 import { ServiceFeeRepository } from '../dao/service-fee.repository';

@@ -1,25 +1,26 @@
-import {GenericStatusConstant} from '../domain/enums/generic-status-constant';
-import {Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn} from 'typeorm';
+import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { BaseEntity as Base, Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-export class BaseEntity {
-    @PrimaryGeneratedColumn()
-    id?: number;
 
-    @Column({
-        type: 'enum',
-        enum: GenericStatusConstant,
-        default: GenericStatusConstant.ACTIVE
+export class BaseEntity extends Base {
+  @PrimaryGeneratedColumn()
+  id?: number;
 
-    })
-    status?: GenericStatusConstant;
+  @Column({
+    type: 'enum',
+    enum: GenericStatusConstant,
+    default: GenericStatusConstant.ACTIVE,
 
-    @CreateDateColumn({
-        type: 'timestamp',
-    })
-    createdAt?: Date;
+  })
+  status?: GenericStatusConstant;
 
-    @UpdateDateColumn({
-        type: 'timestamp',
-    })
-    updatedAt?: Date;
+  @CreateDateColumn({
+    type: 'timestamp',
+  })
+  createdAt?: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+  })
+  updatedAt?: Date;
 }

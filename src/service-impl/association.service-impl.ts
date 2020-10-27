@@ -18,10 +18,13 @@ import { BankRepository } from '../dao/bank.repository';
 import { GroupService } from './group.service';
 import { GroupDto } from '../dto/group.dto';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
+import { AssociationService } from '../service/association-service';
+import { Association } from '../domain/entity/association.entity';
+import { FileUploadResponseDto } from '../dto/file-upload.response.dto';
 
 
 @Injectable()
-export class AssociationService {
+export class AssociationServiceImpl implements AssociationService {
 
   constructor(private readonly connection: Connection,
               private readonly bankInfoService: BankInfoService,
@@ -30,7 +33,8 @@ export class AssociationService {
               private readonly associationFileService: AssociationFileService) {
   }
 
-  createAssociation(associationDto: AssociationRequestDto, requestPrincipal: RequestPrincipal) {
+
+  createAssociation(associationDto: AssociationRequestDto, requestPrincipal: RequestPrincipal): Promise<Association> {
     return this.connection.transaction(async entityManager => {
 
       associationDto.activateAssociation = associationDto.activateAssociation ?? false;
@@ -63,20 +67,6 @@ export class AssociationService {
         association.type = associationDto.type;
       }
 
-      if (true === (association.name && association.type && associationDto.activateAssociation)) {
-        association.status = GenericStatusConstant.ACTIVE;
-        const group: GroupDto = {
-          association: association,
-          name: `${association.name.toLowerCase()} general group`,
-          type: GroupTypeConstant.GENERAL,
-
-        };
-        await this.groupService.createGroup(entityManager, group);
-
-      } else {
-        association.status = GenericStatusConstant.PENDING_ACTIVATION;
-      }
-
 
       if (associationDto.bankInfo) {
         let bankInfoData: BankInfoDto = {
@@ -96,16 +86,35 @@ export class AssociationService {
             .findOneItemByStatus({ code: bankInfoData.bankCode });
           await entityManager.save(bankInfo);
         } else {
-          await this.bankInfoService.create(entityManager, bankInfoData, association);
+          // await this.bankInfoService.create(entityManager, bankInfoData, association);
         }
 
       }
 
       await entityManager.save(association);
       if (associationDto.logo) {
-        await this.associationFileService.createLogo(entityManager, association, associationDto.logo);
+        let fileUploadResponseDto = associationDto.logo as FileUploadResponseDto;
+        await this.associationFileService.createLogo(entityManager, association, fileUploadResponseDto);
       }
+
+
+      if (true === (association.name && association.type && associationDto.activateAssociation)) {
+        association.status = GenericStatusConstant.ACTIVE;
+        const group: GroupDto = {
+          association: association,
+          name: `${association.name.toLowerCase()} general group`,
+          type: GroupTypeConstant.GENERAL,
+
+        };
+        await this.groupService.createGroup(entityManager, group);
+
+      } else {
+        association.status = GenericStatusConstant.PENDING_ACTIVATION;
+      }
+
+
       return association;
+
 
     });
 

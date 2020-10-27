@@ -4,7 +4,7 @@ import { Job } from 'bull';
 import { ServiceFeeRepository } from '../../dao/service-fee.repository';
 import * as moment from 'moment';
 import { SubscriptionRequestDto } from '../../dto/subscription.request.dto';
-import { SubscriptionService } from '../../service/subscription.service';
+import { SubscriptionService } from '../../service-impl/subscription.service';
 import { ServiceTypeConstant } from '../../domain/enums/service-type.constant';
 import { Queues } from '../../core/cron.enum';
 
@@ -21,14 +21,14 @@ export class SubscriptionGeneratorProcessor {
   }
 
 
-  private generateSubscription(serviceType: ServiceTypeConstant) {
+  generateSubscription(serviceType: ServiceTypeConstant) {
     let startOfTheDay = moment().startOf('day').toDate();
     let endOfTheDay = moment().endOf('day').toDate();
     let description = '';
 
     return this.connection
       .getCustomRepository(ServiceFeeRepository)
-      .findServiceFeeBetweenNextBillingDate(startOfTheDay, endOfTheDay, serviceType)
+      .findForAllGeneratedSubscriptionsByStateDateAndEndDateAndStatusType(startOfTheDay, endOfTheDay, serviceType)
       .then(serviceFees => {
         let subscriptions = serviceFees.map(serviceFee => {
 

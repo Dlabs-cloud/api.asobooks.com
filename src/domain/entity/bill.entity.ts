@@ -31,4 +31,9 @@ export class Bill extends BaseEntity {
   })
   @JoinColumn()
   subscription: Subscription;
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
+  lastDispatchDate?: Date;
 }

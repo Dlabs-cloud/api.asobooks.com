@@ -18,7 +18,6 @@ export class TypeOrmDatasourceConf {
   }
 
   public getTypeOrmConfig(): TypeOrmModuleOptions {
-    console.log(this.configService.get<string>('DB_PASSWORD', 'postgres'));
     return {
       type: 'postgres',
       host: this.configService.get<string>('DB_HOST', 'localhost'),
@@ -30,7 +29,7 @@ export class TypeOrmDatasourceConf {
       logging: this.configService.get('SHOW_LOG', false) === 'true',
       entities: [
         __dirname + '/../../domain/entity/*.entity{.js,.ts}',
-        __dirname + '/../../dlabs-payment/src/domain/entity/*.entity{.js,.ts}',
+        __dirname + '/../../dlabs-wallet/src/domain/entity/*.entity{.js,.ts}',
       ],
       synchronize: true,
       ssl: this.isProduction(),

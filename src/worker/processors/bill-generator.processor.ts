@@ -11,7 +11,7 @@ import { Subscription } from '../../domain/entity/subcription.entity';
 import { GenericStatusConstant } from '../../domain/enums/generic-status-constant';
 import { ServiceFeeRepository } from '../../dao/service-fee.repository';
 import { MembershipRepository } from '../../dao/membership.repository';
-import { BillService } from '../../service/bill.service';
+import { BillService } from '../../service-impl/bill.service';
 import { CollectionUtils } from '../../common/utils/collection-utils';
 import { Queues } from '../../core/cron.enum';
 
@@ -65,7 +65,7 @@ export class BillGeneratorProcessor {
       .getCustomRepository(ServiceFeeRepository)
       .findById(GenericStatusConstant.ACTIVE, ...serviceFeeIds);
 
-    return subscriptions.map(subscription => {
+    let map: Promise<Bill[]>[] = subscriptions.map(subscription => {
       subscription.serviceFee = serviceFees
         .find(serviceFee => serviceFee.id === subscription.serviceFeeId);
 
@@ -78,6 +78,7 @@ export class BillGeneratorProcessor {
         });
       return Promise.all(bills);
     });
+    return Promise.all(map);
 
   }
 

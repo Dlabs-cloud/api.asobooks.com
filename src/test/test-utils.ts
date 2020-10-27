@@ -3,7 +3,7 @@ import { EntityManager, getConnection } from 'typeorm';
 import { SettingRepository } from '../dao/setting.repository';
 import { ISendMailOptions } from '@nestjs-modules/mailer/dist/interfaces/send-mail-options.interface';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
-import { AuthenticationService } from '../service/authentication.service';
+import { AuthenticationService } from '../service-impl/authentication.service';
 import * as faker from 'faker';
 import { LoginDto } from '../dto/auth/request/login.dto';
 import { AssociationTypeConstant } from '../domain/enums/association-type-constant';
@@ -16,7 +16,7 @@ import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../app.module';
-import { ServiceModule } from '../service/service.module';
+import { ServiceImplModule } from '../service-impl/serviceImplModule';
 import { AppService } from '../app.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { BankUploadStartup } from '../core/start-ups/bank-upload.startup';
@@ -27,6 +27,7 @@ import { GroupMembership } from '../domain/entity/group-membership.entity';
 import { Group } from '../domain/entity/group.entity';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { WorkerModule } from '../worker/worker.module';
 
 
 export const init = async (entityManager?: EntityManager) => {
@@ -47,14 +48,6 @@ export const init = async (entityManager?: EntityManager) => {
 
 };
 
-
-export const mockLoginUser = async function(authenticationService: AuthenticationService) {
-  const signUpUser = await this.mockActiveSignUpUser(authenticationService);
-  const loginDto = new LoginDto();
-  loginDto.username = signUpUser.username;
-  loginDto.password = signUpUser.password;
-  return await authenticationService.loginUser(loginDto);
-};
 
 export const mockNewSignUpUser = async (authenticationService: AuthenticationService): Promise<SignUpDto> => {
 
@@ -175,7 +168,7 @@ export const mockSendEmail = () => jest.fn().mockImplementation((sendEmailOption
 
 export function baseTestingModule() {
   return Test.createTestingModule({
-    imports: [AppModule, ServiceModule],
+    imports: [AppModule, ServiceImplModule, WorkerModule],
     providers: [AppService],
   }).overrideProvider(MailerService)
     .useValue({
@@ -191,6 +184,5 @@ export const PRINCIPAL_USER_REQUEST_DATA = {
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
   password: faker.random.alphaNumeric() + faker.random.uuid(),
-  phoneNumber: faker.phone.phoneNumber(),
   associationType: AssociationTypeConstant.COOPERATIVE,
 };

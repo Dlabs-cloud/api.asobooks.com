@@ -5,4 +5,5 @@ export class FileDto {
   name: string;
   contentType: string;
   fileType: FileTypeConstant;
+  
 }

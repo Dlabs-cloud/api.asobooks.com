@@ -2,7 +2,7 @@ import { BaseEntity } from '../../common/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { AssociationTypeConstant } from '../enums/association-type-constant';
 import { Address } from './address.entity';
-import { File } from './file.entity';
+import { FileResource } from './file.entity';
 import { Bank } from './bank.entity';
 
 @Entity()

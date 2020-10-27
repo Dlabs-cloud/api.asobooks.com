@@ -26,7 +26,7 @@ export class BankUploadStartup implements OnApplicationBootstrap {
     const jsonStream = StreamArray.withParser();
     const processingStream = new Writable({
       write({ key, value }, encoding, callback) {
-        const bank: Bank = {
+        const bank = {
           name: value.name,
           code: value.code,
         };
@@ -38,7 +38,6 @@ export class BankUploadStartup implements OnApplicationBootstrap {
         }).then((existingBank) => {
           if (existingBank) {
             existingBank.name = bank.name;
-            existingBank.payStackCode = bank.payStackCode;
             bankRepository.save(existingBank).then(savedBank => {
               console.log(`${savedBank.name} has been updated`);
             });
