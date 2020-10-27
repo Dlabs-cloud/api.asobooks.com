@@ -112,6 +112,7 @@ export class AuthenticationService {
             return Promise.resolve(token);
           }
         }
+
         throw  new UnAuthorizedException('Username or password is incorrect');
       });
 
