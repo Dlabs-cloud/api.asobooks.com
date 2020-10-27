@@ -1,17 +1,17 @@
-import {Module} from '@nestjs/common';
-import {PortalAccountSequence} from './sequenceGenerators/portal-account.sequence';
-import {BankUploadStartup} from './start-ups/bank-upload.startup';
-import {APP_FILTER} from '@nestjs/core';
-import {IllegalArgumentExceptionFilter} from './exception-filters/illegal-argument-exception-filter';
-import {InvalidTokenExceptionFilter} from './exception-filters/invalid-token-exception.filter';
-import {AssociationCodeSequence} from './sequenceGenerators/association-code.sequence';
-import {ServiceFeeCodeSequence} from './sequenceGenerators/service-fee-code.sequence';
-import {MembershipCodeSequence} from './sequenceGenerators/membership-code.sequence';
-import {UnAuthorizedExceptionFilter} from './exception-filters/un-authorized-exception.filter';
-import {SubscriptionCodeSequence} from './sequenceGenerators/subscription-code.sequence';
-import {BillCodeSequence} from './sequenceGenerators/bill-code.sequence';
-import {ConfModule} from '../conf/conf.module';
-import {NotActiveExceptionFilter} from "./exception-filters/not-active-exception.filter";
+import { Module } from '@nestjs/common';
+import { PortalAccountSequence } from './sequenceGenerators/portal-account.sequence';
+import { BankUploadStartup } from './start-ups/bank-upload.startup';
+import { APP_FILTER } from '@nestjs/core';
+import { IllegalArgumentExceptionFilter } from './exception-filters/illegal-argument-exception-filter';
+import { InvalidTokenExceptionFilter } from './exception-filters/invalid-token-exception.filter';
+import { AssociationCodeSequence } from './sequenceGenerators/association-code.sequence';
+import { ServiceFeeCodeSequence } from './sequenceGenerators/service-fee-code.sequence';
+import { MembershipCodeSequence } from './sequenceGenerators/membership-code.sequence';
+import { UnAuthorizedExceptionFilter } from './exception-filters/un-authorized-exception.filter';
+import { SubscriptionCodeSequence } from './sequenceGenerators/subscription-code.sequence';
+import { BillCodeSequence } from './sequenceGenerators/bill-code.sequence';
+import { ConfModule } from '../conf/conf.module';
+import { InActiveAccountExceptionFilter } from './exception-filters/in-active-account-exception.filter';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -23,13 +23,18 @@ const invalidTokenExceptionFilter = {
   useClass: InvalidTokenExceptionFilter,
 };
 
+const forbiddenExceptionFilter = {
+  provide: APP_FILTER,
+  useClass: InActiveAccountExceptionFilter,
+};
+
 const unAuthorizedExceptionFilter = {
   provide: APP_FILTER,
   useClass: UnAuthorizedExceptionFilter,
 };
 const notActiveExceptionFilter = {
   provide: APP_FILTER,
-  useClass: NotActiveExceptionFilter,
+  useClass: InActiveAccountExceptionFilter,
 };
 
 @Module({
@@ -58,6 +63,7 @@ const notActiveExceptionFilter = {
     invalidTokenExceptionFilter,
     unAuthorizedExceptionFilter,
     notActiveExceptionFilter,
+    forbiddenExceptionFilter,
   ],
 })
 

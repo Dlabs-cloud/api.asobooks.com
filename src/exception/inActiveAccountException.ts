@@ -1,4 +1,4 @@
-export class NotActiveException extends Error {
+export class InActiveAccountException extends Error {
   constructor(message: string) {
     super(message);
   }

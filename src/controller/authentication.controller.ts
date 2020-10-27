@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
+import { Body, ConflictException, Controller, ForbiddenException, Get, Inject, Param, Post } from '@nestjs/common';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import { AuthenticationService } from '../service-impl/authentication.service';
 import { Public } from '../dlabs-nest-starter/security/annotations/public';
@@ -106,12 +106,12 @@ export class AuthenticationController {
   @Post('/verification/token')
   public async sendVerificationToken(@Body() passwordResetDto: PasswordResetDto) {
     let portalUser = await this.connection
-        .getCustomRepository(PortalUserRepository)
-        .findByUserNameOrEmailOrPhoneNumberAndStatus(passwordResetDto.email, GenericStatusConstant.PENDING_ACTIVATION);
+      .getCustomRepository(PortalUserRepository)
+      .findByUserNameOrEmailOrPhoneNumberAndStatus(passwordResetDto.email, GenericStatusConstant.PENDING_ACTIVATION);
     if (portalUser) {
       await this.authenticationService.sendVerificationToken(portalUser);
     }
-    return new ApiResponseDto(null, 200, 'A verification link will been sent to the email if its exists');
+    throw new ForbiddenException('Account is already active');
   }
 
 }

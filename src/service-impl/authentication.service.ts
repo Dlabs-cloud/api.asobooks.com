@@ -2,29 +2,29 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Connection } from 'typeorm';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import {PortalAccountService} from './portal-account.service';
-import {PortalAccountTypeConstant} from '../domain/enums/portal-account-type-constant';
-import {PortalUserRepository} from '../dao/portal-user.repository';
-import {PortalUserService} from './portal-user.service';
-import {LoginDto} from '../dto/auth/request/login.dto';
-import {EventBus} from '@nestjs/cqrs';
-import {AuthenticationUtils} from '../common/utils/authentication-utils.service';
-import {NewUserAccountSignUpEvent} from '../event/new-user-account-sign-up.event';
-import {TokenTypeConstant} from '../domain/enums/token-type-constant';
-import {BEARER_TOKEN_SERVICE, IBearerTokenService} from '../dlabs-nest-starter/interfaces/i-bearer-token-service';
-import {TokenPayloadDto} from '../dto/token-payload.dto';
-import {Association} from '../domain/entity/association.entity';
-import {AssociationServiceImpl} from './association.service-impl';
-import {AssociationCodeSequence} from '../core/sequenceGenerators/association-code.sequence';
-import {MembershipService} from './membership.service';
-import {MembershipDto} from '../dto/membership.dto';
-import {Membership} from '../domain/entity/membership.entity';
-import {PortalAccountDto} from '../dto/portal-account.dto';
-import {PortalUserDto} from '../dto/portal-user.dto';
-import {UnAuthorizedException} from '../exception/unAuthorized.exception';
-import {PortalUser} from "../domain/entity/portal-user.entity";
-import {PortalAccountRepository} from "../dao/portal-account.repository";
-import {NotActiveException} from "../exception/notActive.exception";
+import { PortalAccountService } from './portal-account.service';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { PortalUserRepository } from '../dao/portal-user.repository';
+import { PortalUserService } from './portal-user.service';
+import { LoginDto } from '../dto/auth/request/login.dto';
+import { EventBus } from '@nestjs/cqrs';
+import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
+import { NewUserAccountSignUpEvent } from '../event/new-user-account-sign-up.event';
+import { TokenTypeConstant } from '../domain/enums/token-type-constant';
+import { BEARER_TOKEN_SERVICE, IBearerTokenService } from '../dlabs-nest-starter/interfaces/i-bearer-token-service';
+import { TokenPayloadDto } from '../dto/token-payload.dto';
+import { Association } from '../domain/entity/association.entity';
+import { AssociationServiceImpl } from './association.service-impl';
+import { AssociationCodeSequence } from '../core/sequenceGenerators/association-code.sequence';
+import { MembershipService } from './membership.service';
+import { MembershipDto } from '../dto/membership.dto';
+import { Membership } from '../domain/entity/membership.entity';
+import { PortalAccountDto } from '../dto/portal-account.dto';
+import { PortalUserDto } from '../dto/portal-user.dto';
+import { UnAuthorizedException } from '../exception/unAuthorized.exception';
+import { PortalUser } from '../domain/entity/portal-user.entity';
+import { PortalAccountRepository } from '../dao/portal-account.repository';
+import { InActiveAccountException } from '../exception/inActiveAccountException';
 
 @Injectable()
 export class AuthenticationService {
@@ -96,14 +96,14 @@ export class AuthenticationService {
   public async loginUser(loginDto: LoginDto): Promise<string> {
 
     return this.connection.getCustomRepository(PortalUserRepository)
-        .findByUserNameOrEmailOrPhoneNumberAndStatus(loginDto.username.toLowerCase(), GenericStatusConstant.ACTIVE, GenericStatusConstant.PENDING_ACTIVATION)
+      .findByUserNameOrEmailOrPhoneNumberAndStatus(loginDto.username.toLowerCase(), GenericStatusConstant.ACTIVE, GenericStatusConstant.PENDING_ACTIVATION)
       .then(async portalUserValue => {
         if (portalUserValue) {
           if (portalUserValue.status === GenericStatusConstant.PENDING_ACTIVATION) {
-            throw  new NotActiveException('Account not verified.');
+            throw  new InActiveAccountException('Portal Account not verified');
           }
           const isTrue = await this.authenticationUtils
-              .comparePassword(loginDto.password, portalUserValue.password);
+            .comparePassword(loginDto.password, portalUserValue.password);
           if (isTrue) {
             const payload: TokenPayloadDto = {
               portalUser: portalUserValue,
@@ -119,12 +119,12 @@ export class AuthenticationService {
 
   public async sendVerificationToken(portalUser: PortalUser) {
     return this.connection.getCustomRepository(PortalAccountRepository).findFirstByPortalUserAndStatus(portalUser, false, GenericStatusConstant.PENDING_ACTIVATION)
-        .then(async portalAccount => {
-          if (portalAccount) {
-            this.eventBus.publish(new NewUserAccountSignUpEvent(portalAccount, portalUser));
-            return portalUser;
-          }
-          throw new UnauthorizedException('Portal account not found')
-        });
+      .then(async portalAccount => {
+        if (portalAccount) {
+          this.eventBus.publish(new NewUserAccountSignUpEvent(portalAccount, portalUser));
+          return portalUser;
+        }
+        throw new UnauthorizedException('Portal account not found');
+      });
   }
 }
