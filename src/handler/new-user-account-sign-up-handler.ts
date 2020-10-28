@@ -27,9 +27,11 @@ export class NewUserAccountSignUpHandler implements IEventHandler<NewUserAccount
   async handle(event: NewUserAccountSignUpEvent) {
     const portalAccount = event.portalAccount;
     const portalUser = event.portalUser;
-    let urlSetting = await this.connection
-      .getCustomRepository(SettingRepository)
+    let settingsRepository = this.connection
+      .getCustomRepository(SettingRepository);
+    let urlSetting = await settingsRepository
       .findByLabel('front_end_url', 'http://localhost:3000/api/v1');
+    let adminEmail = await settingsRepository.findByLabel('admin_email', 'admin@asobooks.com');
     let callBackToken = await this.emailValidationService.createCallBackToken(portalUser, TokenTypeConstant.PRINCIPAL_USER_SIGN_UP, portalAccount);
     const callBackUrl = `${urlSetting.value}/validate-principal/${callBackToken}`;
     const emailTemplateData: EmailQueueDto<{ firstName, callbackUrl }> = {
@@ -40,9 +42,13 @@ export class NewUserAccountSignUpHandler implements IEventHandler<NewUserAccount
       subject: `Welcome to AsoBooks`,
       templateName: 'admin-signup',
       to: portalUser.email,
+      from: adminEmail.value,
+      reply: adminEmail.value,
     };
 
-    return this.emailQueue.add(emailTemplateData);
+    return this.emailQueue.add(emailTemplateData).catch(error => {
+      console.log(error);
+    });
 
   }
 
