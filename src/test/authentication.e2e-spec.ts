@@ -23,6 +23,7 @@ import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { Association } from '../domain/entity/association.entity';
 import { Membership } from '../domain/entity/membership.entity';
 import { ServiceModule } from '../service/service.module';
+import { PortalAccountRepository } from '../dao/portal-account.repository';
 
 describe('AuthController', () => {
   let applicationContext: INestApplication;
@@ -60,7 +61,7 @@ describe('AuthController', () => {
       .expect(401);
   });
 
-  it('Test that a user that us inactive cannot login', async () => {
+  it('That that a pending activation user with be advised to retrieve validation', async () => {
     const password = faker.random.uuid();
     const hashPassword = await (new AuthenticationUtils()).hashPassword(password);
     const portalUser = await factory().upset(PortalUser).use(portalUser => {
@@ -76,7 +77,8 @@ describe('AuthController', () => {
 
     return request(applicationContext.getHttpServer())
       .post('/login')
-      .send(loginData).expect(401);
+      .send(loginData)
+      .expect(406);
 
   });
 
@@ -201,6 +203,19 @@ describe('AuthController', () => {
     expect(response.status).toEqual(200);
   });
 
+  it('Test that email should be sent to a user that has not been verified', async () => {
+    let portalUser = await getTestUser(GenericStatusConstant.PENDING_ACTIVATION);
+    const payload: PasswordResetDto = {
+      email: portalUser.membership.portalUser.email,
+    };
+
+
+    await request(applicationContext.getHttpServer())
+      .post(`/validate-principal`)
+      .send(payload)
+      .expect(200);
+
+  });
 
   afterAll(async () => {
     await connection.close();

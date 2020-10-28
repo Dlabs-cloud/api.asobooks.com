@@ -22,6 +22,10 @@ import { Membership } from '../domain/entity/membership.entity';
 import { PortalAccountDto } from '../dto/portal-account.dto';
 import { PortalUserDto } from '../dto/portal-user.dto';
 import { UnAuthorizedException } from '../exception/unAuthorized.exception';
+import { PortalUser } from '../domain/entity/portal-user.entity';
+import { PortalAccountRepository } from '../dao/portal-account.repository';
+import { InActiveAccountException } from '../exception/inActiveAccountException';
+import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 
 @Injectable()
 export class AuthenticationService {
@@ -93,9 +97,12 @@ export class AuthenticationService {
   public async loginUser(loginDto: LoginDto): Promise<string> {
 
     return this.connection.getCustomRepository(PortalUserRepository)
-      .findByUserNameOrEmailOrPhoneNumberAndStatus(loginDto.username.toLowerCase(), GenericStatusConstant.ACTIVE)
+      .findByUserNameOrEmailOrPhoneNumberAndStatus(loginDto.username.toLowerCase(), GenericStatusConstant.ACTIVE, GenericStatusConstant.PENDING_ACTIVATION)
       .then(async portalUserValue => {
         if (portalUserValue) {
+          if (portalUserValue.status === GenericStatusConstant.PENDING_ACTIVATION) {
+            throw  new InActiveAccountException('Portal Account not verified');
+          }
           const isTrue = await this.authenticationUtils
             .comparePassword(loginDto.password, portalUserValue.password);
           if (isTrue) {
@@ -106,9 +113,20 @@ export class AuthenticationService {
             return Promise.resolve(token);
           }
         }
+
         throw  new UnAuthorizedException('Username or password is incorrect');
       });
 
   }
 
+  public sendPrincipalVerificationEmail(portalUser: PortalUser) {
+    return this.connection.getCustomRepository(PortalAccountRepository).findFirstByPortalUserAndStatus(portalUser, false, GenericStatusConstant.PENDING_ACTIVATION)
+      .then(async portalAccount => {
+        if (portalAccount) {
+          this.eventBus.publish(new NewUserAccountSignUpEvent(portalAccount, portalUser));
+          return portalUser;
+        }
+        throw new IllegalArgumentException('Portal account not found');
+      });
+  }
 }

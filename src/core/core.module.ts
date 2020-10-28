@@ -8,11 +8,10 @@ import { AssociationCodeSequence } from './sequenceGenerators/association-code.s
 import { ServiceFeeCodeSequence } from './sequenceGenerators/service-fee-code.sequence';
 import { MembershipCodeSequence } from './sequenceGenerators/membership-code.sequence';
 import { UnAuthorizedExceptionFilter } from './exception-filters/un-authorized-exception.filter';
-import { BullModule } from '@nestjs/bull';
 import { SubscriptionCodeSequence } from './sequenceGenerators/subscription-code.sequence';
-import { QueueDataStoreConf } from '../conf/data-source/queue-data-store.conf';
 import { BillCodeSequence } from './sequenceGenerators/bill-code.sequence';
 import { ConfModule } from '../conf/conf.module';
+import { InActiveAccountExceptionFilter } from './exception-filters/in-active-account-exception.filter';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -24,9 +23,18 @@ const invalidTokenExceptionFilter = {
   useClass: InvalidTokenExceptionFilter,
 };
 
+const forbiddenExceptionFilter = {
+  provide: APP_FILTER,
+  useClass: InActiveAccountExceptionFilter,
+};
+
 const unAuthorizedExceptionFilter = {
   provide: APP_FILTER,
   useClass: UnAuthorizedExceptionFilter,
+};
+const notActiveExceptionFilter = {
+  provide: APP_FILTER,
+  useClass: InActiveAccountExceptionFilter,
 };
 
 @Module({
@@ -54,6 +62,8 @@ const unAuthorizedExceptionFilter = {
     illegalArgumentExceptionFilter,
     invalidTokenExceptionFilter,
     unAuthorizedExceptionFilter,
+    notActiveExceptionFilter,
+    forbiddenExceptionFilter,
   ],
 })
 
