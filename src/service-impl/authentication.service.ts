@@ -25,6 +25,7 @@ import { UnAuthorizedException } from '../exception/unAuthorized.exception';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { InActiveAccountException } from '../exception/inActiveAccountException';
+import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 
 @Injectable()
 export class AuthenticationService {
@@ -118,14 +119,14 @@ export class AuthenticationService {
 
   }
 
-  public async sendPrincipalVerificationEmail(portalUser: PortalUser) {
+  public sendPrincipalVerificationEmail(portalUser: PortalUser) {
     return this.connection.getCustomRepository(PortalAccountRepository).findFirstByPortalUserAndStatus(portalUser, false, GenericStatusConstant.PENDING_ACTIVATION)
       .then(async portalAccount => {
         if (portalAccount) {
           this.eventBus.publish(new NewUserAccountSignUpEvent(portalAccount, portalUser));
           return portalUser;
         }
-        throw new UnauthorizedException('Portal account not found');
+        throw new IllegalArgumentException('Portal account not found');
       });
   }
 }

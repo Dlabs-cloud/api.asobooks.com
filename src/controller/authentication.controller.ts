@@ -120,7 +120,9 @@ export class AuthenticationController {
       .findByUserNameOrEmailOrPhoneNumberAndStatus(passwordResetDto.email, GenericStatusConstant.PENDING_ACTIVATION);
 
     if (portalUser) {
-      return this.authenticationService.sendPrincipalVerificationEmail(portalUser).then();
+      return this.authenticationService.sendPrincipalVerificationEmail(portalUser).then(response => {
+        return new ApiResponseDto();
+      });
     }
     throw new IllegalArgumentException('Pending account does not exist');
   }
