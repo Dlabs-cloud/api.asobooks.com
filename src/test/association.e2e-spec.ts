@@ -19,7 +19,6 @@ import { Association } from '../domain/entity/association.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { Bank } from '../domain/entity/bank.entity';
-import { BankInfoRepository } from '../dao/bank-info.repository';
 import { AssociationServiceImpl } from '../service-impl/association.service-impl';
 import { ServiceModule } from '../service/service.module';
 import { CACHE_ASSOCIATION_SERVICE } from '../service/association-service';
@@ -101,12 +100,12 @@ describe('AssociationController', () => {
     loginToken = __ret.loginToken;
     let payload = __ret.payload;
     let response = await request(applicationContext.getHttpServer())
-      .put('/associations/onboard')
-      .set('Authorization', loginToken)
-      .send(payload);
+        .put('/associations/onboard')
+        .set('Authorization', loginToken)
+        .send(payload);
     expect(response.status).toEqual(201);
-    expect(response.body.address).toBeDefined();
-    expect(response.body.type).toBeDefined();
+    expect(response.body.data.address).toBeDefined();
+    expect(response.body.data.type).toBeDefined();
   });
   afterAll(async () => {
     await connection.close();
