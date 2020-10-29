@@ -24,7 +24,7 @@ import { ServiceModule } from './service/service.module';
         return {
           repository: earlyAccessService,
           enabled: true,
-          url: '/',
+          url: '/early-access',
           template: {
             viewDir: `${process.cwd()}/views`,
             assetsDir: `${process.cwd()}/assets`,
