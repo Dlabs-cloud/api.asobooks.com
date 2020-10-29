@@ -23,7 +23,6 @@ import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { Association } from '../domain/entity/association.entity';
 import { Membership } from '../domain/entity/membership.entity';
 import { ServiceModule } from '../service/service.module';
-import { PortalAccountRepository } from '../dao/portal-account.repository';
 
 describe('AuthController', () => {
   let applicationContext: INestApplication;
@@ -89,15 +88,35 @@ describe('AuthController', () => {
       email: testUser.membership.portalUser.email,
     };
     await request(applicationContext.getHttpServer())
-      .post('/password/reset')
-      .send(payLoad).expect(200);
+        .post('/password/reset')
+        .send(payLoad).expect(200);
     const portalUser = await connection
-      .getCustomRepository(PortalUserRepository)
-      .findOne({
-        username: testUser.membership.portalUser.username,
-      });
+        .getCustomRepository(PortalUserRepository)
+        .findOne({
+          username: testUser.membership.portalUser.username,
+        });
 
     expect(GenericStatusConstant.IN_ACTIVE).toEqual(portalUser.status);
+
+  });
+
+  it('That that a pending activation user cannot reset password', async () => {
+    const password = faker.random.uuid();
+    const hashPassword = await (new AuthenticationUtils()).hashPassword(password);
+    const portalUser = await factory().upset(PortalUser).use(portalUser => {
+      portalUser.password = hashPassword;
+      portalUser.status = GenericStatusConstant.PENDING_ACTIVATION;
+      return portalUser;
+    }).create();
+    const payLoad: PasswordResetDto = {
+      email: portalUser.email,
+    };
+
+
+    return request(applicationContext.getHttpServer())
+        .post('/password/reset')
+        .send(payLoad)
+        .expect(406);
 
   });
 

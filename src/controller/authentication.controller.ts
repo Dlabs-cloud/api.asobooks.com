@@ -1,14 +1,4 @@
-import {
-  Body,
-  ConflictException,
-  Controller,
-  ForbiddenException,
-  Get,
-  Inject,
-  NotFoundException,
-  Param,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import { AuthenticationService } from '../service-impl/authentication.service';
 import { Public } from '../dlabs-nest-starter/security/annotations/public';
@@ -31,6 +21,7 @@ import { InvalidtokenException } from '../exception/invalidtoken.exception';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { LoggedInUserInfoHandler } from './handlers/logged-in-user-info.handler';
+import { InActiveAccountException } from '../exception/inActiveAccountException';
 
 
 @Controller()
@@ -96,10 +87,12 @@ export class AuthenticationController {
   public async passwordReset(@Body() passwordResetDto: PasswordResetDto) {
     let portalUser = await this.connection
       .getCustomRepository(PortalUserRepository)
-      .findByUserNameOrEmailOrPhoneNumberAndStatus(passwordResetDto.email, GenericStatusConstant.ACTIVE, GenericStatusConstant.IN_ACTIVE);
-    if (portalUser) {
-      await this.userManagementService.resetPassword(portalUser);
+      .findByUserNameOrEmailOrPhoneNumberAndStatus(passwordResetDto.email, GenericStatusConstant.ACTIVE, GenericStatusConstant.IN_ACTIVE, GenericStatusConstant.PENDING_ACTIVATION);
+    if (portalUser && (portalUser.status === GenericStatusConstant.PENDING_ACTIVATION)) {
+      throw  new InActiveAccountException('Portal Account not verified');
     }
+    await this.userManagementService.resetPassword(portalUser);
+
     return new ApiResponseDto(null, 200, 'A reset link will been sent to the email if its exists');
   }
 
