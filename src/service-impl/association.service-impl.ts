@@ -75,19 +75,19 @@ export class AssociationServiceImpl implements AssociationService {
         };
 
 
-        let bankInfo = await entityManager
-          .getCustomRepository(BankInfoRepository)
-          .findOneByAssociation(association, GenericStatusConstant.ACTIVE);
-        if (bankInfo) {
-          bankInfo.status = GenericStatusConstant.ACTIVE;
-          bankInfo.accountNumber = bankInfoData.accountNumber;
-          bankInfo.bank = await this.connection
-            .getCustomRepository(BankRepository)
-            .findOneItemByStatus({ code: bankInfoData.bankCode });
-          await entityManager.save(bankInfo);
-        } else {
-          // await this.bankInfoService.create(entityManager, bankInfoData, association);
-        }
+        // let bankInfo = await entityManager
+        //   .getCustomRepository(BankInfoRepository)
+        //   .findOneByAssociation(association, GenericStatusConstant.ACTIVE);
+        // if (bankInfo) {
+        //   bankInfo.status = GenericStatusConstant.ACTIVE;
+        //   bankInfo.accountNumber = bankInfoData.accountNumber;
+        //   bankInfo.bank = await this.connection
+        //     .getCustomRepository(BankRepository)
+        //     .findOneItemByStatus({ code: bankInfoData.bankCode });
+        //   await entityManager.save(bankInfo);
+        // } else {
+        //   // await this.bankInfoService.create(entityManager, bankInfoData, association);
+        // }
 
       }
 
