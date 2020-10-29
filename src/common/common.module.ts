@@ -15,11 +15,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       ],
     }),
     CacheModule.registerAsync({
-      imports:[ConfigModule],
+      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {
           store: redisStore,
+          ttl: 6 * 30 * 24 * 60 * 60,
+          prefix: 'store',
           port: configService.get<number>('REDIS_PORT', 6379),
           host: configService.get<string>('REDIS_HOST', 'localhost'),
         };

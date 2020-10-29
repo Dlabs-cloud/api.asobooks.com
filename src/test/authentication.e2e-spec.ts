@@ -88,13 +88,13 @@ describe('AuthController', () => {
       email: testUser.membership.portalUser.email,
     };
     await request(applicationContext.getHttpServer())
-        .post('/password/reset')
-        .send(payLoad).expect(200);
+      .post('/password/reset')
+      .send(payLoad).expect(200);
     const portalUser = await connection
-        .getCustomRepository(PortalUserRepository)
-        .findOne({
-          username: testUser.membership.portalUser.username,
-        });
+      .getCustomRepository(PortalUserRepository)
+      .findOne({
+        username: testUser.membership.portalUser.username,
+      });
 
     expect(GenericStatusConstant.IN_ACTIVE).toEqual(portalUser.status);
 
@@ -114,9 +114,9 @@ describe('AuthController', () => {
 
 
     return request(applicationContext.getHttpServer())
-        .post('/password/reset')
-        .send(payLoad)
-        .expect(406);
+      .post('/password/reset')
+      .send(payLoad)
+      .expect(406);
 
   });
 
@@ -199,9 +199,9 @@ describe('AuthController', () => {
     expect(responseData.username).toBeDefined();
     expect(responseData.email).toBeDefined();
     expect(responseData.phoneNumber).toBeDefined();
-    expect(responseData.association).toBeDefined();
-    expect(responseData.association.length).toEqual(1);
-    expect(responseData.association).toEqual(
+    expect(responseData.associations).toBeDefined();
+    expect(responseData.associations.length).toEqual(1);
+    expect(responseData.associations).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           name: expect.anything(),

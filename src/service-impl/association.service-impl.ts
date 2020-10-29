@@ -36,9 +36,6 @@ export class AssociationServiceImpl implements AssociationService {
 
   createAssociation(associationDto: AssociationRequestDto, requestPrincipal: RequestPrincipal): Promise<Association> {
     return this.connection.transaction(async entityManager => {
-
-      associationDto.activateAssociation = associationDto.activateAssociation ?? false;
-
       const portalAccount = await entityManager
         .getCustomRepository(PortalAccountRepository)
         .findFirstByPortalUserAndStatus(requestPrincipal.portalUser, true);
@@ -68,54 +65,47 @@ export class AssociationServiceImpl implements AssociationService {
       }
 
 
-      if (associationDto.bankInfo) {
-        let bankInfoData: BankInfoDto = {
-          accountNumber: associationDto.bankInfo.accountNumber,
-          bankCode: associationDto.bankInfo.bankCode,
-        };
+      // if (associationDto.bankInfo) {
+      //   let bankInfoData: BankInfoDto = {
+      //     accountNumber: associationDto.bankInfo.accountNumber,
+      //     bankCode: associationDto.bankInfo.bankCode,
+      //   };
+      //
+      //
+      //     let bankInfo = await entityManager
+      //       .getCustomRepository(BankInfoRepository)
+      //       .findOneByAssociation(association, GenericStatusConstant.ACTIVE);
+      //     if (bankInfo) {
+      //       bankInfo.status = GenericStatusConstant.ACTIVE;
+      //       bankInfo.accountNumber = bankInfoData.accountNumber;
+      //       bankInfo.bank = await this.connection
+      //         .getCustomRepository(BankRepository)
+      //         .findOneItemByStatus({ code: bankInfoData.bankCode });
+      //       await entityManager.save(bankInfo);
+      //     } else {
+      //       // await this.bankInfoService.create(entityManager, bankInfoData, association);
+      //     }
+      //
+      //   }
 
-
-        // let bankInfo = await entityManager
-        //   .getCustomRepository(BankInfoRepository)
-        //   .findOneByAssociation(association, GenericStatusConstant.ACTIVE);
-        // if (bankInfo) {
-        //   bankInfo.status = GenericStatusConstant.ACTIVE;
-        //   bankInfo.accountNumber = bankInfoData.accountNumber;
-        //   bankInfo.bank = await this.connection
-        //     .getCustomRepository(BankRepository)
-        //     .findOneItemByStatus({ code: bankInfoData.bankCode });
-        //   await entityManager.save(bankInfo);
-        // } else {
-        //   // await this.bankInfoService.create(entityManager, bankInfoData, association);
-        // }
-
-      }
-
-      await entityManager.save(association);
       if (associationDto.logo) {
         let fileUploadResponseDto = associationDto.logo as FileUploadResponseDto;
         await this.associationFileService.createLogo(entityManager, association, fileUploadResponseDto);
       }
 
 
-      if (true === (association.name && association.type && associationDto.activateAssociation)) {
+      if (association.name && association.type && associationDto.activateAssociation) {
         association.status = GenericStatusConstant.ACTIVE;
         const group: GroupDto = {
           association: association,
           name: `${association.name.toLowerCase()} general group`,
           type: GroupTypeConstant.GENERAL,
-
         };
         await this.groupService.createGroup(entityManager, group);
-
       } else {
         association.status = GenericStatusConstant.PENDING_ACTIVATION;
       }
-
-
-      return association;
-
-
+      return entityManager.save(association);
     });
 
   }

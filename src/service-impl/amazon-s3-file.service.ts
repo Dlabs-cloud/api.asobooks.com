@@ -54,7 +54,7 @@ export class AmazonS3FileService implements IFileService {
         hostIdentifier: response.ETag,
       };
       return Promise.resolve(value,
-      )
+      );
 
     });
 

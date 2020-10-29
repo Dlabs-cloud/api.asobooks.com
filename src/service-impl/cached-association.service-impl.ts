@@ -16,32 +16,36 @@ export class CachedAssociationServiceImpl implements AssociationService {
   }
 
   async createAssociation(associationDto: AssociationRequestDto, requestPrincipal: RequestPrincipal) {
-    const key = `${requestPrincipal.portalUser.email}-association-onboarding`;
+    associationDto.activateAssociation = associationDto.activateAssociation === 'true';
+
+    const key = `onboarding:${requestPrincipal.portalUser.email}-association-onboarding`;
     let existingData = (await this.cacheService.get(key)) as AssociationOnboardingDto;
     if (existingData) {
       Object.keys(existingData).forEach(key => {
-        existingData[key] = associationDto[key];
+        if (associationDto[key]) {
+          existingData[key] = associationDto[key];
+        }
       });
     } else {
       existingData = associationDto;
     }
 
-
     if (associationDto.logo) {
       existingData.logo = await this.fileService.upload(associationDto.logo as FileDto);
     }
-
     return this.cacheService.set(key, existingData).then(value => {
       return Promise.resolve(existingData);
     }).then(existingData => {
-      if (true === (existingData.name && existingData.type && associationDto.activateAssociation)) {
-        return this.associationService.createAssociation(existingData, requestPrincipal).then(value => {
-          this.cacheService.del(key).then(del => {
+      if (existingData.name && existingData.type && associationDto.activateAssociation) {
+        return this.associationService.createAssociation(existingData, requestPrincipal).then(association => {
+          return this.cacheService.del(key).then(del => {
             return Promise.resolve(existingData);
           });
         });
       }
       return Promise.resolve(existingData);
+    }).catch(error => {
+      console.log(error);
     });
   }
 

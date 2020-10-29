@@ -87,9 +87,6 @@ describe('AssociationController', () => {
 
   });
 
-  it('Test that an association can created and seeded to DB', async () => {
-
-  });
 
   it('Test that updating of association creates right records', async () => {
     const __ret = await associationUpdate(loginToken);
@@ -99,10 +96,12 @@ describe('AssociationController', () => {
     });
     loginToken = __ret.loginToken;
     let payload = __ret.payload;
+    payload.activateAssociation = 'false';
     let response = await request(applicationContext.getHttpServer())
-        .put('/associations/onboard')
-        .set('Authorization', loginToken)
-        .send(payload);
+      .put('/associations/onboard')
+      .set('Authorization', loginToken)
+      .send(payload);
+
     expect(response.status).toEqual(201);
     expect(response.body.data.address).toBeDefined();
     expect(response.body.data.type).toBeDefined();

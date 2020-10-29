@@ -30,8 +30,7 @@ export class AssociationRequestDto {
   @Type(() => AssociationAddressRequestDto)
   address?: AssociationAddressRequestDto;
   @IsBooleanString()
-  @IsOptional()
-  activateAssociation?: boolean | string;
+  activateAssociation: boolean | string;
   @ValidateNested()
   @IsObject()
   @IsOptional()

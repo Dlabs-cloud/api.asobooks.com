@@ -39,6 +39,7 @@ export class LoggedInUserInfoHandler {
               dateUpdated: portalAccount.updatedAt,
               name: portalAccount.name,
               type: portalAccount.type,
+              permissions: [],
             };
           });
 
@@ -56,7 +57,7 @@ export class LoggedInUserInfoHandler {
     return {
       ...response,
       ...{
-        association: transformedAssociations,
+        associations: transformedAssociations,
       },
     };
   }

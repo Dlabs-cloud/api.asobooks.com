@@ -12,7 +12,7 @@ export class CacheService {
   }
 
   async set(key, value, ttl?: number) {
-    return this.cache.set(key, value, { ttl });
+    return this.cache.set(key, value);
   }
 
   async del(key) {

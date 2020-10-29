@@ -43,7 +43,7 @@ export class AssociationController extends BaseController {
 
   @Get('/onboard')
   public async getOnBoardingAssociation(@RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
-    const key = `${requestPrincipal.portalUser.email}-association-onboarding`;
+    const key = `onboarding:${requestPrincipal.portalUser.email}-association-onboarding`;
     return this.cacheService.get(key).then(value => {
       return Promise.resolve(new ApiResponseDto(value));
     });
