@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DaoModule } from '../dao/dao.module';
 import { DomainModule } from '../domain/domain.module';
-import { ServiceImplModule } from '../service-impl/serviceImplModule';
+import { ServiceImplModule } from '../service-impl/service-Impl.module';
 import { ConfModule } from '../conf/conf.module';
 import { EmailProcessor } from './processors/email.processor';
 import { SubscriptionGeneratorProcessor } from './processors/subscription-generator.processor';

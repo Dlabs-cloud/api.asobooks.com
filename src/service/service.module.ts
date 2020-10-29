@@ -3,7 +3,7 @@ import { ASSOCIATION_SERVICE, CACHE_ASSOCIATION_SERVICE } from './association-se
 import { AssociationServiceImpl } from '../service-impl/association.service-impl';
 import { CachedAssociationServiceImpl } from '../service-impl/cached-association.service-impl';
 import { CommonModule } from '../common/common.module';
-import { ServiceImplModule } from '../service-impl/serviceImplModule';
+import { ServiceImplModule } from '../service-impl/service-Impl.module';
 import { ValidationService } from '../service-impl/validation-service';
 import { BEARER_TOKEN_SERVICE } from '../dlabs-nest-starter/interfaces/i-bearer-token-service';
 import { BearerTokenService } from '../service-impl/bearer-token.service';

@@ -7,7 +7,7 @@ import { baseTestingModule } from './test-utils';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { getConnection } from 'typeorm';
 import { WorkerModule } from '../worker/worker.module';
-import { ServiceImplModule } from '../service-impl/serviceImplModule';
+import { ServiceImplModule } from '../service-impl/service-Impl.module';
 import { factory } from './factory';
 import { ServiceFee } from '../domain/entity/service.fee.entity';
 import * as moment from 'moment';

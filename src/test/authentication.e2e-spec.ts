@@ -5,7 +5,7 @@ import { IEmailValidationService } from '../contracts/i-email-validation-service
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { TestingModule } from '@nestjs/testing';
-import { ServiceImplModule } from '../service-impl/serviceImplModule';
+import { ServiceImplModule } from '../service-impl/service-Impl.module';
 import { baseTestingModule, getLoginUser, getTestUser } from './test-utils';
 import { getConnection } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';

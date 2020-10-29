@@ -3,7 +3,7 @@ import { Connection } from 'typeorm/connection/Connection';
 import { TestingModule } from '@nestjs/testing';
 import { baseTestingModule, getAssociationUser } from './test-utils';
 import { getConnection } from 'typeorm';
-import { ServiceImplModule } from '../service-impl/serviceImplModule';
+import { ServiceImplModule } from '../service-impl/service-Impl.module';
 import { AuthenticationService } from '../service-impl/authentication.service';
 import * as request from 'supertest';
 import { MemberSignUpDto } from '../dto/user/member-sign-up.dto';

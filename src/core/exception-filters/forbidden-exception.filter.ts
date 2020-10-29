@@ -9,7 +9,7 @@ export class ForbiddenExceptionFilter implements ExceptionFilter<ForbiddenExcept
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     response
-      .status(406)
+      .status(403)
       .json({
         code: 403,
         message: exception.message,

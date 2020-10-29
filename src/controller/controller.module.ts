@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ServiceImplModule } from '../service-impl/serviceImplModule';
+import { ServiceImplModule } from '../service-impl/service-Impl.module';
 import { DaoModule } from '../dao/dao.module';
 import { CoreModule } from '../core/core.module';
 import { CommonModule } from '../common/common.module';

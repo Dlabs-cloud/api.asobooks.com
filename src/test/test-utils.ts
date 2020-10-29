@@ -16,7 +16,7 @@ import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { TokenTypeConstant } from '../domain/enums/token-type-constant';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../app.module';
-import { ServiceImplModule } from '../service-impl/serviceImplModule';
+import { ServiceImplModule } from '../service-impl/service-Impl.module';
 import { AppService } from '../app.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { BankUploadStartup } from '../core/start-ups/bank-upload.startup';

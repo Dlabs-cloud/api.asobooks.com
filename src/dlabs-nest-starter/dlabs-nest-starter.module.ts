@@ -5,7 +5,7 @@ import { AccessConstraintInterceptor } from './security/interceptors/access-cons
 import { RemoteAddressInterceptor } from './security/interceptors/remote-address.interceptor';
 import { AssociationConstraintInterceptor } from './security/interceptors/association-constraint.interceptor';
 import { LoggerInterceptor } from './security/interceptors/logger.interceptor';
-import { ServiceImplModule } from '../service-impl/serviceImplModule';
+import { ServiceImplModule } from '../service-impl/service-Impl.module';
 import { ConfModule } from '../conf/conf.module';
 import { ServiceModule } from '../service/service.module';
 

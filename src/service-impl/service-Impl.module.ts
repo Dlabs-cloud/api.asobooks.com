@@ -49,7 +49,6 @@ import { ServiceModule } from '../service/service.module';
     UserManagementService,
     AssociationServiceImpl,
     BankInfoService,
-
     AssociationFileService,
     ServiceFeeService,
     EarlyAccessService,

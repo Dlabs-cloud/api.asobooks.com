@@ -6,7 +6,7 @@ import { DaoModule } from './dao/dao.module';
 import { ConfModule } from './conf/conf.module';
 import { CommonModule } from './common/common.module';
 import { CoreModule } from './core/core.module';
-import { ServiceImplModule } from './service-impl/serviceImplModule';
+import { ServiceImplModule } from './service-impl/service-Impl.module';
 import { ControllerModule } from './controller/controller.module';
 import { ConfigModule } from '@nestjs/config';
 import { HandlerModule } from './handler/handler.module';

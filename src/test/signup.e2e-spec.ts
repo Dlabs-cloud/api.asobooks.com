@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { getConnection } from 'typeorm';
 import { Connection } from 'typeorm/connection/Connection';
 import { AuthenticationService } from '../service-impl/authentication.service';
-import { ServiceImplModule } from '../service-impl/serviceImplModule';
+import { ServiceImplModule } from '../service-impl/service-Impl.module';
 import { baseTestingModule, getTestUser, mockNewSignUpUser, PRINCIPAL_USER_REQUEST_DATA } from './test-utils';
 import * as faker from 'faker';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
