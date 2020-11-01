@@ -85,15 +85,16 @@ export class AuthenticationController {
   @Public()
   @Post('/password/reset')
   public async passwordReset(@Body() passwordResetDto: PasswordResetDto) {
-    let portalUser = await this.connection
+    return this.connection
       .getCustomRepository(PortalUserRepository)
-      .findByUserNameOrEmailOrPhoneNumberAndStatus(passwordResetDto.email, GenericStatusConstant.ACTIVE, GenericStatusConstant.IN_ACTIVE, GenericStatusConstant.PENDING_ACTIVATION);
-    if (portalUser && (portalUser.status === GenericStatusConstant.PENDING_ACTIVATION)) {
-      throw  new InActiveAccountException('Portal Account not verified');
-    }
-    await this.userManagementService.resetPassword(portalUser);
+      .findByUserNameOrEmailOrPhoneNumberAndStatus(passwordResetDto.email, GenericStatusConstant.ACTIVE, GenericStatusConstant.IN_ACTIVE, GenericStatusConstant.PENDING_ACTIVATION)
+      .then(portalUser => {
+        return this.userManagementService.resetPassword(portalUser).then(portalUser => {
+          return Promise.resolve(new ApiResponseDto(null, 200, 'A reset link will been sent to the email if its exists'));
+        });
+      });
 
-    return new ApiResponseDto(null, 200, 'A reset link will been sent to the email if its exists');
+
   }
 
 

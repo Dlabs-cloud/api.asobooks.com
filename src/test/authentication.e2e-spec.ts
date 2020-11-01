@@ -23,6 +23,8 @@ import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { Association } from '../domain/entity/association.entity';
 import { Membership } from '../domain/entity/membership.entity';
 import { ServiceModule } from '../service/service.module';
+import { MembershipRepository } from '../dao/membership.repository';
+import { PortalAccountRepository } from '../dao/portal-account.repository';
 
 describe('AuthController', () => {
   let applicationContext: INestApplication;
@@ -97,26 +99,6 @@ describe('AuthController', () => {
       });
 
     expect(GenericStatusConstant.IN_ACTIVE).toEqual(portalUser.status);
-
-  });
-
-  it('That that a pending activation user cannot reset password', async () => {
-    const password = faker.random.uuid();
-    const hashPassword = await (new AuthenticationUtils()).hashPassword(password);
-    const portalUser = await factory().upset(PortalUser).use(portalUser => {
-      portalUser.password = hashPassword;
-      portalUser.status = GenericStatusConstant.PENDING_ACTIVATION;
-      return portalUser;
-    }).create();
-    const payLoad: PasswordResetDto = {
-      email: portalUser.email,
-    };
-
-
-    return request(applicationContext.getHttpServer())
-      .post('/password/reset')
-      .send(payLoad)
-      .expect(406);
 
   });
 
@@ -222,6 +204,29 @@ describe('AuthController', () => {
     expect(response.status).toEqual(200);
   });
 
+
+  it('Test that when password us reset for a pending account the account becomes active', async () => {
+    let testUser = await getTestUser(GenericStatusConstant.PENDING_ACTIVATION);
+    const token = await emailValidationService.createCallBackToken(testUser.membership.portalUser, TokenTypeConstant.FORGOT_PASSWORD);
+    const url = `/password/reset/${token}`;
+    const password = faker.random.uuid();
+    const payload: ChangePasswordDto = {
+      password: password,
+    };
+
+    await request(applicationContext.getHttpServer())
+      .post(url)
+      .send(payload)
+      .expect(200);
+
+    let portalUser = await connection.getCustomRepository(PortalUserRepository).findByUserNameOrEmailOrPhoneNumberAndStatus(testUser.membership.portalUser.email, GenericStatusConstant.ACTIVE);
+    expect(portalUser).toBeDefined();
+    let portalAccount = await connection.getCustomRepository(PortalAccountRepository).findByIdAndStatus(testUser.membership.portalAccount.id, GenericStatusConstant.ACTIVE);
+    expect(portalAccount).toBeDefined();
+    let membership = await connection.getCustomRepository(MembershipRepository).findByPortalAccountAndPortalUser(portalUser, portalAccount, GenericStatusConstant.ACTIVE);
+    expect(membership).toBeDefined();
+
+  });
   it('Test that email should be sent to a user that has not been verified', async () => {
     let portalUser = await getTestUser(GenericStatusConstant.PENDING_ACTIVATION);
     const payload: PasswordResetDto = {

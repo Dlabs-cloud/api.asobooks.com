@@ -98,16 +98,16 @@ export class AuthenticationService {
 
     return this.connection.getCustomRepository(PortalUserRepository)
       .findByUserNameOrEmailOrPhoneNumberAndStatus(loginDto.username.toLowerCase(), GenericStatusConstant.ACTIVE, GenericStatusConstant.PENDING_ACTIVATION)
-      .then(async portalUserValue => {
-        if (portalUserValue) {
-          if (portalUserValue.status === GenericStatusConstant.PENDING_ACTIVATION) {
+      .then(async portalUser => {
+        if (portalUser) {
+          if (portalUser.status === GenericStatusConstant.PENDING_ACTIVATION) {
             throw  new InActiveAccountException('Portal Account not verified');
           }
           const isTrue = await this.authenticationUtils
-            .comparePassword(loginDto.password, portalUserValue.password);
+            .comparePassword(loginDto.password, portalUser.password);
           if (isTrue) {
             const payload: TokenPayloadDto = {
-              portalUser: portalUserValue,
+              portalUser: portalUser,
             };
             const token = this.bearerTokenService.generateBearerToken(payload, TokenTypeConstant.LOGIN);
             return Promise.resolve(token);

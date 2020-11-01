@@ -57,7 +57,7 @@ export class UserManagementService {
   public async resetPassword(portalUser: PortalUser) {
     return this.connection.transaction(async entityManager => {
       let userUpdateDto = new UserUpdateDto();
-      userUpdateDto.status = GenericStatusConstant.IN_ACTIVE;
+      userUpdateDto.status = portalUser.status === GenericStatusConstant.PENDING_ACTIVATION ? GenericStatusConstant.PENDING_ACTIVATION : GenericStatusConstant.IN_ACTIVE;
       await this.updateUser(entityManager, portalUser, userUpdateDto);
       this.eventBus.publish(new ForgotPasswordEvent(portalUser));
       return portalUser;
@@ -66,6 +66,14 @@ export class UserManagementService {
 
   public async changePortalUserPassword(portalUser: PortalUser, changePasswordDto: ChangePasswordDto) {
     return this.connection.transaction(async entityManager => {
+      if (portalUser.status === GenericStatusConstant.PENDING_ACTIVATION) {
+        await this.connection
+          .getCustomRepository(PortalAccountRepository)
+          .findFirstByPortalUserAndStatus(portalUser, false, GenericStatusConstant.PENDING_ACTIVATION)
+          .then(portalAccount => {
+            return this.validatePrincipalUser(portalUser, portalAccount);
+          });
+      }
       let userUpdateDto = new UserUpdateDto();
       userUpdateDto.password = await this.authenticationUtils.hashPassword(changePasswordDto.password);
       userUpdateDto.status = GenericStatusConstant.ACTIVE;
@@ -76,22 +84,22 @@ export class UserManagementService {
 
   public async updateUser(entityManager: EntityManager, portalUser: PortalUser, userUpdateDto: UserUpdateDto) {
 
-    if(userUpdateDto.firstName){
+    if (userUpdateDto.firstName) {
       portalUser.firstName = userUpdateDto.firstName;
     }
-    if(userUpdateDto.lastName){
+    if (userUpdateDto.lastName) {
       portalUser.lastName = userUpdateDto.lastName;
     }
 
-    if(userUpdateDto.status){
+    if (userUpdateDto.status) {
       portalUser.status = userUpdateDto.status;
     }
 
-    if(userUpdateDto.phoneNumber){
+    if (userUpdateDto.phoneNumber) {
       portalUser.phoneNumber = userUpdateDto.phoneNumber;
     }
 
-    if(userUpdateDto.password){
+    if (userUpdateDto.password) {
       portalUser.password = userUpdateDto.password;
     }
 
