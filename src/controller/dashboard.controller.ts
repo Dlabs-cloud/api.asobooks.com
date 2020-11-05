@@ -3,7 +3,7 @@ import {TransactionDto} from "../dto/dashboard/transaction.dto";
 import {ActivityTypeConstant} from "../domain/enums/activity-type-constant";
 import {ApiResponseDto} from "../dto/api-response.dto";
 import {AssociationContext} from "../dlabs-nest-starter/security/annotations/association-context";
-import {ContributionRequestDto} from "../dto/dashboard/contribution-request.dto";
+import {ContributionFilterDto} from "../dto/dashboard/contribution-filter.dto";
 
 @AssociationContext()
 @Controller('dashboard')
@@ -30,7 +30,7 @@ export class DashboardController {
     }
 
     @Get('/contributions')
-    public totalContributions(@Query() contributionRequestDto: ContributionRequestDto) {
+    public totalContributions(@Query() contributionRequestDto: ContributionFilterDto) {
         const response = {
             1: 200000,
             2: 200000,
