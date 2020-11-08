@@ -20,7 +20,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, options);
   fs.writeFileSync('./swagger-spec.json', JSON.stringify(document));
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup(`api/v${process.env.VERSION}/docs`, app, document);
 
   let port = process.env.HOST_PORT || process.env.PORT || 3000;
   app.listen(port).then(() => {
