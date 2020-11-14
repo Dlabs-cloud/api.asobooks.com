@@ -14,6 +14,7 @@ import { ServiceFeeController } from './service-fee.controller';
 import { MasterRecordController } from './master-record-controller';
 import { GroupServiceFeeController } from './group-service-fee.controller';
 import { ServiceModule } from '../service/service.module';
+import { PaymentController } from './payment-controller';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ServiceModule } from '../service/service.module';
     MasterRecordController,
     ServiceFeeController,
     GroupServiceFeeController,
+    PaymentController,
   ],
   providers: [
     ResponseTransformInterceptor,

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { compare, genSalt, hash } from 'bcryptjs';
-import { sign, verify, VerifyCallback, VerifyErrors } from 'jsonwebtoken';
+import { sign, SignOptions, verify, VerifyCallback, VerifyErrors } from 'jsonwebtoken';
 import { TokenTypeConstant } from '../../domain/enums/token-type-constant';
 import { JwtPayloadDto } from '../../dto/jwt-payload.dto';
 

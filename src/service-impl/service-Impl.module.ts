@@ -26,6 +26,7 @@ import { BillService } from './bill.service';
 import { ConfModule } from '../conf/conf.module';
 import { CachedAssociationServiceImpl } from './cached-association.service-impl';
 import { ServiceModule } from '../service/service.module';
+import { DummyBankAccountVerificationService } from './dummy-bank-account-verification.service';
 
 
 ;
@@ -58,6 +59,7 @@ import { ServiceModule } from '../service/service.module';
     BillService,
     CachedAssociationServiceImpl,
     AssociationServiceImpl,
+    DummyBankAccountVerificationService,
   ],
   providers: [
     AuthenticationService,
@@ -74,7 +76,7 @@ import { ServiceModule } from '../service/service.module';
     AssociationServiceImpl,
     CachedAssociationServiceImpl,
     GroupServiceFeeService,
-
+    DummyBankAccountVerificationService,
     BillService,
   ],
 })

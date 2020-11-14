@@ -10,6 +10,8 @@ import { BearerTokenService } from '../service-impl/bearer-token.service';
 import { FILE_SERVICE } from '../contracts/i-file-service';
 import { AmazonS3FileService } from '../service-impl/amazon-s3-file.service';
 import { ConfigModule } from '@nestjs/config';
+import { BankAccountVerification } from './bank-account-verification';
+import { DummyBankAccountVerificationService } from '../service-impl/dummy-bank-account-verification.service';
 
 const associationService = {
   provide: ASSOCIATION_SERVICE,
@@ -19,6 +21,12 @@ const associationService = {
 const cachedAssociationService = {
   provide: CACHE_ASSOCIATION_SERVICE,
   useClass: CachedAssociationServiceImpl,
+};
+
+const bankAccountVerificationService = {
+  provide: BankAccountVerification,
+  useClass: DummyBankAccountVerificationService,
+
 };
 
 const emailValidationProvider = {
@@ -43,11 +51,13 @@ const fileServiceProvider = {
     emailValidationProvider,
     fileServiceProvider,
     bearerTokenServiceProvider,
+    bankAccountVerificationService,
   ],
   providers: [cachedAssociationService,
     associationService,
     emailValidationProvider,
     fileServiceProvider,
+    bankAccountVerificationService,
     bearerTokenServiceProvider],
 })
 export class ServiceModule {
