@@ -30,7 +30,7 @@ export class ForgotPasswordHandler implements IEventHandler<ForgotPasswordEvent>
     let urlSetting = await settingsRepository
       .findByLabel('front_end_url', 'http://localhost:3000/api/v1');
     let callBackToken = await this.emailValidationService.createCallBackToken(portalUser, TokenTypeConstant.FORGOT_PASSWORD);
-    const callBackUrl = `${urlSetting.value}/password/reset/${callBackToken}`;
+    const callBackUrl = `${urlSetting.value}/reset/${callBackToken}`;
     const projectName = this.configService.get<string>('PROJECT_NAME', 'Asobooks.com');
     let adminEmail = await settingsRepository.findByLabel('admin_email', 'admin@asobooks.com');
 
