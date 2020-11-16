@@ -8,10 +8,10 @@ export class PaymentController {
   constructor(@Inject(BankAccountVerification) private readonly bankAccountVerificationService: BankAccountVerification) {
   }
 
-  @Get('bank-accounts/:number/verify')
-  verifyBankAccountNumber(@Param('number')accountNumber: string) {
+  @Get('bank/:bankCode/account/:accountNumber/verify')
+  verifyBankAccountNumber(@Param('bankCode') bankCode: string, @Param('accountNumber')accountNumber: string) {
     return this.bankAccountVerificationService
-      .verifyBankAccount(accountNumber)
+      .verifyBankAccount(accountNumber, bankCode)
       .then(accountDetails => {
         return new ApiResponseDto(accountDetails);
       });
