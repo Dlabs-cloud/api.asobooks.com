@@ -2,37 +2,37 @@
   {
     "id": "1",
     "name": "Access Bank",
-    "code": "044"
+    "code": "144"
   },
   {
     "id": "2",
     "name": "Citibank",
-    "code": "023"
+    "code": "123"
   },
   {
     "id": "3",
     "name": "Diamond Bank",
-    "code": "063"
+    "code": "163"
   },
   {
     "id": "4",
     "name": "Dynamic Standard Bank",
-    "code": "087"
+    "code": "187"
   },
   {
     "id": "5",
     "name": "Ecobank Nigeria",
-    "code": "050"
+    "code": "150"
   },
   {
     "id": "6",
     "name": "Fidelity Bank Nigeria",
-    "code": "070"
+    "code": "170"
   },
   {
     "id": "7",
     "name": "First Bank of Nigeria",
-    "code": "011"
+    "code": "111"
   },
   {
     "id": "8",
@@ -42,12 +42,12 @@
   {
     "id": "9",
     "name": "Guaranty Trust Bank",
-    "code": "058"
+    "code": "158"
   },
   {
     "id": "10",
     "name": "Heritage Bank Plc",
-    "code": "030"
+    "code": "130"
   },
   {
     "id": "11",
@@ -57,7 +57,7 @@
   {
     "id": "12",
     "name": "Keystone Bank Limited",
-    "code": "082"
+    "code": "182"
   },
   {
     "id": "13",
@@ -67,7 +67,7 @@
   {
     "id": "14",
     "name": "Polaris Bank",
-    "code": "076"
+    "code": "176"
   },
   {
     "id": "15",
@@ -77,7 +77,7 @@
   {
     "id": "16",
     "name": "Standard Chartered Bank",
-    "code": "068"
+    "code": "168"
   },
   {
     "id": "17",
@@ -92,12 +92,12 @@
   {
     "id": "19",
     "name": "Union Bank of Nigeria",
-    "code": "032"
+    "code": "132"
   },
   {
     "id": "20",
     "name": "United Bank for Africa",
-    "code": "033"
+    "code": "133"
   },
   {
     "id": "21",
@@ -107,11 +107,11 @@
   {
     "id": "22",
     "name": "Wema Bank",
-    "code": "035"
+    "code": "135"
   },
   {
     "id": "23",
     "name": "Zenith Bank",
-    "code": "057"
+    "code": "157"
   }
 ]
