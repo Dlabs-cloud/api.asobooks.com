@@ -33,7 +33,7 @@ export class NewUserAccountSignUpHandler implements IEventHandler<NewUserAccount
       .findByLabel('front_end_url', 'http://localhost:3000/api/v1');
     let adminEmail = await settingsRepository.findByLabel('admin_email', 'admin@asobooks.com');
     let callBackToken = await this.emailValidationService.createCallBackToken(portalUser, TokenTypeConstant.PRINCIPAL_USER_SIGN_UP, portalAccount);
-    const callBackUrl = `${urlSetting.value}/verify/${callBackToken}`;
+    const callBackUrl = `${urlSetting.value}/validate-principal/${callBackToken}`;
     const emailTemplateData: EmailQueueDto<{ firstName, callbackUrl }> = {
       data: {
         callbackUrl: callBackUrl,

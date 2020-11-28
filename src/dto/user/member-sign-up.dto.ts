@@ -1,6 +1,16 @@
-import { IsBoolean, IsEmail, IsNotEmpty, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { AssociationAddressRequestDto } from '../association/association-address-request.dto';
+import { PortalAccountTypeConstant } from '../../domain/enums/portal-account-type-constant';
 
 export class MemberSignUpDto {
   @IsNotEmpty()
@@ -20,5 +30,8 @@ export class MemberSignUpDto {
   @IsObject()
   @Type(() => AssociationAddressRequestDto)
   address?: AssociationAddressRequestDto;
+  @IsEnum(PortalAccountTypeConstant)
+  @IsNotEmpty()
+  type: PortalAccountTypeConstant;
 
 }

@@ -56,6 +56,7 @@ describe('Membership-management-controller ', () => {
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
       phoneNumber: faker.phone.phoneNumber(),
+      type: PortalAccountTypeConstant.EXECUTIVE_ACCOUNT,
 
     };
     return request(applicationContext.getHttpServer())
@@ -76,6 +77,7 @@ describe('Membership-management-controller ', () => {
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
       phoneNumber: faker.phone.phoneNumber(),
+      type: faker.random.arrayElement(Object.values(PortalAccountTypeConstant)),
     };
     let response = await request(applicationContext.getHttpServer())
       .post(`/membership-management/create`)
@@ -101,6 +103,7 @@ describe('Membership-management-controller ', () => {
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
       phoneNumber: faker.phone.phoneNumber(),
+      type: faker.random.arrayElement(Object.values(PortalAccountTypeConstant)),
     };
     await userManagementService.createAssociationMember(membershipSignUp, associationUser.association);
     return request(applicationContext.getHttpServer())

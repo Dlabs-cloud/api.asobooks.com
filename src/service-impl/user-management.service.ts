@@ -130,17 +130,29 @@ export class UserManagementService {
         portalUser = await this.portalUserService.createPortalUser(entityManager, portalUserDto, GenericStatusConstant.ACTIVE);
       }
 
-      let portalAccount: any = await entityManager
-        .getCustomRepository(PortalAccountRepository)
-        .findByStatusAndTypeAndAssociations(PortalAccountTypeConstant.MEMBER_ACCOUNT, GenericStatusConstant.ACTIVE, association);
-      if (!portalAccount) {
-        const portalAccountDto: PortalAccountDto = {
-          association: association,
-          name: `${association.name} Membership Account`,
-          type: PortalAccountTypeConstant.MEMBER_ACCOUNT,
-        };
-        portalAccount = await this.portalAccountService.createPortalAccount(entityManager, portalAccountDto, GenericStatusConstant.ACTIVE);
+      let portalAccount: PortalAccount = null;
+
+      if (membershipSignUp.type === PortalAccountTypeConstant.EXECUTIVE_ACCOUNT) {
+        portalAccount = await entityManager
+          .getCustomRepository(PortalAccountRepository)
+          .findByStatusAndTypeAndAssociations(PortalAccountTypeConstant.EXECUTIVE_ACCOUNT, GenericStatusConstant.ACTIVE, association);
+        if (!portalAccount) {
+          throw new IllegalArgumentException('An executive account should have been created for association');
+        }
+      } else {
+        portalAccount = await entityManager
+          .getCustomRepository(PortalAccountRepository)
+          .findByStatusAndTypeAndAssociations(PortalAccountTypeConstant.MEMBER_ACCOUNT, GenericStatusConstant.ACTIVE, association);
+        if (!portalAccount) {
+          const portalAccountDto: PortalAccountDto = {
+            association: association,
+            name: `${association.name} Membership Account`,
+            type: PortalAccountTypeConstant.MEMBER_ACCOUNT,
+          };
+          portalAccount = await this.portalAccountService.createPortalAccount(entityManager, portalAccountDto, GenericStatusConstant.ACTIVE);
+        }
       }
+
 
       const membershipDto: MembershipDto = { association, portalAccount, portalUser };
 
