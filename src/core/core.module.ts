@@ -12,6 +12,7 @@ import { SubscriptionCodeSequence } from './sequenceGenerators/subscription-code
 import { BillCodeSequence } from './sequenceGenerators/bill-code.sequence';
 import { ConfModule } from '../conf/conf.module';
 import { InActiveAccountExceptionFilter } from './exception-filters/in-active-account-exception.filter';
+import { WalletSequence } from './sequenceGenerators/wallet.sequence';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -49,6 +50,7 @@ const notActiveExceptionFilter = {
     MembershipCodeSequence,
     BillCodeSequence,
     SubscriptionCodeSequence,
+    WalletSequence,
   ],
   providers: [
     PortalAccountSequence,
@@ -56,6 +58,7 @@ const notActiveExceptionFilter = {
     ServiceFeeCodeSequence,
     BillCodeSequence,
     BankUploadStartup,
+    WalletSequence,
     SubscriptionCodeSequence,
     // CronStartup,
     MembershipCodeSequence,

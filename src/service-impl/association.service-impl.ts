@@ -21,6 +21,7 @@ import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { AssociationService } from '../service/association-service';
 import { Association } from '../domain/entity/association.entity';
 import { FileUploadResponseDto } from '../dto/file-upload.response.dto';
+import { WalletService } from './wallet.service';
 
 
 @Injectable()
@@ -30,6 +31,7 @@ export class AssociationServiceImpl implements AssociationService {
               private readonly bankInfoService: BankInfoService,
               private readonly membershipService: MembershipService,
               private readonly groupService: GroupService,
+              private readonly walletService: WalletService,
               private readonly associationFileService: AssociationFileService) {
   }
 
@@ -65,28 +67,30 @@ export class AssociationServiceImpl implements AssociationService {
       }
 
 
-      // if (associationDto.bankInfo) {
-      //   let bankInfoData: BankInfoDto = {
-      //     accountNumber: associationDto.bankInfo.accountNumber,
-      //     bankCode: associationDto.bankInfo.bankCode,
-      //   };
-      //
-      //
-      //     let bankInfo = await entityManager
-      //       .getCustomRepository(BankInfoRepository)
-      //       .findOneByAssociation(association, GenericStatusConstant.ACTIVE);
-      //     if (bankInfo) {
-      //       bankInfo.status = GenericStatusConstant.ACTIVE;
-      //       bankInfo.accountNumber = bankInfoData.accountNumber;
-      //       bankInfo.bank = await this.connection
-      //         .getCustomRepository(BankRepository)
-      //         .findOneItemByStatus({ code: bankInfoData.bankCode });
-      //       await entityManager.save(bankInfo);
-      //     } else {
-      //       // await this.bankInfoService.create(entityManager, bankInfoData, association);
-      //     }
-      //
-      //   }
+      let bankInfo = null;
+
+      if (associationDto.bankInfo) {
+        let bankInfoData: BankInfoDto = {
+          accountNumber: associationDto.bankInfo.accountNumber,
+          bankCode: associationDto.bankInfo.bankCode,
+        };
+
+
+        bankInfo = await entityManager
+          .getCustomRepository(BankInfoRepository)
+          .findOneByAssociation(association, GenericStatusConstant.ACTIVE);
+        if (bankInfo) {
+          bankInfo.status = GenericStatusConstant.ACTIVE;
+          bankInfo.accountNumber = bankInfoData.accountNumber;
+          bankInfo.bank = await this.connection
+            .getCustomRepository(BankRepository)
+            .findOneItemByStatus({ code: bankInfoData.bankCode });
+          bankInfo = await entityManager.save(bankInfo);
+        } else {
+          bankInfo = await this.bankInfoService.create(entityManager, bankInfoData, association);
+        }
+
+      }
 
       if (associationDto.logo) {
         let fileUploadResponseDto = associationDto.logo as FileUploadResponseDto;
@@ -102,6 +106,9 @@ export class AssociationServiceImpl implements AssociationService {
           type: GroupTypeConstant.GENERAL,
         };
         await this.groupService.createGroup(entityManager, group);
+        if (bankInfo) {
+          await this.walletService.createAssociationWallet(entityManager, association, bankInfo);
+        }
       } else {
         association.status = GenericStatusConstant.PENDING_ACTIVATION;
       }

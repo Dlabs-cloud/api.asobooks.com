@@ -27,6 +27,7 @@ import { ConfModule } from '../conf/conf.module';
 import { CachedAssociationServiceImpl } from './cached-association.service-impl';
 import { ServiceModule } from '../service/service.module';
 import { DummyBankAccountVerificationService } from './dummy-bank-account-verification.service';
+import { WalletService } from './wallet.service';
 
 
 ;
@@ -59,6 +60,7 @@ import { DummyBankAccountVerificationService } from './dummy-bank-account-verifi
     BillService,
     CachedAssociationServiceImpl,
     AssociationServiceImpl,
+    WalletService,
     DummyBankAccountVerificationService,
   ],
   providers: [
@@ -77,6 +79,7 @@ import { DummyBankAccountVerificationService } from './dummy-bank-account-verifi
     CachedAssociationServiceImpl,
     GroupServiceFeeService,
     DummyBankAccountVerificationService,
+    WalletService,
     BillService,
   ],
 })

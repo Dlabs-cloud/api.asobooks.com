@@ -22,6 +22,8 @@ import { Bank } from '../domain/entity/bank.entity';
 import { AssociationServiceImpl } from '../service-impl/association.service-impl';
 import { ServiceModule } from '../service/service.module';
 import { CACHE_ASSOCIATION_SERVICE } from '../service/association-service';
+import { WalletRepository } from '../dao/wallet.repository';
+import { Wallet } from '../domain/entity/wallet.entity';
 
 async function associationUpdate(loginToken: string) {
   let association = await factory().upset(Association).use(association => {
@@ -85,6 +87,29 @@ describe('AssociationController', () => {
       .send(payload);
     expect(response.status).toEqual(201);
 
+  });
+
+
+  it('Test that a created association can create its wallet', async () => {
+    let assoc = await associationUpdate(loginToken);
+    await associationService.createAssociation(assoc.payload, {
+      association: assoc.association, portalUser: assoc.portalUser,
+    });
+    loginToken = assoc.loginToken;
+    let payload = assoc.payload;
+    payload.activateAssociation = 'true';
+    let response = await request(applicationContext.getHttpServer())
+      .put('/associations/onboard')
+      .set('Authorization', loginToken)
+      .send(payload);
+    await connection.getCustomRepository(WalletRepository).findByAssociation(assoc.association).then(wallets => {
+      expect(wallets.length).toEqual(1);
+      let wallet = wallets[0];
+      expect(wallet.reference).toBeDefined();
+      expect(0).toEqual(Number(wallet.bookBalance));
+      expect(0).toEqual(Number(wallet.availableBalance));
+
+    });
   });
 
 

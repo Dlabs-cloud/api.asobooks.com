@@ -1,8 +1,8 @@
-import { BaseEntity } from '../../../../common/base.entity';
 import { Column, Entity } from 'typeorm';
-import { PaymentStatus } from '../enum/payment-status.enum';
-import { PaymentProvider } from '../enum/payment-provider.enum';
-import { PaymentType } from '../enum/payment-type.enum';
+import { BaseEntity } from '../../common/base.entity';
+import { PaymentStatus } from '../enums/payment-status.enum';
+import { PaymentProvider } from '../enums/payment-provider.enum';
+import { PaymentType } from '../enums/payment-type.enum';
 
 @Entity()
 export class PaymentRequest extends BaseEntity {

@@ -1,7 +1,7 @@
-import { BaseEntity } from '../../../../common/base.entity';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import { PaymentChannel } from '../enum/payment-channel.enum';
 import { PaymentRequest } from './payment-request.entity';
+import { BaseEntity } from '../../common/base.entity';
+import { PaymentChannel } from '../enums/payment-channel.enum';
 
 
 @Entity()

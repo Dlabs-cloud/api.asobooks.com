@@ -1,8 +1,7 @@
-import { BaseEntity } from '../../../../common/base.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
-import { WalletType } from '../enum/wallet-type.enum';
-import { Bank } from './bank.entity';
 import { BankInfo } from './bank-info.entity';
+import { BaseEntity } from '../../common/base.entity';
+import { Association } from './association.entity';
 
 @Entity()
 export class Wallet extends BaseEntity {
@@ -23,13 +22,10 @@ export class Wallet extends BaseEntity {
   })
   reference: string;
 
-  @Column({
-    enum: WalletType,
-    type: 'enum',
-  })
-  walletType: WalletType;
-
   @ManyToOne(() => BankInfo)
   bank: BankInfo;
+
+  @ManyToOne(() => Association)
+  association: Association;
 
 }
