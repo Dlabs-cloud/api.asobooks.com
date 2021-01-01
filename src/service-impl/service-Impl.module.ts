@@ -8,16 +8,10 @@ import { PortalAccountService } from './portal-account.service';
 import { CqrsModule } from '@nestjs/cqrs';
 import { MembershipService } from './membership.service';
 import { UserManagementService } from './user-management.service';
-import { ValidationService } from './validation-service';
-import { BEARER_TOKEN_SERVICE } from '../dlabs-nest-starter/interfaces/i-bearer-token-service';
-import { BearerTokenService } from './bearer-token.service';
 import { AssociationServiceImpl } from './association.service-impl';
-import { FILE_SERVICE } from '../contracts/i-file-service';
-import { AmazonS3FileService } from './amazon-s3-file.service';
 import { BankInfoService } from './bank-info.service';
 import { AssociationFileService } from './association-file.service';
 import { ServiceFeeService } from './service-fee.service';
-import { EarlyAccessService } from './early-access.service';
 import { GroupService } from './group.service';
 import { GroupServiceFeeService } from './group-service-fee.service';
 import { SubscriptionService } from './subscription.service';
@@ -28,9 +22,6 @@ import { CachedAssociationServiceImpl } from './cached-association.service-impl'
 import { ServiceModule } from '../service/service.module';
 import { DummyBankAccountVerificationService } from './dummy-bank-account-verification.service';
 import { WalletService } from './wallet.service';
-
-
-;
 
 
 @Module({
@@ -53,7 +44,6 @@ import { WalletService } from './wallet.service';
     BankInfoService,
     AssociationFileService,
     ServiceFeeService,
-    EarlyAccessService,
     GroupServiceFeeService,
     SubscriptionService,
     GroupService,
@@ -66,7 +56,6 @@ import { WalletService } from './wallet.service';
   providers: [
     AuthenticationService,
     PortalUserService,
-    EarlyAccessService,
     PortalAccountService,
     UserManagementService,
     BankInfoService,
