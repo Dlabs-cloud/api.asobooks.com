@@ -27,6 +27,8 @@ import { GroupServiceFee } from '../domain/entity/group-sevice-fee.entity';
 import { GroupServiceFeeModelFactory } from './factory/group-service-fee-model.factory';
 import { Subscription } from '../domain/entity/subcription.entity';
 import { SubscriptionModelFactory } from './factory/subscription-model.factory';
+import { Bill } from '../domain/entity/bill.entity';
+import { BillModelFactory } from './factory/bill-model.factory';
 
 export class ModelFactoryRoster {
   static register(modelFactory: ModelFactory) {
@@ -44,5 +46,6 @@ export class ModelFactoryRoster {
     modelFactory.register(GroupMembership, GroupMembershipModelFactory);
     modelFactory.register(GroupServiceFee, GroupServiceFeeModelFactory);
     modelFactory.register(Subscription, SubscriptionModelFactory);
+    modelFactory.register(Bill, BillModelFactory);
   }
 }

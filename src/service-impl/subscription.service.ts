@@ -34,7 +34,7 @@ export class SubscriptionService {
         return entityManager
           .save(serviceFee)
           .then(serviceFee => {
-            return subscription;
+            return Promise.resolve(subscription);
           });
       });
     }

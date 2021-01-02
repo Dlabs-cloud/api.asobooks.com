@@ -25,7 +25,7 @@ export class GroupService {
   public async addMember(entityManager: EntityManager, group: Group, ...memberships: Membership[]) {
     let groupMembers = await entityManager
       .getCustomRepository(MemberGroupRepository)
-      .findByGroupAndStatusInMembership(group, null, ...memberships);
+      .findByGroupAndStatusInMembership(group, GenericStatusConstant.ACTIVE, ...memberships);
 
     let groupMemberships = memberships.filter(membership => {
       return !!!groupMembers.find(groupMember => groupMember.membershipId === membership.id);

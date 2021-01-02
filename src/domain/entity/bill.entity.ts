@@ -1,7 +1,9 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 import { Subscription } from './subcription.entity';
 import { Membership } from './membership.entity';
+import { PaymentStatus } from '../enums/payment-status.enum';
+import { PaymentRequest } from './payment-request.entity';
 
 @Entity()
 export class Bill extends BaseEntity {
@@ -31,9 +33,18 @@ export class Bill extends BaseEntity {
   })
   @JoinColumn()
   subscription: Subscription;
+  @Column({ nullable: true })
+  subscriptionId: number;
   @Column({
     type: 'timestamp',
     nullable: true,
   })
   lastDispatchDate?: Date;
+  @Column({
+    type: 'enum',
+    enum: PaymentStatus,
+    default: PaymentStatus.NOT_PAID,
+  })
+  paymentStatus: PaymentStatus;
+
 }

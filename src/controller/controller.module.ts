@@ -15,6 +15,7 @@ import { MasterRecordController } from './master-record-controller';
 import { GroupServiceFeeController } from './group-service-fee.controller';
 import { ServiceModule } from '../service/service.module';
 import { PaymentController } from './payment-controller';
+import { MembershipBillsController } from './membership-bills.controller';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { PaymentController } from './payment-controller';
     MembershipManagementController,
     AssociationController,
     MasterRecordController,
+    MembershipBillsController,
     ServiceFeeController,
     GroupServiceFeeController,
     PaymentController,

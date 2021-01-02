@@ -32,6 +32,8 @@ export class MembershipManagementController {
   }
 
 
+
+
   @Get()
   public async getAssociationMembers(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
                                      @Query('type') type = PortalAccountTypeConstant.MEMBER_ACCOUNT,

@@ -16,8 +16,6 @@ export class PaymentRequest extends BaseEntity {
   })
   merchantReference: string;
   @Column()
-  customerReference: string;
-  @Column()
   reference: string;
   @Column()
   description: string;

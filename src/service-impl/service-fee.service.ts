@@ -74,7 +74,7 @@ export class ServiceFeeService {
           return this.groupServiceFeeService
             .createGroupForService(entityManager, group, serviceFee);
         }).then(result => {
-          return serviceFee;
+          return Promise.resolve(serviceFee);
         });
     });
 

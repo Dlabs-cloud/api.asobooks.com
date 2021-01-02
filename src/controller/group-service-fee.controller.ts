@@ -2,7 +2,7 @@ import { AssociationContext } from '../dlabs-nest-starter/security/annotations/a
 import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Query } from '@nestjs/common';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
-import { MembershipFeeRequestDto } from '../dto/membership-fee.-request.dto';
+import { MembershipFeeRequestDto } from '../dto/membership-fee-request.dto';
 import { GroupService } from '../service-impl/group.service';
 import { Connection } from 'typeorm';
 import { GroupRepository } from '../dao/group.repository';
@@ -70,7 +70,7 @@ export class GroupServiceFeeController {
       .getByAssociationAndAccountType(
         requestPrincipal.association,
         PortalAccountTypeConstant.MEMBER_ACCOUNT,
-        null,
+        GenericStatusConstant.ACTIVE,
         limit,
         offset);
     let serviceFee = await this.connection

@@ -17,12 +17,25 @@ export class MembershipRepository extends BaseRepository<Membership> {
     return this.createQueryBuilder('membership')
       .select()
       .where('membership.portalUser=:portalUserId')
-      .where('membership.portalAccount=:portalAccountId')
+      .andWhere('membership.portalAccount=:portalAccountId')
       .andWhere('membership.status=:status')
       .setParameter('status', status)
       .setParameter('portalUserId', portalUser.id)
       .setParameter('portalAccountId', portalAccount.id)
       .getOne();
+  }
+
+
+  findByUserAndAssociation(user: PortalUser, association: Association, status = GenericStatusConstant.ACTIVE) {
+    return this.createQueryBuilder('membership')
+      .select()
+      .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.id = membership.portalAccountId')
+      .innerJoin(Association, 'association', 'association.id = portalAccount.associationId')
+      .where('membership.portalUser = :portalUser', { portalUser: user.id })
+      .andWhere('membership.status = :status', { status: status })
+      .andWhere('association.id = :association', { association: association.id })
+      .getOne();
+
   }
 
   public findByAssociationAndAccountTypeAndStatusAndUserIds(association: Association,
