@@ -20,11 +20,11 @@ import { BillService } from './bill.service';
 import { ConfModule } from '../conf/conf.module';
 import { CachedAssociationServiceImpl } from './cached-association.service-impl';
 import { ServiceModule } from '../service/service.module';
-import { DummyBankAccountVerificationService } from './dummy-bank-account-verification.service';
 import { WalletService } from './wallet.service';
 import { InvoiceService } from './invoice.service';
 import { PaymentRequestService } from './payment-request.service';
 import { PaymentTransactionService } from './payment-transaction.service';
+import { BankService } from './bank.service';
 
 
 @Module({
@@ -56,7 +56,7 @@ import { PaymentTransactionService } from './payment-transaction.service';
     CachedAssociationServiceImpl,
     AssociationServiceImpl,
     WalletService,
-    DummyBankAccountVerificationService,
+    BankService,
     PaymentTransactionService,
   ],
   providers: [
@@ -76,7 +76,7 @@ import { PaymentTransactionService } from './payment-transaction.service';
     CachedAssociationServiceImpl,
     GroupServiceFeeService,
     PaymentTransactionService,
-    DummyBankAccountVerificationService,
+    BankService,
     WalletService,
     BillService,
   ],

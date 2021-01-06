@@ -19,7 +19,7 @@ import { PaymentTransaction as PaymentTransactionModel } from '../domain/entity/
 import {
   FLUTTERWAVETRANSACTION,
   PaymentModule,
-  PaymentTransaction,
+  PaymentTransactionService,
   VerificationResponseDto,
 } from '@dlabs/payment';
 
@@ -28,7 +28,7 @@ describe('invoice controller', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
   let testUser;
-  let paymentTransaction: PaymentTransaction;
+  let paymentTransaction: PaymentTransactionService;
   let verificationResponseDto: VerificationResponseDto;
 
 
@@ -149,32 +149,34 @@ describe('invoice controller', () => {
 
   });
 
-  it('Test that a payment merchant reference will throw', () => {
-    const verificationSpy = jest.spyOn(paymentTransaction, 'verify').mockImplementation((transactionRef: string) => {
-      throw new NotFoundException('Payment reference cannot be found');
-    });
-    return factory().upset(PaymentRequest).use(paymentRequest => {
-      return paymentRequest;
-    }).create().then(paymentRequest => {
-      const url = `/payments/confirm?reference=${paymentRequest.reference}&merchantReference=${paymentRequest.merchantReference}`;
-      return request(applicationContext.getHttpServer())
-        .get(url)
-        .set('Authorization', testUser.token)
-        .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
-        .expect(404).then(response => {
-          verificationSpy.mockRestore();
-          const body = response.body;
-          expect(body.statusCode).toEqual(404);
-          expect(body.message).toEqual('Payment reference cannot be found');
-        });
-    });
-
+  it('Test that verifying a payment with a merchant reference will throw if not found', () => {
+  const verificationSpy = jest.spyOn(paymentTransaction, 'verify')
+    .mockImplementation((transactionRef: string) => {
+    throw new NotFoundException('Payment reference cannot be found');
   });
-
-
-  afterAll(async () => {
-    await connection.close();
-    await applicationContext.close();
+  return factory().upset(PaymentRequest).use(paymentRequest => {
+    return paymentRequest;
+  }).create().then(paymentRequest => {
+    const url = `/payments/confirm?reference=${paymentRequest.reference}&merchantReference=${paymentRequest.merchantReference}`;
+    return request(applicationContext.getHttpServer())
+      .get(url)
+      .set('Authorization', testUser.token)
+      .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+      .expect(404).then(response => {
+        verificationSpy.mockRestore();
+        const body = response.body;
+        expect(body.code).toEqual(404);
+        expect(body.message).toEqual('Payment reference cannot be found');
+      });
   });
 
 });
+
+
+afterAll(async () => {
+  await connection.close();
+  await applicationContext.close();
+});
+
+})
+;

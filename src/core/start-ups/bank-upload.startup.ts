@@ -29,6 +29,7 @@ export class BankUploadStartup implements OnApplicationBootstrap {
         const bank = {
           name: value.name,
           code: value.code,
+          flutterWaveReference: value.flutterWaveCode,
         };
         const bankRepository = getConnection()
           .getCustomRepository(BankRepository);
@@ -38,6 +39,7 @@ export class BankUploadStartup implements OnApplicationBootstrap {
         }).then((existingBank) => {
           if (existingBank) {
             existingBank.name = bank.name;
+            existingBank.flutterWaveReference = bank.flutterWaveReference;
             bankRepository.save(existingBank).then(savedBank => {
               console.log(`${savedBank.name} has been updated`);
             });

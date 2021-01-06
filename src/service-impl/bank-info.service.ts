@@ -19,10 +19,10 @@ export class BankInfoService {
 
     let bank = await this.connection
       .getCustomRepository(BankRepository)
-      .findOneItemByStatus({ code: bankInfo.bankCode });
+      .findOneItemByStatus({ code: bankInfo.code });
 
     if (!bank) {
-      throw new IllegalArgumentException(`Bank with code ${bankInfo.bankCode} is not valid`);
+      throw new IllegalArgumentException(`Bank with code ${bankInfo.code} is not valid`);
     }
     newBankInfo.bank = bank;
     return entityManager.save(newBankInfo);

@@ -16,6 +16,6 @@ export class Bank extends BaseEntity {
     unique: true,
     nullable: true,
   })
-  payStackCode?: string;
+  flutterWaveReference?: string;
 
 }

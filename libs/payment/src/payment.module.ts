@@ -2,7 +2,7 @@ import { DynamicModule, Global, Module } from '@nestjs/common';
 import { PaymentConfig, PaymentConfigAsyncOption } from '@dlabs/payment/dto';
 import {
   createPaymentConfigAsyncProviders,
-  createPaymentProvider,
+  createPaymentProvider, FlutterwaveBankVerificationProvider,
   FlutterwaveTransactionProvider,
   HttpClientProvider,
 } from './payment.provider';
@@ -20,12 +20,14 @@ export class PaymentModule {
       ...createPaymentProvider(config),
       HttpClientProvider,
       FlutterwaveTransactionProvider,
+      FlutterwaveBankVerificationProvider,
     ];
     return {
       module: PaymentModule,
       providers,
       exports: [
         FlutterwaveTransactionProvider,
+        FlutterwaveBankVerificationProvider,
       ],
     };
   }
@@ -34,7 +36,9 @@ export class PaymentModule {
   static forRootAsync(asyncConfig: PaymentConfigAsyncOption): DynamicModule {
     const providers = [...createPaymentConfigAsyncProviders(asyncConfig),
       HttpClientProvider,
-      FlutterwaveTransactionProvider];
+      FlutterwaveTransactionProvider,
+      FlutterwaveBankVerificationProvider,
+    ];
 
     return {
       module: PaymentModule,
@@ -42,6 +46,7 @@ export class PaymentModule {
       imports: asyncConfig.imports,
       exports: [
         FlutterwaveTransactionProvider,
+        FlutterwaveBankVerificationProvider,
       ],
     };
   }

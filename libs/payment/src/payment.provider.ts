@@ -3,11 +3,17 @@ import {
   PaymentConfigAsyncOption,
   PaymentConfigOptionsFactory,
 } from '@dlabs/payment/dto/payment-config.dto';
-import { FLUTTERWAVETRANSACTION, HTTP_CLIENT_PROVIDER, PAYMENT_CONFIG } from '@dlabs/payment/constants';
+import {
+  FLUTTERWAVEBANKVERIFICATION,
+  FLUTTERWAVETRANSACTION,
+  HTTP_CLIENT_PROVIDER,
+  PAYMENT_CONFIG,
+} from '@dlabs/payment/constants';
 import { Provider } from '@nestjs/common';
 import { FlutterWaveTransaction } from './core';
 import { Httpclient } from '@dlabs/payment/network';
 import { ConfigurationParameter } from '@dlabs/payment/network/configuration';
+import { FlutterWaveBankVerification } from '@dlabs/payment/core/flutter-wave-bank-verification';
 
 export function createPaymentProvider(config: PaymentConfig): Provider[] {
   return [
@@ -39,6 +45,17 @@ export const FlutterwaveTransactionProvider = {
     PAYMENT_CONFIG,
   ],
 };
+
+export const FlutterwaveBankVerificationProvider = {
+  provide: FLUTTERWAVEBANKVERIFICATION,
+  useFactory: (httpClient: Httpclient, options: PaymentConfig) => {
+    return new FlutterWaveBankVerification(options, httpClient);
+  },
+  inject: [
+    HTTP_CLIENT_PROVIDER,
+    PAYMENT_CONFIG,
+  ],
+}
 
 export function createPaymentConfigAsyncProviders(options: PaymentConfigAsyncOption) {
   if (options.useExisting || options.useFactory) {

@@ -2,7 +2,7 @@ import { InitiateTransactionDto } from '@dlabs/payment/dto/initiate-transaction.
 import { VerificationResponseDto } from '@dlabs/payment/dto/verification.response.dto';
 import { InitiateTransactionResponse } from '@dlabs/payment/dto/initiate-transaction.response';
 
-export interface PaymentTransaction {
+export interface PaymentTransactionService {
   initiate(transactionParameter: InitiateTransactionDto): Promise<InitiateTransactionResponse>
 
   verify(transactionRef: string): Promise<VerificationResponseDto>;

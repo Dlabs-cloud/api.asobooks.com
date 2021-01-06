@@ -4,10 +4,10 @@ import { PaymentProvider } from '../domain/enums/payment-provider.enum';
 import {
   FLUTTERWAVETRANSACTION,
   FlutterWaveInitiateTransactionDto,
-  PaymentTransaction,
+  PaymentTransactionService as ThirdPartyPaymentTransactionService,
   VerificationResponseDto, InitiateTransactionDto,
 } from '@dlabs/payment';
-import { GatewayTimeoutException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { Connection } from 'typeorm/connection/Connection';
 import { PaymentRequestReferenceSequence } from '../core/sequenceGenerators/payment-request-reference.sequence';
@@ -20,17 +20,14 @@ import { PaymentRequestRepository } from '../dao/payment-request.repository';
 import { ConfirmPaymentDto } from '../dto/confirm-payment.dto';
 import { PaymentTransactionService } from './payment-transaction.service';
 import { InvoiceService } from './invoice.service';
-import { Association } from '../domain/entity/association.entity';
 import { AssociationRepository } from '../dao/association.repository';
 import { WalletService } from './wallet.service';
-import { IoTThingsGraph } from 'aws-sdk';
-import { ServiceUnavailableException } from '../exception/ServiceUnavailableException';
 
 @Injectable()
 export class PaymentRequestService {
 
 
-  constructor(@Inject(FLUTTERWAVETRANSACTION) private readonly paymentTransaction: PaymentTransaction,
+  constructor(@Inject(FLUTTERWAVETRANSACTION) private readonly thirdPartyPaymentTransactionService: ThirdPartyPaymentTransactionService,
               private readonly connection: Connection,
               private readonly paymentTransactionService: PaymentTransactionService,
               private readonly invoiceService: InvoiceService,
@@ -58,7 +55,7 @@ export class PaymentRequestService {
 
   updatePayment(paymentRequest: PaymentRequest, merchantReference: string) {
     return this.connection.transaction(entityManager => {
-      return this.paymentTransaction
+      return this.thirdPartyPaymentTransactionService
         .verify(merchantReference)
         .then((response: VerificationResponseDto) => {
           if (response.amountInMinorUnit >= paymentRequest.amountInMinorUnit) {
@@ -80,9 +77,6 @@ export class PaymentRequestService {
                   });
               });
           });
-        }).catch(e => {
-          console.log(e);
-          throw new ServiceUnavailableException('Service is not available to confirm payment');
         });
     });
 
@@ -131,7 +125,7 @@ export class PaymentRequestService {
                 return Promise.resolve(transactionParameter);
               });
           }).then(transactionParameter => {
-            return this.paymentTransaction.initiate(transactionParameter);
+            return this.thirdPartyPaymentTransactionService.initiate(transactionParameter);
           }).then(response => {
             const paymentResponse: PaymentRequestDto = {
               amountInMinorUnit: paymentRequest.amountInMinorUnit,

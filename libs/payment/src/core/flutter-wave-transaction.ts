@@ -1,22 +1,18 @@
-import { PaymentTransaction } from '@dlabs/payment/contracts';
+import { PaymentTransactionService } from '@dlabs/payment/contracts';
 import {
   FlutterWaveInitiateTransactionDto,
   InitiateTransactionDto,
-  PaymentConfig,
   VerificationResponseDto,
 } from '@dlabs/payment/dto';
-import { Httpclient } from '@dlabs/payment/network';
 import { FlutterWaveInitiateTransactionResponseDto } from '@dlabs/payment/dto/flutter-wave/flutter-wave-initiate-transaction.response.dto';
 import { InitiateTransactionResponse } from '@dlabs/payment/dto/initiate-transaction.response';
+import { PaymentBase } from '@dlabs/payment/core/payment-base';
 import FlutterWaveResponse = VerifyTransactionResponseDto.FlutterWaveResponse;
-import * as moment from 'moment';
-import { NotFoundException } from '@nestjs/common';
+import { AxiosResponseException } from '@dlabs/payment/exception';
+import { NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 
-export class FlutterWaveTransaction implements PaymentTransaction {
 
-  constructor(private readonly options: PaymentConfig, private readonly httpClient: Httpclient) {
-  }
-
+export class FlutterWaveTransaction extends PaymentBase implements PaymentTransactionService {
 
   initiate(transactionParameter: InitiateTransactionDto): Promise<InitiateTransactionResponse> {
     transactionParameter.redirectUrl = this.options.redirectUrl || transactionParameter.redirectUrl;
@@ -68,14 +64,17 @@ export class FlutterWaveTransaction implements PaymentTransaction {
             status: response.data.status as any,
             transactionReference: response.data.tx_ref,
           };
-          console.log(JSON.stringify(response));
           return Promise.resolve(res);
+        }).catch(e => {
+          if (e instanceof AxiosResponseException) {
+            if (e.status === 400) {
+              throw new NotFoundException(`Payment with reference ${transactionRef} cannot be found`);
+            }
+          }
+          return Promise.reject(e);
         });
     } catch (e) {
-      if (e.status === 400) {
-        throw new NotFoundException(`Payment with reference ${transactionRef} cannot be found`);
-      }
-      return Promise.reject(e);
+      throw new ServiceUnavailableException('Payment service is not available at this time');
     }
 
   }

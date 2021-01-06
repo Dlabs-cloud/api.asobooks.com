@@ -1,117 +1,307 @@
 [
   {
-    "id": "1",
-    "name": "Access Bank",
-    "code": "144"
+    "name": "Page MFBank",
+    "code": "B_00156714",
+    "flutterWaveCode": "560"
   },
   {
-    "id": "2",
-    "name": "Citibank",
-    "code": "123"
+    "name": "Stanbic Mobile Money",
+    "code": "B_00156715",
+    "flutterWaveCode": "304"
   },
   {
-    "id": "3",
-    "name": "Diamond Bank",
-    "code": "163"
+    "name": "FortisMobile",
+    "code": "B_00156716",
+    "flutterWaveCode": "308"
   },
   {
-    "id": "4",
-    "name": "Dynamic Standard Bank",
-    "code": "187"
+    "name": "TagPay",
+    "code": "B_00156717",
+    "flutterWaveCode": "328"
   },
   {
-    "id": "5",
-    "name": "Ecobank Nigeria",
-    "code": "150"
+    "name": "FBNMobile",
+    "code": "B_00156718",
+    "flutterWaveCode": "309"
   },
   {
-    "id": "6",
-    "name": "Fidelity Bank Nigeria",
-    "code": "170"
-  },
-  {
-    "id": "7",
     "name": "First Bank of Nigeria",
-    "code": "111"
+    "code": "B_00156719",
+    "flutterWaveCode": "011"
   },
   {
-    "id": "8",
-    "name": "First City Monument Bank",
-    "code": "214"
+    "name": "Sterling Mobile",
+    "code": "B_00156720",
+    "flutterWaveCode": "326"
   },
   {
-    "id": "9",
-    "name": "Guaranty Trust Bank",
-    "code": "158"
+    "name": "Omoluabi Mortgage Bank",
+    "code": "B_00156721",
+    "flutterWaveCode": "990"
   },
   {
-    "id": "10",
-    "name": "Heritage Bank Plc",
-    "code": "130"
+    "name": "ReadyCash (Parkway)",
+    "code": "B_00156722",
+    "flutterWaveCode": "311"
   },
   {
-    "id": "11",
-    "name": "Jaiz Bank",
-    "code": "301"
-  },
-  {
-    "id": "12",
-    "name": "Keystone Bank Limited",
-    "code": "182"
-  },
-  {
-    "id": "13",
-    "name": "Providus Bank Plc",
-    "code": "101"
-  },
-  {
-    "id": "14",
-    "name": "Polaris Bank",
-    "code": "176"
-  },
-  {
-    "id": "15",
-    "name": "Stanbic IBTC Bank Nigeria Limited",
-    "code": "221"
-  },
-  {
-    "id": "16",
-    "name": "Standard Chartered Bank",
-    "code": "168"
-  },
-  {
-    "id": "17",
-    "name": "Sterling Bank",
-    "code": "232"
-  },
-  {
-    "id": "18",
-    "name": "Suntrust Bank Nigeria Limited",
-    "code": "100"
-  },
-  {
-    "id": "19",
-    "name": "Union Bank of Nigeria",
-    "code": "132"
-  },
-  {
-    "id": "20",
-    "name": "United Bank for Africa",
-    "code": "133"
-  },
-  {
-    "id": "21",
-    "name": "Unity Bank Plc",
-    "code": "215"
-  },
-  {
-    "id": "22",
-    "name": "Wema Bank",
-    "code": "135"
-  },
-  {
-    "id": "23",
     "name": "Zenith Bank",
-    "code": "157"
+    "code": "B_00156723",
+    "flutterWaveCode": "057"
+  },
+  {
+    "name": "Standard Chartered Bank",
+    "code": "B_00156724",
+    "flutterWaveCode": "068"
+  },
+  {
+    "name": "eTranzact",
+    "code": "B_00156725",
+    "flutterWaveCode": "306"
+  },
+  {
+    "name": "Fidelity Bank",
+    "code": "B_00156726",
+    "flutterWaveCode": "070"
+  },
+  {
+    "name": "CitiBank",
+    "code": "B_00156727",
+    "flutterWaveCode": "023"
+  },
+  {
+    "name": "Unity Bank",
+    "code": "B_00156728",
+    "flutterWaveCode": "215"
+  },
+  {
+    "name": "Access Money",
+    "code": "B_00156729",
+    "flutterWaveCode": "323"
+  },
+  {
+    "name": "Eartholeum",
+    "code": "B_00156730",
+    "flutterWaveCode": "302"
+  },
+  {
+    "name": "Hedonmark",
+    "code": "B_00156731",
+    "flutterWaveCode": "324"
+  },
+  {
+    "name": "MoneyBox",
+    "code": "B_00156732",
+    "flutterWaveCode": "325"
+  },
+  {
+    "name": "JAIZ Bank",
+    "code": "B_00156733",
+    "flutterWaveCode": "301"
+  },
+  {
+    "name": "Ecobank Plc",
+    "code": "B_00156734",
+    "flutterWaveCode": "050"
+  },
+  {
+    "name": "EcoMobile",
+    "code": "B_00156735",
+    "flutterWaveCode": "307"
+  },
+  {
+    "name": "Fidelity Mobile",
+    "code": "B_00156736",
+    "flutterWaveCode": "318"
+  },
+  {
+    "name": "TeasyMobile",
+    "code": "B_00156737",
+    "flutterWaveCode": "319"
+  },
+  {
+    "name": "NIP Virtual Bank",
+    "code": "B_00156738",
+    "flutterWaveCode": "999"
+  },
+  {
+    "name": "VTNetworks",
+    "code": "B_00156739",
+    "flutterWaveCode": "320"
+  },
+  {
+    "name": "Stanbic IBTC Bank",
+    "code": "B_00156740",
+    "flutterWaveCode": "221"
+  },
+  {
+    "name": "Fortis Microfinance Bank",
+    "code": "B_00156741",
+    "flutterWaveCode": "501"
+  },
+  {
+    "name": "PayAttitude Online",
+    "code": "B_00156742",
+    "flutterWaveCode": "329"
+  },
+  {
+    "name": "ZenithMobile",
+    "code": "B_00156743",
+    "flutterWaveCode": "322"
+  },
+  {
+    "name": "ChamsMobile",
+    "code": "B_00156744",
+    "flutterWaveCode": "303"
+  },
+  {
+    "name": "SafeTrust Mortgage Bank",
+    "code": "B_00156745",
+    "flutterWaveCode": "403"
+  },
+  {
+    "name": "Covenant Microfinance Bank",
+    "code": "B_00156746",
+    "flutterWaveCode": "551"
+  },
+  {
+    "name": "Imperial Homes Mortgage Bank",
+    "code": "B_00156747",
+    "flutterWaveCode": "415"
+  },
+  {
+    "name": "NPF MicroFinance Bank",
+    "code": "B_00156748",
+    "flutterWaveCode": "552"
+  },
+  {
+    "name": "Parralex",
+    "code": "B_00156749",
+    "flutterWaveCode": "526"
+  },
+  {
+    "name": "Wema Bank",
+    "code": "B_00156750",
+    "flutterWaveCode": "035"
+  },
+  {
+    "name": "Enterprise Bank",
+    "code": "B_00156751",
+    "flutterWaveCode": "084"
+  },
+  {
+    "name": "Diamond Bank",
+    "code": "B_00156752",
+    "flutterWaveCode": "063"
+  },
+  {
+    "name": "Paycom",
+    "code": "B_00156753",
+    "flutterWaveCode": "305"
+  },
+  {
+    "name": "SunTrust Bank",
+    "code": "B_00156754",
+    "flutterWaveCode": "100"
+  },
+  {
+    "name": "Cellulant",
+    "code": "B_00156755",
+    "flutterWaveCode": 317
+  },
+  {
+    "name": "ASO Savings and & Loans",
+    "code": "B_00156756",
+    "flutterWaveCode": "401"
+  },
+  {
+    "name": "Heritage",
+    "code": "B_00156757",
+    "flutterWaveCode": "030"
+  },
+  {
+    "name": "Jubilee Life Mortgage Bank",
+    "code": "B_00156758",
+    "flutterWaveCode": "402"
+  },
+  {
+    "name": "GTBank Plc",
+    "code": "B_00156759",
+    "flutterWaveCode": "058"
+  },
+  {
+    "name": "Union Bank",
+    "code": "B_00156760",
+    "flutterWaveCode": "032"
+  },
+  {
+    "name": "Sterling Bank",
+    "code": "B_00156761",
+    "flutterWaveCode": "232"
+  },
+  {
+    "name": "Skye Bank",
+    "code": "B_00156762",
+    "flutterWaveCode": "076"
+  },
+  {
+    "name": "Keystone Bank",
+    "code": "B_00156763",
+    "flutterWaveCode": "082"
+  },
+  {
+    "name": "Pagatech",
+    "code": "B_00156764",
+    "flutterWaveCode": "327"
+  },
+  {
+    "name": "Coronation Merchant Bank",
+    "code": "B_00156765",
+    "flutterWaveCode": "559"
+  },
+  {
+    "name": "FSDH",
+    "code": "B_00156766",
+    "flutterWaveCode": "601"
+  },
+  {
+    "name": "Mkudi",
+    "code": "B_00156767",
+    "flutterWaveCode": "313"
+  },
+  {
+    "name": "First City Monument Bank",
+    "code": "B_00156768",
+    "flutterWaveCode": "214"
+  },
+  {
+    "name": "FET",
+    "code": "B_00156769",
+    "flutterWaveCode": "314"
+  },
+  {
+    "name": "Trustbond",
+    "code": "B_00156770",
+    "flutterWaveCode": "523"
+  },
+  {
+    "name": "GTMobile",
+    "code": "B_00156771",
+    "flutterWaveCode": "315"
+  },
+  {
+    "name": "United Bank for Africa",
+    "code": "B_00156772",
+    "flutterWaveCode": "033"
+  },
+  {
+    "name": "Access Bank",
+    "code": "B_00156773",
+    "flutterWaveCode": "044"
+  },
+  {
+    "name": "TCF MFB",
+    "code": "B_00156774",
+    "flutterWaveCode": "90115"
   }
 ]

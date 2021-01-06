@@ -15,14 +15,14 @@ import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { Invoice } from '../domain/entity/invoice.entity';
 import { PaymentProvider } from '../domain/enums/payment-provider.enum';
 import { PaymentType } from '../domain/enums/payment-type.enum';
-import { FLUTTERWAVETRANSACTION, PaymentModule, PaymentTransaction } from '@dlabs/payment';
+import { FLUTTERWAVETRANSACTION, PaymentModule, PaymentTransactionService } from '@dlabs/payment';
 import { InitiateTransactionResponse } from '@dlabs/payment/dto/initiate-transaction.response';
 
 describe('invoice', () => {
 
   let applicationContext: INestApplication;
   let connection: Connection;
-  let paymentTransaction: PaymentTransaction;
+  let paymentTransaction: PaymentTransactionService;
 
 
   beforeAll(async () => {

@@ -7,7 +7,7 @@ export class BankFactory implements FactoryHelper<Bank> {
     let bank = new Bank();
     bank.name = faker.name.jobArea() + ' bank';
     bank.code = faker.finance.iban();
-    bank.payStackCode = faker.finance.iban();
+    bank.flutterWaveReference = faker.finance.iban();
     return Promise.resolve(bank);
   }
 

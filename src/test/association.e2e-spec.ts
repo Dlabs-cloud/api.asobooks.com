@@ -40,7 +40,7 @@ async function associationUpdate(loginToken: string) {
     },
     bankInfo: {
       accountNumber: faker.finance.iban(),
-      bankCode: (await factory().create(Bank)).code,
+      code: (await factory().create(Bank)).code,
     },
     name: faker.name.lastName() + ' association',
     type: faker.random.arrayElement(Object.values(AssociationTypeConstant)),

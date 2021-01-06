@@ -14,7 +14,7 @@ import { ServiceFeeController } from './service-fee.controller';
 import { MasterRecordController } from './master-record-controller';
 import { GroupServiceFeeController } from './group-service-fee.controller';
 import { ServiceModule } from '../service/service.module';
-import { PaymentController } from './payment-controller';
+import { VerificationController } from './verification-controller';
 import { MembershipBillsController } from './membership-bills.controller';
 import { InvoiceController } from './invoice.controller';
 import { PaymentRequestController } from './payment-request.controller';
@@ -36,7 +36,7 @@ import { PaymentRequestController } from './payment-request.controller';
     MembershipBillsController,
     ServiceFeeController,
     GroupServiceFeeController,
-    PaymentController,
+    VerificationController,
     InvoiceController,
     PaymentRequestController,
   ],

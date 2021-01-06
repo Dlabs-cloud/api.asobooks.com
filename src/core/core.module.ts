@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { PortalAccountSequence } from './sequenceGenerators/portal-account.sequence';
 import { BankUploadStartup } from './start-ups/bank-upload.startup';
 import { APP_FILTER } from '@nestjs/core';
-import { IllegalArgumentExceptionFilter } from './exception-filters/illegal-argument-exception-filter';
+import { IllegalArgumentExceptionFilter } from './exception-filters/illegal-argument-exception.filter';
 import { InvalidTokenExceptionFilter } from './exception-filters/invalid-token-exception.filter';
 import { AssociationCodeSequence } from './sequenceGenerators/association-code.sequence';
 import { ServiceFeeCodeSequence } from './sequenceGenerators/service-fee-code.sequence';
@@ -15,13 +15,18 @@ import { InActiveAccountExceptionFilter } from './exception-filters/in-active-ac
 import { WalletSequence } from './sequenceGenerators/wallet.sequence';
 import { InvoiceCodeSequence } from './sequenceGenerators/invoice-code.sequence';
 import { PaymentRequestReferenceSequence } from './sequenceGenerators/payment-request-reference.sequence';
-import { ServiceUnavailableException } from '../exception/ServiceUnavailableException';
+import { ServiceUnavailableExceptionFilter } from './exception-filters/service-unavailable-exception.filter';
+import { NotFoundExceptionFilter } from './exception-filters/not-found-exception.filter';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
   useClass: IllegalArgumentExceptionFilter,
 };
 
+const notFoundExceptionFilter = {
+  provide: APP_FILTER,
+  useClass: NotFoundExceptionFilter,
+};
 const invalidTokenExceptionFilter = {
   provide: APP_FILTER,
   useClass: InvalidTokenExceptionFilter,
@@ -43,7 +48,7 @@ const notActiveExceptionFilter = {
 
 const serviceUnAvailableException = {
   provide: APP_FILTER,
-  useClass: ServiceUnavailableException,
+  useClass: ServiceUnavailableExceptionFilter,
 };
 
 @Module({
@@ -80,6 +85,7 @@ const serviceUnAvailableException = {
     notActiveExceptionFilter,
     forbiddenExceptionFilter,
     serviceUnAvailableException,
+    notFoundExceptionFilter,
   ],
 })
 

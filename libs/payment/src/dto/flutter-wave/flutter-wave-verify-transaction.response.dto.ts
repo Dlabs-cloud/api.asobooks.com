@@ -2,7 +2,7 @@ declare module VerifyTransactionResponseDto {
 
   export interface Account {
     account_number: string;
-    bank_code: string;
+    code: string;
     account_token: string;
     account_name: string;
   }

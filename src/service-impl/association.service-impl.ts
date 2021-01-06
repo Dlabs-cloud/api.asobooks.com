@@ -72,7 +72,7 @@ export class AssociationServiceImpl implements AssociationService {
       if (associationDto.bankInfo) {
         let bankInfoData: BankInfoDto = {
           accountNumber: associationDto.bankInfo.accountNumber,
-          bankCode: associationDto.bankInfo.bankCode,
+          code: associationDto.bankInfo.code,
         };
 
 
@@ -84,7 +84,7 @@ export class AssociationServiceImpl implements AssociationService {
           bankInfo.accountNumber = bankInfoData.accountNumber;
           bankInfo.bank = await this.connection
             .getCustomRepository(BankRepository)
-            .findOneItemByStatus({ code: bankInfoData.bankCode });
+            .findOneItemByStatus({ code: bankInfoData.code });
           bankInfo = await entityManager.save(bankInfo);
         } else {
           bankInfo = await this.bankInfoService.create(entityManager, bankInfoData, association);

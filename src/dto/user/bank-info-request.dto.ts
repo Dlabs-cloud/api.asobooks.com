@@ -10,7 +10,7 @@ export class BankInfoRequestDto {
   }, {
     message: 'Bank name does not exist',
   })
-  bankCode: string;
+  code: string;
   @IsString()
   accountNumber: string;
 }
