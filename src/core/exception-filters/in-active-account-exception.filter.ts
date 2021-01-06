@@ -1,7 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { Response } from 'express';
-import { UnAuthorizedException } from '../../exception/unAuthorized.exception';
-import { InActiveAccountException } from '../../exception/inActiveAccountException';
+import { InActiveAccountException } from '../../exception/in-active-account.exception';
 
 @Catch(InActiveAccountException)
 export class InActiveAccountExceptionFilter implements ExceptionFilter<InActiveAccountException> {

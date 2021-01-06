@@ -28,6 +28,7 @@ import { Group } from '../domain/entity/group.entity';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { WorkerModule } from '../worker/worker.module';
+import { PaymentModule } from '@dlabs/payment';
 
 
 export const init = async (entityManager?: EntityManager) => {
@@ -168,7 +169,7 @@ export const mockSendEmail = () => jest.fn().mockImplementation((sendEmailOption
 
 export function baseTestingModule() {
   return Test.createTestingModule({
-    imports: [AppModule, ServiceImplModule, WorkerModule],
+    imports: [AppModule, ServiceImplModule, WorkerModule, PaymentModule],
     providers: [AppService],
   }).overrideProvider(MailerService)
     .useValue({

@@ -17,7 +17,7 @@
     "docker-build": "ts-node scripts/docker.ts",
     "docker-build-push": "npm run docker-build && docker push uncletee/asobooks-api",
     "worker:start": "ts-node -r tsconfig-paths/register src/worker.ts",
-    "format": "prettier --write \\\\\\\"src/**/*.ts\\\\\\\" \\\\\\\"views/test/**/*.ts\\\\\\\"",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -51,7 +51,9 @@
     "@types/nodemailer": "6.4.0",
     "@types/shelljs": "^0.8.8",
     "@types/stream-json": "^1.5.1",
+    "@types/uuid": "^8.3.0",
     "aws-sdk": "^2.749.0",
+    "axios": "^0.19.2",
     "bcryptjs": "^2.4.3",
     "bull": "^3.18.0",
     "cache-manager": "^3.4.0",
@@ -61,6 +63,7 @@
     "cwd": "^0.10.0",
     "dotenv": "^8.2.0",
     "faker": "^4.1.0",
+    "i": "^0.3.6",
     "install": "^0.13.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.27.0",
@@ -68,7 +71,7 @@
     "nestjs-early-access": "^1.0.4",
     "nestjs-s3": "^1.0.1",
     "nodemailer": "^6.4.10",
-    "npm": "^6.14.6",
+    "npm": "^6.14.8",
     "pg": "^8.3.3",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.0",
@@ -77,6 +80,7 @@
     "stream-json": "^1.7.0",
     "swagger-ui-express": "^4.1.4",
     "typeorm": "^0.2.25",
+    "uuid": "^3.4.0",
     "winston": "^3.3.2"
   },
   "devDependencies": {
@@ -90,13 +94,13 @@
     "@types/supertest": "^2.0.8",
     "jest": "^24.9.0",
     "prettier": "^1.18.2",
+    "rimraf": "^3.0.0",
     "supertest": "^4.0.2",
     "ts-jest": "^24.1.0",
     "ts-loader": "^6.1.1",
     "ts-node": "^8.4.1",
     "tsconfig-paths": "^3.9.0",
     "tslint": "^5.20.0",
-    "rimraf": "^3.0.0",
     "typescript": "^3.6.3"
   },
   "jest": {
@@ -105,12 +109,20 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": ".",
     "testRegex": ".spec.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/src/",
+      "<rootDir>/libs/"
+    ],
+    "moduleNameMapper": {
+      "@dlabs/payment/(.*)": "<rootDir>/libs/payment/src/$1",
+      "@dlabs/payment": "<rootDir>/libs/payment/src"
+    }
   }
 }

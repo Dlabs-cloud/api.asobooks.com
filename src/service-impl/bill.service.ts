@@ -6,12 +6,35 @@ import { Bill } from '../domain/entity/bill.entity';
 import { BillCodeSequence } from '../core/sequenceGenerators/bill-code.sequence';
 import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 import { BillRepository } from '../dao/bill.repository';
+import { Invoice } from '../domain/entity/invoice.entity';
+import { PaymentStatus } from '../domain/enums/payment-status.enum';
+import { BillInvoice } from '../domain/entity/bill-invoice.entity';
+import { BillInvoiceRepository } from '../dao/bill-invoice.repository';
+import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 
 @Injectable()
 export class BillService {
 
 
   constructor(private readonly connection: Connection, private readonly billCodeSequence: BillCodeSequence) {
+  }
+
+
+  updateBill(entityManager: EntityManager, paymentInvoice: Invoice) {
+    return this.connection.getCustomRepository(BillInvoiceRepository)
+      .findByInvoice(paymentInvoice).then(billInvoices => {
+        return this.connection.getCustomRepository(BillRepository)
+          .findByIds(billInvoices.map(billInvoice => billInvoice.billId))
+          .then(bills => {
+            const amountPaidPerBill = paymentInvoice.amountPaidInMinorUnit / bills.length;
+            const billsPromise: Promise<Bill>[] = bills.map(bill => {
+              bill.paymentStatus = paymentInvoice.paymentStatus;
+              bill.totalAmountPaidInMinorUnit = amountPaidPerBill;
+              return entityManager.save(bill);
+            });
+            return Promise.all(billsPromise);
+          });
+      });
   }
 
   createSubscriptionBill(subscription: Subscription, membership: Membership) {
@@ -34,8 +57,6 @@ export class BillService {
         bill.membership = membership;
         return this.connection.getCustomRepository(BillRepository).save(bill);
       });
-
-
   }
 
   private static calculateAmountToBePaid(bill: Bill) {

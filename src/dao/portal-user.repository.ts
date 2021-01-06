@@ -91,6 +91,13 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
   }
 
 
+  public findByMembershipId(membership: number) {
+    return this.createQueryBuilder('portalUser')
+      .innerJoin(Membership, 'membership', 'membership.portalUser = portalUser.id')
+      .where('membership.id = :membership')
+      .setParameter('membership', membership).getOne();
+  }
+
   private createQueryBuilderGetByAssociationAndAccountType(association: Association,
                                                            portalAccountType?: PortalAccountTypeConstant,
                                                            status = GenericStatusConstant.ACTIVE,

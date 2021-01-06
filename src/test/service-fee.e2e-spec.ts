@@ -21,6 +21,7 @@ import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-c
 describe('Service fees set up test ', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
+
   beforeAll(async () => {
     const moduleRef: TestingModule = await baseTestingModule().compile();
     applicationContext = moduleRef.createNestApplication();

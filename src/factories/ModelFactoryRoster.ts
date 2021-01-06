@@ -29,6 +29,16 @@ import { Subscription } from '../domain/entity/subcription.entity';
 import { SubscriptionModelFactory } from './factory/subscription-model.factory';
 import { Bill } from '../domain/entity/bill.entity';
 import { BillModelFactory } from './factory/bill-model.factory';
+import { Invoice } from '../domain/entity/invoice.entity';
+import { InvoiceModelFactory } from './factory/invoice-model.factory';
+import { PaymentRequestFactory } from './factory/payment-request.factory';
+import { PaymentRequest } from '../domain/entity/payment-request.entity';
+import { Wallet } from '../domain/entity/wallet.entity';
+import { WalletFactory } from './factory/wallet.factory';
+import { BankInfo } from '../domain/entity/bank-info.entity';
+import { BankInfoFactory } from './factory/bank-info.factory';
+import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
+import { PaymentTransactionModelFactory } from './factory/payment-transaction-model.factory';
 
 export class ModelFactoryRoster {
   static register(modelFactory: ModelFactory) {
@@ -47,5 +57,10 @@ export class ModelFactoryRoster {
     modelFactory.register(GroupServiceFee, GroupServiceFeeModelFactory);
     modelFactory.register(Subscription, SubscriptionModelFactory);
     modelFactory.register(Bill, BillModelFactory);
+    modelFactory.register(Invoice, InvoiceModelFactory);
+    modelFactory.register(PaymentRequest, PaymentRequestFactory);
+    modelFactory.register(Wallet, WalletFactory);
+    modelFactory.register(BankInfo, BankInfoFactory);
+    modelFactory.register(PaymentTransaction, PaymentTransactionModelFactory);
   }
 }

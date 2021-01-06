@@ -9,12 +9,12 @@ import { Membership } from '../domain/entity/membership.entity';
 import { Bill } from '../domain/entity/bill.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import * as request from 'supertest';
+import { PaymentStatus } from '../domain/enums/payment-status.enum';
 
-describe('membership-bills', () => {
+describe('membership-bills controller', () => {
 
   let applicationContext: INestApplication;
   let connection: Connection;
-  let associationUser;
 
 
   beforeAll(async () => {
@@ -31,8 +31,10 @@ describe('membership-bills', () => {
     let membership = await factory().create(Membership);
     await factory().upset(Bill).use(bill => {
       bill.membership = membership;
+      bill.paymentStatus = PaymentStatus.NOT_PAID;
       return bill;
     }).createMany(3);
+
 
     return getAssociationUser(GenericStatusConstant.ACTIVE, membership.portalUser, membership.portalAccount.association).then(associationUser => {
       return request(applicationContext.getHttpServer())
@@ -59,6 +61,11 @@ describe('membership-bills', () => {
         });
     });
 
+  });
+
+  afterAll(async () => {
+    await connection.close();
+    await applicationContext.close();
   });
 
 });

@@ -10,12 +10,7 @@ export class Wallet extends BaseEntity {
     type: 'bigint',
     default: 0,
   })
-  availableBalance: number;
-  @Column({
-    type: 'bigint',
-    default: 0,
-  })
-  bookBalance: number;
+  availableBalanceInMinorUnits: number;
 
   @Column({
     unique: true,

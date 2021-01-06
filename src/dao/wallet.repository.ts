@@ -5,7 +5,7 @@ import { EntityRepository } from 'typeorm';
 @EntityRepository(Wallet)
 export class WalletRepository extends BaseRepository<Wallet> {
   findByAssociation(association) {
-    return this.findItem({
+    return this.findOne({
       association: association,
     });
   }

@@ -16,6 +16,8 @@ import { GroupServiceFeeController } from './group-service-fee.controller';
 import { ServiceModule } from '../service/service.module';
 import { PaymentController } from './payment-controller';
 import { MembershipBillsController } from './membership-bills.controller';
+import { InvoiceController } from './invoice.controller';
+import { PaymentRequestController } from './payment-request.controller';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { MembershipBillsController } from './membership-bills.controller';
     ServiceFeeController,
     GroupServiceFeeController,
     PaymentController,
+    InvoiceController,
+    PaymentRequestController,
   ],
   providers: [
     ResponseTransformInterceptor,

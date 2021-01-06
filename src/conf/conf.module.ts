@@ -12,11 +12,14 @@ import { TypeOrmDatasourceConf } from './data-source/type-orm-datasource.conf';
 import { BullModule } from '@nestjs/bull';
 import { QueueDataStoreConf } from './data-source/queue-data-store.conf';
 import { Queues } from '../core/cron.enum';
+import { PaymentConf } from './payment/payment.conf';
+import { PaymentModule } from '@dlabs/payment';
 
 
 @Module({
   imports: [
     BullModule.registerQueueAsync(...QueueDataStoreConf.createBullOptions()),
+
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -25,6 +28,7 @@ import { Queues } from '../core/cron.enum';
         return emailConfiguration.getEmailConfig();
       },
     }),
+
     S3Module.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -33,6 +37,7 @@ import { Queues } from '../core/cron.enum';
         return amazonSesConfig.getConfig();
       },
     }),
+
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -41,14 +46,26 @@ import { Queues } from '../core/cron.enum';
         return ormConfig.getTypeOrmConfig();
       },
     }),
+
     CommonModule,
+
+    PaymentModule.forRootAsync({
+      imports: [
+        ConfModule,
+      ],
+      useExisting: PaymentConf,
+    }),
+
     WinstonModule.forRoot({
       transports: [
         new winston.transports.Console({ format: winston.format.json() }),
       ],
-    })],
-  exports: [S3Module, BullModule, MailerModule],
-  providers: [],
+    }),
+  ],
+  exports: [S3Module, BullModule, MailerModule, PaymentConf, PaymentModule],
+  providers: [
+    PaymentConf,
+  ],
 })
 export class ConfModule {
   static get environment(): string {

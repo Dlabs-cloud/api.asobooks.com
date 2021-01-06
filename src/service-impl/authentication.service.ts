@@ -24,7 +24,7 @@ import { PortalUserDto } from '../dto/portal-user.dto';
 import { UnAuthorizedException } from '../exception/unAuthorized.exception';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
-import { InActiveAccountException } from '../exception/inActiveAccountException';
+import { InActiveAccountException } from '../exception/in-active-account.exception';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 
 @Injectable()

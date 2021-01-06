@@ -13,6 +13,9 @@ import { BillCodeSequence } from './sequenceGenerators/bill-code.sequence';
 import { ConfModule } from '../conf/conf.module';
 import { InActiveAccountExceptionFilter } from './exception-filters/in-active-account-exception.filter';
 import { WalletSequence } from './sequenceGenerators/wallet.sequence';
+import { InvoiceCodeSequence } from './sequenceGenerators/invoice-code.sequence';
+import { PaymentRequestReferenceSequence } from './sequenceGenerators/payment-request-reference.sequence';
+import { ServiceUnavailableException } from '../exception/ServiceUnavailableException';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -38,6 +41,11 @@ const notActiveExceptionFilter = {
   useClass: InActiveAccountExceptionFilter,
 };
 
+const serviceUnAvailableException = {
+  provide: APP_FILTER,
+  useClass: ServiceUnavailableException,
+};
+
 @Module({
   imports: [
     ConfModule,
@@ -51,15 +59,19 @@ const notActiveExceptionFilter = {
     BillCodeSequence,
     SubscriptionCodeSequence,
     WalletSequence,
+    InvoiceCodeSequence,
+    PaymentRequestReferenceSequence,
   ],
   providers: [
     PortalAccountSequence,
     AssociationCodeSequence,
     ServiceFeeCodeSequence,
+    PaymentRequestReferenceSequence,
     BillCodeSequence,
     BankUploadStartup,
     WalletSequence,
     SubscriptionCodeSequence,
+    InvoiceCodeSequence,
     // CronStartup,
     MembershipCodeSequence,
     illegalArgumentExceptionFilter,
@@ -67,6 +79,7 @@ const notActiveExceptionFilter = {
     unAuthorizedExceptionFilter,
     notActiveExceptionFilter,
     forbiddenExceptionFilter,
+    serviceUnAvailableException,
   ],
 })
 

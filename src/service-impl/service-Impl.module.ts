@@ -22,6 +22,9 @@ import { CachedAssociationServiceImpl } from './cached-association.service-impl'
 import { ServiceModule } from '../service/service.module';
 import { DummyBankAccountVerificationService } from './dummy-bank-account-verification.service';
 import { WalletService } from './wallet.service';
+import { InvoiceService } from './invoice.service';
+import { PaymentRequestService } from './payment-request.service';
+import { PaymentTransactionService } from './payment-transaction.service';
 
 
 @Module({
@@ -38,10 +41,12 @@ import { WalletService } from './wallet.service';
     AuthenticationService,
     PortalUserService,
     PortalAccountService,
+    PaymentRequestService,
     MembershipService,
     UserManagementService,
     AssociationServiceImpl,
     BankInfoService,
+    InvoiceService,
     AssociationFileService,
     ServiceFeeService,
     GroupServiceFeeService,
@@ -52,10 +57,12 @@ import { WalletService } from './wallet.service';
     AssociationServiceImpl,
     WalletService,
     DummyBankAccountVerificationService,
+    PaymentTransactionService,
   ],
   providers: [
     AuthenticationService,
     PortalUserService,
+    InvoiceService,
     PortalAccountService,
     UserManagementService,
     BankInfoService,
@@ -63,10 +70,12 @@ import { WalletService } from './wallet.service';
     GroupService,
     ServiceFeeService,
     AssociationFileService,
+    PaymentRequestService,
     MembershipService,
     AssociationServiceImpl,
     CachedAssociationServiceImpl,
     GroupServiceFeeService,
+    PaymentTransactionService,
     DummyBankAccountVerificationService,
     WalletService,
     BillService,

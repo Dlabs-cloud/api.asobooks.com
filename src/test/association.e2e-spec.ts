@@ -102,12 +102,9 @@ describe('AssociationController', () => {
       .put('/associations/onboard')
       .set('Authorization', loginToken)
       .send(payload);
-    await connection.getCustomRepository(WalletRepository).findByAssociation(assoc.association).then(wallets => {
-      expect(wallets.length).toEqual(1);
-      let wallet = wallets[0];
+    await connection.getCustomRepository(WalletRepository).findByAssociation(assoc.association).then(wallet => {
       expect(wallet.reference).toBeDefined();
-      expect(0).toEqual(Number(wallet.bookBalance));
-      expect(0).toEqual(Number(wallet.availableBalance));
+      expect(0).toEqual(Number(wallet.availableBalanceInMinorUnits));
 
     });
   });

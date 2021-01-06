@@ -16,6 +16,15 @@ export class BillRepository extends BaseRepository<Bill> {
   }
 
 
+  findByMembershipAndCode(membership: Membership, ...code: string[]) {
+    return this.createQueryBuilder('bill')
+      .where('bill.membership = :membership')
+      .andWhere('bill.code IN (:...codes)')
+      .setParameter('membership', membership.id)
+      .setParameter('codes', code)
+      .getMany();
+  }
+
   findMembershipBillByQuery(membership: Membership, billSearchQuery: BillSearchQueryDto) {
     let limit = billSearchQuery.limit || 20;
     let offSet = billSearchQuery.offSet || 0;

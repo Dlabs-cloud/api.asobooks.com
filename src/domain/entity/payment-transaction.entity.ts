@@ -9,7 +9,7 @@ export class PaymentTransaction extends BaseEntity {
   @Column({
     type: 'bigint',
   })
-  amountInUnit: number;
+  amountInMinorUnit: number;
   @Column({
     type: 'enum',
     enum: PaymentChannel,
@@ -23,5 +23,14 @@ export class PaymentTransaction extends BaseEntity {
   @OneToOne(() => PaymentRequest)
   @JoinColumn({ name: 'paymentRequestId' })
   paymentRequest: PaymentRequest;
+
+  @Column({
+    nullable: true,
+  })
+  paymentRequestId: number;
+
+  @Column()
+  paidBy: string;
+
 
 }

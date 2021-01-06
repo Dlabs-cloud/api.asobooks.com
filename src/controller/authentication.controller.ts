@@ -21,7 +21,7 @@ import { InvalidtokenException } from '../exception/invalidtoken.exception';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { LoggedInUserInfoHandler } from './handlers/logged-in-user-info.handler';
-import { InActiveAccountException } from '../exception/inActiveAccountException';
+import { InActiveAccountException } from '../exception/in-active-account.exception';
 
 
 @Controller()
