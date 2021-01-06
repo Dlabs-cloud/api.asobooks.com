@@ -3,7 +3,6 @@ import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { PaymentProvider } from '../domain/enums/payment-provider.enum';
 import {
   FLUTTERWAVETRANSACTION,
-  FlutterWaveInitiateTransactionDto,
   PaymentTransactionService as ThirdPartyPaymentTransactionService,
   VerificationResponseDto, InitiateTransactionDto,
 } from '@dlabs/payment';
@@ -22,6 +21,9 @@ import { PaymentTransactionService } from './payment-transaction.service';
 import { InvoiceService } from './invoice.service';
 import { AssociationRepository } from '../dao/association.repository';
 import { WalletService } from './wallet.service';
+import { InitiateTransactionResponse } from '@dlabs/payment/dto/initiate-transaction.response';
+import { Association } from '../domain/entity/association.entity';
+import { PortalUser } from '../domain/entity/portal-user.entity';
 
 @Injectable()
 export class PaymentRequestService {
@@ -65,18 +67,19 @@ export class PaymentRequestService {
           }
           paymentRequest.amountPaidInMinorUnit = response.amountInMinorUnit;
           paymentRequest.merchantReference = merchantReference;
-          return entityManager.save(paymentRequest).then(paymentRequest => {
-            return this.paymentTransactionService
-              .createPaymentTransaction(entityManager, paymentRequest, response)
-              .then(paymentTransaction => {
-                return this.invoiceService.updateInvoice(entityManager, paymentRequest)
-                  .then(invoice => {
-                    return this.walletService.topUpWallet(entityManager, paymentTransaction).then(() => {
-                      return Promise.resolve(paymentRequest);
+          return entityManager.save(paymentRequest)
+            .then(paymentRequest => {
+              return this.paymentTransactionService
+                .createPaymentTransaction(entityManager, paymentRequest, response)
+                .then(paymentTransaction => {
+                  return this.invoiceService.updateInvoice(entityManager, paymentRequest)
+                    .then(invoice => {
+                      return this.walletService.topUpWallet(entityManager, paymentTransaction).then(() => {
+                        return Promise.resolve(paymentRequest);
+                      });
                     });
-                  });
-              });
-          });
+                });
+            });
         });
     });
 
@@ -90,14 +93,7 @@ export class PaymentRequestService {
     return this.connection.getCustomRepository(AssociationRepository).findOne({
       id: invoice.associationId,
     }).then(association => {
-      const paymentRequest = new PaymentRequest();
-      paymentRequest.amountInMinorUnit = invoice.payableAmountInMinorUnit;
-      paymentRequest.description = `Payment for generated invoice with reference ${invoice.code}`;
-      paymentRequest.invoice = invoice;
-      paymentRequest.association = association;
-      paymentRequest.paymentProvider = PaymentProvider.FLUTTER_WAVE;
-      paymentRequest.paymentStatus = PaymentStatus.NOT_PAID;
-      paymentRequest.paymentType = PaymentType.CREDIT;
+      const paymentRequest = this.buildPaymentRequest(invoice, association);
       return this.paymentRequestSequence.next().then(seq => {
         paymentRequest.reference = seq;
         return paymentRequest.save();
@@ -105,21 +101,11 @@ export class PaymentRequestService {
         return this.connection.getCustomRepository(PortalUserRepository)
           .findByMembershipId(invoice.createdById)
           .then(user => {
-            const transactionParameter: InitiateTransactionDto = {
-              amountInMinorUnit: paymentRequest.amountInMinorUnit,
-              customer: {
-                name: `${user.firstName} ${user.lastName}`,
-                email: user.email,
-                phonenumber: user.phoneNumber,
-              },
-              paymentOption: ['account', 'banktransfer', 'card', 'qr', 'ussd', 'paga'],
-              redirectUrl: '',
-              transactionRef: paymentRequest.reference,
-            };
+            const transactionParameter = this.makePaymentInitiationData(paymentRequest, user);
             return Promise.resolve(transactionParameter);
           }).then(transactionParameter => {
             return this.connection.getCustomRepository(SettingRepository)
-              .findByLabel('front_end_url', 'http://localhost:3000/api/v1')
+              .findByLabel('front_end_url', 'http://localhost:3000/api/v1/payments/confirm')
               .then(setting => {
                 transactionParameter.redirectUrl = setting.value;
                 return Promise.resolve(transactionParameter);
@@ -127,21 +113,53 @@ export class PaymentRequestService {
           }).then(transactionParameter => {
             return this.thirdPartyPaymentTransactionService.initiate(transactionParameter);
           }).then(response => {
-            const paymentResponse: PaymentRequestDto = {
-              amountInMinorUnit: paymentRequest.amountInMinorUnit,
-              description: paymentRequest.description,
-              amountPaidInMinorUnit: paymentRequest.amountPaidInMinorUnit,
-              merchantReference: paymentRequest.merchantReference,
-              paymentLink: response.paymentLink,
-              paymentProvider: paymentRequest.paymentProvider,
-              paymentStatus: paymentRequest.paymentStatus,
-              paymentType: paymentRequest.paymentType,
-              reference: paymentRequest.reference,
-            };
+            const paymentResponse = this.buildPaymentRequestResponse(paymentRequest, response);
             return Promise.resolve(paymentResponse);
           });
       });
     });
 
+  }
+
+  private makePaymentInitiationData(paymentRequest: PaymentRequest, user: PortalUser) {
+    const transactionParameter: InitiateTransactionDto = {
+      amountInMinorUnit: paymentRequest.amountInMinorUnit,
+      customer: {
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        phonenumber: user.phoneNumber,
+      },
+      paymentOption: ['account', 'banktransfer', 'card', 'qr', 'ussd', 'paga'],
+      redirectUrl: '',
+      transactionRef: paymentRequest.reference,
+    };
+    return transactionParameter;
+  }
+
+  private buildPaymentRequestResponse(paymentRequest: PaymentRequest, response: InitiateTransactionResponse) {
+    const paymentResponse: PaymentRequestDto = {
+      amountInMinorUnit: paymentRequest.amountInMinorUnit,
+      description: paymentRequest.description,
+      amountPaidInMinorUnit: paymentRequest.amountPaidInMinorUnit,
+      merchantReference: paymentRequest.merchantReference,
+      paymentLink: response.paymentLink,
+      paymentProvider: paymentRequest.paymentProvider,
+      paymentStatus: paymentRequest.paymentStatus,
+      paymentType: paymentRequest.paymentType,
+      reference: paymentRequest.reference,
+    };
+    return paymentResponse;
+  }
+
+  private buildPaymentRequest(invoice: Invoice, association: Association) {
+    const paymentRequest = new PaymentRequest();
+    paymentRequest.amountInMinorUnit = invoice.payableAmountInMinorUnit;
+    paymentRequest.description = `Payment for generated invoice with reference ${invoice.code}`;
+    paymentRequest.invoice = invoice;
+    paymentRequest.association = association;
+    paymentRequest.paymentProvider = PaymentProvider.FLUTTER_WAVE;
+    paymentRequest.paymentStatus = PaymentStatus.NOT_PAID;
+    paymentRequest.paymentType = PaymentType.CREDIT;
+    return paymentRequest;
   }
 }
