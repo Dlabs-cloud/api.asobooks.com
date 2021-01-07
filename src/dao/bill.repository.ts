@@ -5,6 +5,9 @@ import { Subscription } from '../domain/entity/subcription.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Membership } from '../domain/entity/membership.entity';
 import { BillSearchQueryDto } from '../dto/bill-search-query.dto';
+import { Association } from '../domain/entity/association.entity';
+import { PaymentStatus } from '../domain/enums/payment-status.enum';
+import { PortalAccount } from '../domain/entity/portal-account.entity';
 
 @EntityRepository(Bill)
 export class BillRepository extends BaseRepository<Bill> {
@@ -15,6 +18,24 @@ export class BillRepository extends BaseRepository<Bill> {
     }, GenericStatusConstant.ACTIVE);
   }
 
+  sumTotalAmountOnBills(association: Association, paymentStatus?: PaymentStatus, status = GenericStatusConstant.ACTIVE) {
+    const queryBuilder = this.createQueryBuilder('bill')
+      .where('bill.status = :status')
+      .innerJoin(Membership, 'membership', 'bill.membershipId = membership.id')
+      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccountId = portalAccount.id')
+      .innerJoin(Association, 'association', 'portalAccount.associationId = association.id')
+      .andWhere('association.id = : associationId');
+    if (paymentStatus) {
+      queryBuilder.andWhere('bill.paymentStatus = :paymentStatus', { paymentStatus: paymentStatus });
+    }
+
+    return queryBuilder.setParameter('associationId', association.id)
+      .setParameter('status', status)
+      .select('SUM(bill.payableAmountInMinorUnit)', 'sum')
+      .getRawOne();
+
+
+  }
 
   findByMembershipAndCode(membership: Membership, ...code: string[]) {
     return this.createQueryBuilder('bill')

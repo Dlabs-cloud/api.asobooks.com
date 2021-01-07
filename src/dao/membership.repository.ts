@@ -6,6 +6,7 @@ import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Association } from '../domain/entity/association.entity';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { AccountType } from 'aws-sdk/clients/chime';
 
 
 @EntityRepository(Membership)
@@ -55,6 +56,19 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .setParameter('status', status)
       .setParameter('users', users)
       .getMany();
+  }
+
+  public countByAssociationAndAccountTypeAndStatus(association: Association, accountType: AccountType, status = GenericStatusConstant.ACTIVE){
+    return this.createQueryBuilder('membership')
+      .select()
+      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount = portalAccount.id')
+      .where('portalAccount.association = :association')
+      .andWhere('portalAccount.type = :type')
+      .andWhere('membership.status = :status')
+      .setParameter('association', association.id)
+      .setParameter('type', accountType)
+      .setParameter('status', status)
+      .getCount();
   }
 
 

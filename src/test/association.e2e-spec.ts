@@ -23,7 +23,6 @@ import { AssociationServiceImpl } from '../service-impl/association.service-impl
 import { ServiceModule } from '../service/service.module';
 import { CACHE_ASSOCIATION_SERVICE } from '../service/association-service';
 import { WalletRepository } from '../dao/wallet.repository';
-import { Wallet } from '../domain/entity/wallet.entity';
 
 async function associationUpdate(loginToken: string) {
   let association = await factory().upset(Association).use(association => {
@@ -128,6 +127,7 @@ describe('AssociationController', () => {
     expect(response.body.data.address).toBeDefined();
     expect(response.body.data.type).toBeDefined();
   });
+
   afterAll(async () => {
     await connection.close();
     await applicationContext.close();

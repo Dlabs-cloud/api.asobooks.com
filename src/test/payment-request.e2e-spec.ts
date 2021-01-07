@@ -128,7 +128,8 @@ describe('invoice controller', () => {
               .get(url)
               .set('Authorization', testUser.token)
               .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
-              .expect(200).then(response => {
+              .expect(200)
+              .then(response => {
                 const data = response.body.data;
                 expect(parseInt(data.amountInMinorUnit)).toEqual(paymentRequest.amountInMinorUnit);
                 expect(data.description).toEqual(paymentRequest.description);
@@ -150,33 +151,33 @@ describe('invoice controller', () => {
   });
 
   it('Test that verifying a payment with a merchant reference will throw if not found', () => {
-  const verificationSpy = jest.spyOn(paymentTransaction, 'verify')
-    .mockImplementation((transactionRef: string) => {
-    throw new NotFoundException('Payment reference cannot be found');
-  });
-  return factory().upset(PaymentRequest).use(paymentRequest => {
-    return paymentRequest;
-  }).create().then(paymentRequest => {
-    const url = `/payments/confirm?reference=${paymentRequest.reference}&merchantReference=${paymentRequest.merchantReference}`;
-    return request(applicationContext.getHttpServer())
-      .get(url)
-      .set('Authorization', testUser.token)
-      .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
-      .expect(404).then(response => {
-        verificationSpy.mockRestore();
-        const body = response.body;
-        expect(body.code).toEqual(404);
-        expect(body.message).toEqual('Payment reference cannot be found');
+    const verificationSpy = jest.spyOn(paymentTransaction, 'verify')
+      .mockImplementation((transactionRef: string) => {
+        throw new NotFoundException('Payment reference cannot be found');
       });
+    return factory().upset(PaymentRequest).use(paymentRequest => {
+      return paymentRequest;
+    }).create().then(paymentRequest => {
+      const url = `/payments/confirm?reference=${paymentRequest.reference}&merchantReference=${paymentRequest.merchantReference}`;
+      return request(applicationContext.getHttpServer())
+        .get(url)
+        .set('Authorization', testUser.token)
+        .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+        .expect(404).then(response => {
+          verificationSpy.mockRestore();
+          const body = response.body;
+          expect(body.code).toEqual(404);
+          expect(body.message).toEqual('Payment reference cannot be found');
+        });
+    });
+
   });
 
-});
 
-
-afterAll(async () => {
-  await connection.close();
-  await applicationContext.close();
-});
+  afterAll(async () => {
+    await connection.close();
+    await applicationContext.close();
+  });
 
 })
 ;

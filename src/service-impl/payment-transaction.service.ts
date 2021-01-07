@@ -7,30 +7,39 @@ import { IllegalArgumentException } from '../exception/illegal-argument.exceptio
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
 import { PaymentOption, VerificationResponseDto } from '@dlabs/payment';
 import { PaymentChannel } from '../domain/enums/payment-channel.enum';
+import { PaymentTransactionSequence } from '../core/sequenceGenerators/payment-transaction.sequence';
 
 @Injectable()
 export class PaymentTransactionService {
 
-  constructor(private readonly connection: Connection) {
+  constructor(private readonly connection: Connection,
+              private readonly paymentTransactionSequence: PaymentTransactionSequence) {
   }
 
   createPaymentTransaction(entityManager: EntityManager,
                            paymentRequest: PaymentRequest,
                            confirmationResponse: VerificationResponseDto) {
-    this.connection.getCustomRepository(PaymentTransactionRepository).findOneItemByStatus({
+    return this.connection.getCustomRepository(PaymentTransactionRepository).findOneItemByStatus({
       paymentRequest: paymentRequest,
     }).then(paymentTransaction => {
       if (paymentTransaction) {
         throw new IllegalArgumentException('Payment transaction already exist for payment request');
       }
+    }).then(() => {
+      return this.paymentTransactionSequence
+        .next()
+        .then(paymentTransactionRef => {
+          const pTransaction = new PaymentTransaction();
+          pTransaction.paymentRequest = paymentRequest;
+          pTransaction.amountInMinorUnit = confirmationResponse.amountInMinorUnit;
+          pTransaction.datePaid = confirmationResponse.datePaid;
+          pTransaction.paidBy = confirmationResponse.paidBy;
+          pTransaction.reference = paymentTransactionRef;
+          pTransaction.paymentChannel = this.getPaymentChannel(confirmationResponse.paymentOption);
+          return entityManager.save(pTransaction);
+        });
     });
-    const pTransaction = new PaymentTransaction();
-    pTransaction.paymentRequest = paymentRequest;
-    pTransaction.amountInMinorUnit = confirmationResponse.amountInMinorUnit;
-    pTransaction.datePaid = confirmationResponse.datePaid;
-    pTransaction.paidBy = confirmationResponse.paidBy;
-    pTransaction.paymentChannel = this.getPaymentChannel(confirmationResponse.paymentOption);
-    return entityManager.save(pTransaction);
+
   }
 
 

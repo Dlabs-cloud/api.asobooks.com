@@ -17,6 +17,7 @@ import { InvoiceCodeSequence } from './sequenceGenerators/invoice-code.sequence'
 import { PaymentRequestReferenceSequence } from './sequenceGenerators/payment-request-reference.sequence';
 import { ServiceUnavailableExceptionFilter } from './exception-filters/service-unavailable-exception.filter';
 import { NotFoundExceptionFilter } from './exception-filters/not-found-exception.filter';
+import { PaymentTransactionSequence } from './sequenceGenerators/payment-transaction.sequence';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -66,6 +67,7 @@ const serviceUnAvailableException = {
     WalletSequence,
     InvoiceCodeSequence,
     PaymentRequestReferenceSequence,
+    PaymentTransactionSequence,
   ],
   providers: [
     PortalAccountSequence,
@@ -77,6 +79,7 @@ const serviceUnAvailableException = {
     WalletSequence,
     SubscriptionCodeSequence,
     InvoiceCodeSequence,
+    PaymentTransactionSequence,
     // CronStartup,
     MembershipCodeSequence,
     illegalArgumentExceptionFilter,

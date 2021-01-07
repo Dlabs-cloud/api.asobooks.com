@@ -32,5 +32,8 @@ export class PaymentTransaction extends BaseEntity {
   @Column()
   paidBy: string;
 
-
+  @Column({
+    unique: true,
+  })
+  reference: string;
 }
