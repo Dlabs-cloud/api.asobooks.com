@@ -3,6 +3,7 @@ import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { EntityRepository } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
+import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
 
 @EntityRepository(PaymentRequest)
 export class PaymentRequestRepository extends BaseRepository<PaymentRequest> {
@@ -20,5 +21,10 @@ export class PaymentRequestRepository extends BaseRepository<PaymentRequest> {
       status,
     });
 
+  }
+
+  findByPaymentTransaction(paymentTransactions: PaymentTransaction[]) {
+    const paymentTransactionIds = paymentTransactions.map(paymentTransaction => paymentTransaction.id);
+    return this.findByIds(paymentTransactionIds);
   }
 }

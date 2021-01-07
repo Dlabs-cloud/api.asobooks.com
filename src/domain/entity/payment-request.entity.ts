@@ -14,7 +14,6 @@ export class PaymentRequest extends BaseEntity {
   amountInMinorUnit: number;
   @Column({
     nullable: true,
-    unique: true,
   })
   merchantReference: string;
   @Column({
@@ -43,7 +42,9 @@ export class PaymentRequest extends BaseEntity {
   })
   paymentType: PaymentType;
 
-  @ManyToOne(() => Invoice, {})
+  @ManyToOne(() => Invoice, {
+    eager: true,
+  })
   @JoinColumn({ name: 'invoiceId', referencedColumnName: 'id' })
   invoice: Invoice;
 

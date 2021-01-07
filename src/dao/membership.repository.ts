@@ -7,6 +7,9 @@ import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Association } from '../domain/entity/association.entity';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { AccountType } from 'aws-sdk/clients/chime';
+import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
+import { PaymentRequest } from '../domain/entity/payment-request.entity';
+import { Invoice } from '../domain/entity/invoice.entity';
 
 
 @EntityRepository(Membership)
@@ -58,7 +61,7 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .getMany();
   }
 
-  public countByAssociationAndAccountTypeAndStatus(association: Association, accountType: AccountType, status = GenericStatusConstant.ACTIVE){
+  public countByAssociationAndAccountTypeAndStatus(association: Association, accountType: AccountType, status = GenericStatusConstant.ACTIVE) {
     return this.createQueryBuilder('membership')
       .select()
       .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount = portalAccount.id')
@@ -69,6 +72,19 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .setParameter('type', accountType)
       .setParameter('status', status)
       .getCount();
+  }
+
+
+  public findByPaymentTransactions(paymentTransactions: PaymentTransaction[]) {
+    const paymentTransactionIds = paymentTransactions.map(paymentTransaction => paymentTransaction.id);
+    return this.createQueryBuilder('membership')
+      .select()
+      .innerJoin(Invoice, 'invoice', 'invoice.createdById = membership.id')
+      .innerJoin(PaymentRequest, 'paymentRequest', 'paymentRequest.invoiceId = invoice.id')
+      .innerJoin(PaymentTransaction, 'paymentTransaction', 'paymentTransaction.paymentRequestId = paymentRequest.id')
+      .where('paymentTransaction IN (:...paymentTransactions)')
+      .setParameter('paymentTransactions', paymentTransactionIds)
+      .getMany();
   }
 
 

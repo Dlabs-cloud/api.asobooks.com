@@ -20,6 +20,8 @@ import { PaymentModule } from '@dlabs/payment';
   imports: [
     BullModule.registerQueueAsync(...QueueDataStoreConf.createBullOptions()),
 
+    ConfigModule,
+
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

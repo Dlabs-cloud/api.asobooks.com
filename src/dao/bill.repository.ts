@@ -21,18 +21,21 @@ export class BillRepository extends BaseRepository<Bill> {
   sumTotalAmountOnBills(association: Association, paymentStatus?: PaymentStatus, status = GenericStatusConstant.ACTIVE) {
     const queryBuilder = this.createQueryBuilder('bill')
       .where('bill.status = :status')
-      .innerJoin(Membership, 'membership', 'bill.membershipId = membership.id')
-      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccountId = portalAccount.id')
-      .innerJoin(Association, 'association', 'portalAccount.associationId = association.id')
-      .andWhere('association.id = : associationId');
+      .innerJoin(Membership, 'membership', 'bill.membership = membership.id')
+      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount = portalAccount.id')
+      .innerJoin(Association, 'association', 'portalAccount.association = association.id')
+      .andWhere('association.id = :associationId');
     if (paymentStatus) {
       queryBuilder.andWhere('bill.paymentStatus = :paymentStatus', { paymentStatus: paymentStatus });
     }
 
-    return queryBuilder.setParameter('associationId', association.id)
+    return queryBuilder
+      .setParameter('associationId', association.id)
       .setParameter('status', status)
-      .select('SUM(bill.payableAmountInMinorUnit)', 'sum')
-      .getRawOne();
+      .select('SUM(bill.payableAmountInMinorUnit)')
+      .getRawOne().then(result => {
+        return Promise.resolve(result.sum);
+      });
 
 
   }

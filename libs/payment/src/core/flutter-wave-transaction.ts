@@ -7,9 +7,9 @@ import {
 import { FlutterWaveInitiateTransactionResponseDto } from '@dlabs/payment/dto/flutter-wave/flutter-wave-initiate-transaction.response.dto';
 import { InitiateTransactionResponse } from '@dlabs/payment/dto/initiate-transaction.response';
 import { PaymentBase } from '@dlabs/payment/core/payment-base';
-import FlutterWaveResponse = VerifyTransactionResponseDto.FlutterWaveResponse;
 import { AxiosResponseException } from '@dlabs/payment/exception';
 import { NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { FlutterWaveResponse } from '@dlabs/payment/dto/flutter-wave/flutter-wave-verify-transaction.response.dto';
 
 
 export class FlutterWaveTransaction extends PaymentBase implements PaymentTransactionService {

@@ -8,7 +8,11 @@ export class Membership extends BaseEntity {
 
 
   @ManyToOne(type => PortalUser)
+  @JoinColumn({ name: 'portalUserId', referencedColumnName: 'id' })
   portalUser: PortalUser;
+
+  @Column({ nullable: true })
+  portalUserId: number;
 
   @ManyToOne(type => PortalAccount)
   @JoinColumn({ name: 'portalAccountId', referencedColumnName: 'id' })

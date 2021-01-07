@@ -10,7 +10,7 @@ export class InvoiceModelFactory implements FactoryHelper<Invoice> {
     const invoice = new Invoice();
     invoice.paymentStatus = faker.random.arrayElement(Object.values(PaymentStatus));
     invoice.createdBy = await modelFactory.create(Membership);
-    invoice.code = Date.now() + faker.random.alphaNumeric();
+    invoice.code = Date.now() + faker.random.alphaNumeric() + faker.random.uuid();
     invoice.payableAmountInMinorUnit = Math.ceil(Number(faker.finance.amount(2_00_00, 5000_00)));
     invoice.surchargeInMinorUnit = 2_00_00;
     invoice.amountPaidInMinorUnit = 0;

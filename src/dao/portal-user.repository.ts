@@ -42,6 +42,16 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
     return one;
   }
 
+  public findByMemberships(memberships: Membership[]) {
+    const membershipIds = memberships.map(membership => membership.id);
+    return this.createQueryBuilder('portalUser')
+      .select()
+      .innerJoin(Membership, 'membership', 'membership.portalUser = portalUser.id')
+      .where('membership.id IN (:...membership)')
+      .setParameter('membership', membershipIds)
+      .getMany();
+  }
+
 
   public countByAssociationAndAccountType(association: Association,
                                           portalAccountType?: PortalAccountTypeConstant,
@@ -97,6 +107,7 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
       .where('membership.id = :membership')
       .setParameter('membership', membership).getOne();
   }
+
 
   private createQueryBuilderGetByAssociationAndAccountType(association: Association,
                                                            portalAccountType?: PortalAccountTypeConstant,

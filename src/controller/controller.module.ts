@@ -18,6 +18,8 @@ import { VerificationController } from './verification-controller';
 import { MembershipBillsController } from './membership-bills.controller';
 import { InvoiceController } from './invoice.controller';
 import { PaymentRequestController } from './payment-request.controller';
+import { PaymentTransactionHandler } from './handlers/payment-transaction.handler';
+import { DashboardController } from './dashboard.controller';
 
 @Module({
   imports: [
@@ -39,10 +41,12 @@ import { PaymentRequestController } from './payment-request.controller';
     VerificationController,
     InvoiceController,
     PaymentRequestController,
+    DashboardController,
   ],
   providers: [
     ResponseTransformInterceptor,
     LoggedInUserInfoHandler,
+    PaymentTransactionHandler,
     {
 
       provide: APP_INTERCEPTOR,

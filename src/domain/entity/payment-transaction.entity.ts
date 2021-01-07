@@ -20,7 +20,7 @@ export class PaymentTransaction extends BaseEntity {
   })
   datePaid: Date;
 
-  @OneToOne(() => PaymentRequest)
+  @OneToOne(() => PaymentRequest, { eager: true })
   @JoinColumn({ name: 'paymentRequestId' })
   paymentRequest: PaymentRequest;
 

@@ -13,7 +13,7 @@ export class PaymentTransactionRepository extends BaseRepository<PaymentTransact
       paymentRequest: paymentRequest,
     });
   }
-
+  
   findByAssociationTop(association: Association, limit: number, status = GenericStatusConstant.ACTIVE) {
     limit = limit > 20 ? 20 : limit;
     return this.createQueryBuilder('paymentTransaction')
