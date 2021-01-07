@@ -28,12 +28,12 @@ export class CronStartup implements OnApplicationBootstrap {
         // });
     */
 
-    await this.billGenerationQueue.add(null, {
-        repeat: {
-          every: 2 * 1000,
-        },
-      },
-    );
+    // await this.billGenerationQueue.add(null, {
+    //     repeat: {
+    //       every: 2 * 1000,
+    //     },
+    //   },
+    // );
 
   }
 
