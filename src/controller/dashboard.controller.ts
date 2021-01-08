@@ -42,16 +42,21 @@ export class DashboardController {
                   .then(wallet => dashboardDto.walletBalanceInMinorUnit = wallet.availableBalanceInMinorUnits)
                   .then(() => {
                     return this.connection.getCustomRepository(PaymentTransactionRepository).findByAssociationTop(association, 10)
-                      .then((paymentTransactions) => {
-                        return this.paymentTransactionHandler.transform(paymentTransactions).then(paymentTransactions => dashboardDto.paymentTransactions = paymentTransactions);
-                      }).then(() => {
-                        console.log(dashboardDto);
-                        return new ApiResponseDto(dashboardDto);
-                      });
+                        .then((paymentTransactions) => {
+                            return this.paymentTransactionHandler.transform(paymentTransactions).then(paymentTransactions => dashboardDto.paymentTransactions = paymentTransactions);
+                        }).then(() => {
+                            console.log(dashboardDto);
+                            return new ApiResponseDto(dashboardDto);
+                        });
                   });
 
               });
           });
       });
   }
+
+    @Get('recent-activities')
+    recentActivities() {
+        return 'Ok';
+    }
 }

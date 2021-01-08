@@ -19,11 +19,9 @@ import { FileUploadResponseDto } from '../file-upload.response.dto';
 
 export class AssociationRequestDto {
   @IsString()
-  @IsOptional()
-  name?: string;
-  @IsOptional()
+  name: string;
   @IsEnum(AssociationTypeConstant)
-  type?: AssociationTypeConstant;
+  type: AssociationTypeConstant;
   @ValidateNested()
   @IsOptional()
   @IsObject()

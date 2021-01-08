@@ -1,30 +1,32 @@
-import { Injectable } from '@nestjs/common';
-import { PortalUser } from '../domain/entity/portal-user.entity';
-import { Connection, EntityManager } from 'typeorm';
-import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { PortalAccountService } from './portal-account.service';
-import { UserUpdateDto } from '../dto/user/user-update.dto';
-import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
-import { EventBus } from '@nestjs/cqrs';
-import { ForgotPasswordEvent } from '../event/forgot-password.event';
-import { ChangePasswordDto } from '../dto/auth/request/change-password.dto';
-import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { MembershipService } from './membership.service';
-import { MembershipRepository } from '../dao/membership.repository';
-import { MemberSignUpDto } from '../dto/user/member-sign-up.dto';
-import { Association } from '../domain/entity/association.entity';
-import { PortalUserService } from './portal-user.service';
-import { PortalUserDto } from '../dto/portal-user.dto';
-import { PortalAccountRepository } from '../dao/portal-account.repository';
-import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
-import { PortalAccountDto } from '../dto/portal-account.dto';
-import { MembershipDto } from '../dto/membership.dto';
-import { AssociationMembershipSignUpEvent } from '../event/AssociationMembershipSignUpEvent';
-import { PortalUserRepository } from '../dao/portal-user.repository';
-import { GroupService } from './group.service';
-import { GroupRepository } from '../dao/group.repository';
-import { GroupTypeConstant } from '../domain/enums/group-type.constant';
-import { IllegalArgumentException } from '../exception/illegal-argument.exception';
+import {Injectable} from '@nestjs/common';
+import {PortalUser} from '../domain/entity/portal-user.entity';
+import {Connection, EntityManager} from 'typeorm';
+import {GenericStatusConstant} from '../domain/enums/generic-status-constant';
+import {PortalAccountService} from './portal-account.service';
+import {UserUpdateDto} from '../dto/user/user-update.dto';
+import {AuthenticationUtils} from '../common/utils/authentication-utils.service';
+import {EventBus} from '@nestjs/cqrs';
+import {ForgotPasswordEvent} from '../event/forgot-password.event';
+import {ChangePasswordDto} from '../dto/auth/request/change-password.dto';
+import {PortalAccount} from '../domain/entity/portal-account.entity';
+import {MembershipService} from './membership.service';
+import {MembershipRepository} from '../dao/membership.repository';
+import {MemberSignUpDto} from '../dto/user/member-sign-up.dto';
+import {Association} from '../domain/entity/association.entity';
+import {PortalUserService} from './portal-user.service';
+import {PortalUserDto} from '../dto/portal-user.dto';
+import {PortalAccountRepository} from '../dao/portal-account.repository';
+import {PortalAccountTypeConstant} from '../domain/enums/portal-account-type-constant';
+import {PortalAccountDto} from '../dto/portal-account.dto';
+import {MembershipDto} from '../dto/membership.dto';
+import {AssociationMembershipSignUpEvent} from '../event/AssociationMembershipSignUpEvent';
+import {PortalUserRepository} from '../dao/portal-user.repository';
+import {GroupService} from './group.service';
+import {GroupRepository} from '../dao/group.repository';
+import {GroupTypeConstant} from '../domain/enums/group-type.constant';
+import {IllegalArgumentException} from '../exception/illegal-argument.exception';
+import {AssociationActivityEvent} from "../event/AssociationActivityEvent";
+import {ActivityTypeConstant} from "../domain/enums/activity-type-constant";
 
 @Injectable()
 export class UserManagementService {
@@ -164,12 +166,13 @@ export class UserManagementService {
 
 
       if (!groups && groups.length < 0) {
-        throw new IllegalArgumentException('Association does dont have a general group');
+        throw new IllegalArgumentException('Association does not have a general group');
       }
       let group = groups[0];
 
       await this.groupService.addMember(entityManager, group, membership);
       this.eventBus.publish(new AssociationMembershipSignUpEvent(portalUser));
+      this.eventBus.publish(new AssociationActivityEvent(association, portalUser, ActivityTypeConstant.NEW_USER));
       return membership;
     });
 
