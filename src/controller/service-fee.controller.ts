@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
 import { ServiceFeeRequestDto } from '../dto/service-fee-request.dto';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
@@ -11,12 +11,20 @@ import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-c
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { MembershipRepository } from '../dao/membership.repository';
 import { Membership } from '../domain/entity/membership.entity';
+import { ServiceSubscriptionSearchQueryDto } from '../dto/service-subscription-search-query.dto';
+import { SubscriptionRepository } from '../dao/subscription.repository';
+import { ServiceFee } from '../domain/entity/service.fee.entity';
+import { Bill } from '../domain/entity/bill.entity';
+import * as moment from 'moment';
+import { SubscriptionHandler } from './handlers/subscriptionHandler';
+import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 
 @Controller('service-fees')
 @AssociationContext()
 export class ServiceFeeController {
 
   constructor(private readonly serviceFeeService: ServiceFeeService,
+              private readonly subscriptionHandler: SubscriptionHandler,
               private readonly connection: Connection) {
   }
 
@@ -52,4 +60,51 @@ export class ServiceFeeController {
     return new ApiResponseDto(serviceFee);
   }
 
+  @Get('/:code/subscriptions')
+  public getSubscriptions(@Param('code') code: string,
+                          @Query() query: ServiceSubscriptionSearchQueryDto,
+                          @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
+    query.offset = query.offset ?? 0;
+    query.offset = query.offset < 0 ? 0 : query.offset;
+    query.limit = query.limit ?? 20;
+    query.limit = query.limit > 100 ? 20 : query.limit;
+    return this.connection.getCustomRepository(ServiceFeeRepository)
+      .findByCodeAndAssociation(code, requestPrincipal.association)
+      .then(serviceFee => {
+        if (!serviceFee) {
+          throw new NotFoundException(`ServiceFee with code ${code} cannot be found`);
+        }
+        const queryBuilder = this.connection.getCustomRepository(SubscriptionRepository)
+          .createQueryBuilder('subscription')
+          .select()
+          .innerJoin(ServiceFee, 'serviceFee', 'serviceFee.id = subscription.serviceFee')
+          .leftJoin(Bill, 'bill', 'bill.subscription = bill.id')
+          .limit(query.limit)
+          .offset(query.offset)
+          .where('subscription.serviceFee = :serviceFee', { serviceFee: serviceFee.id });
+
+        if (query.startDate) {
+          queryBuilder.andWhere('subscription.startDate >= :date', { date: moment(query.startDate, 'DD/MM/YYYY') });
+        }
+        if (query.endDate) {
+          queryBuilder.andWhere('subscription.endDate <= :date', { date: moment(query.endDate, 'DD/MM/YYYY') });
+        }
+
+        return queryBuilder.getManyAndCount().then(manyAndCount => {
+          const total = manyAndCount[1];
+          const subscriptions = manyAndCount[0];
+          return this.subscriptionHandler.transform(serviceFee, subscriptions).then(subscriptionSummaries => {
+            const paginatedResponse: PaginatedResponseDto<any> = {
+              items: subscriptionSummaries,
+              itemsPerPage: query.limit,
+              offset: query.offset,
+              total: total,
+            };
+            return Promise.resolve(paginatedResponse);
+          });
+        });
+
+      });
+
+  }
 }

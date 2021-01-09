@@ -31,11 +31,11 @@ export class DashboardController {
       .countByAssociationAndAccountTypeAndStatus(requestPrincipal.association, PortalAccountTypeConstant.MEMBER_ACCOUNT)
       .then(membershipCount => dashboardDto.numberOfMembers = membershipCount)
       .then(() => {
-        return this.connection.getCustomRepository(BillRepository).sumTotalAmountOnBills(association)
-          .then(billSum => dashboardDto.totalExpectedDue = billSum)
+        return this.connection.getCustomRepository(BillRepository).sumTotalAmountByAssociationAndPaymentStatus(association)
+          .then(billSum => dashboardDto.totalExpectedDueInMinorUnit = billSum)
           .then(() => {
-            return this.connection.getCustomRepository(BillRepository).sumTotalAmountOnBills(association, PaymentStatus.NOT_PAID)
-              .then(paidBillCount => dashboardDto.totalAmountReceived = paidBillCount)
+            return this.connection.getCustomRepository(BillRepository).sumTotalAmountByAssociationAndPaymentStatus(association, PaymentStatus.NOT_PAID)
+              .then(paidBillCount => dashboardDto.totalAmountReceivedInMinorUnit = paidBillCount)
               .then(() => {
                 return this.connection.getCustomRepository(WalletRepository)
                   .findByAssociation(association)
@@ -45,7 +45,6 @@ export class DashboardController {
                       .then((paymentTransactions) => {
                         return this.paymentTransactionHandler.transform(paymentTransactions).then(paymentTransactions => dashboardDto.paymentTransactions = paymentTransactions);
                       }).then(() => {
-                        console.log(dashboardDto);
                         return new ApiResponseDto(dashboardDto);
                       });
                   });

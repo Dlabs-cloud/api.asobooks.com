@@ -7,19 +7,20 @@ import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorato
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { BaseController } from './BaseController';
 import { FileTypeConstant } from '../domain/enums/file-type-constant';
-import { AssociationService, CACHE_ASSOCIATION_SERVICE } from '../service/association-service';
+import { ASSOCIATION_SERVICE, AssociationService, CACHE_ASSOCIATION_SERVICE } from '../service/association-service';
 import { CacheService } from '../common/utils/cache.service';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { AssociationOnboardingDto } from '../dto/association-onboarding.dto';
 
 @Controller('associations')
 export class AssociationController extends BaseController {
-  constructor(@Inject(CACHE_ASSOCIATION_SERVICE) private readonly associationService: AssociationService,
+  constructor(@Inject(ASSOCIATION_SERVICE) private readonly associationService: AssociationService,
               private readonly cacheService: CacheService) {
     super();
   }
 
   @UseInterceptors(
+
     ImageUploadInterceptor('logo'),
   )
   @ApiConsumes('multipart/form-data')

@@ -1,7 +1,7 @@
 import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
 import * as moment from 'moment';
 
-export function IsDateFormat(param: DateValidator, options?: ValidationOptions) {
+export function IsValidDate(param: DateValidator, options?: ValidationOptions) {
 
   return function(object: Object, propertyName: string) {
     registerDecorator({

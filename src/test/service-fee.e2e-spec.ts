@@ -17,10 +17,16 @@ import { ServiceFee } from '../domain/entity/service.fee.entity';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { ServiceFeeRepository } from '../dao/service-fee.repository';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { Subscription } from '../domain/entity/subcription.entity';
+import { Bill } from '../domain/entity/bill.entity';
+import { PaymentStatus } from '../domain/enums/payment-status.enum';
+import { json } from 'express';
 
 describe('Service fees set up test ', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
+  let association: Association;
+  let assoUser;
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await baseTestingModule().compile();
@@ -29,20 +35,19 @@ describe('Service fees set up test ', () => {
     await applicationContext.init();
 
     connection = getConnection();
-  });
-
-  it('test that service fee can be created with recipients', async () => {
-
-    let association = await factory().upset(Association).use(association => {
+    association = await factory().upset(Association).use(association => {
       association.status = GenericStatusConstant.ACTIVE;
       return association;
     }).create();
 
-    let assoUser = await getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
+    assoUser = await getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
+  });
+
+  it('test that service fee can be created with recipients', async () => {
+
     let awaitAssoUsers = [0, 1, 2, 3].map(number => {
       return getAssociationUser(GenericStatusConstant.ACTIVE, null, association, PortalAccountTypeConstant.MEMBER_ACCOUNT);
     });
-
 
     let usersIds = (await Promise.all(awaitAssoUsers)).map(assoUser => assoUser.user.membership.portalUser.id);
 
@@ -87,27 +92,18 @@ describe('Service fees set up test ', () => {
       name: faker.random.words(2),
       type: faker.random.arrayElement(Object.values(ServiceTypeConstant)),
     };
-    let association = await factory().upset(Association).use(association => {
-      association.status = GenericStatusConstant.ACTIVE;
-      return association;
-    }).create();
-    let associationUser = await getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
+
 
     let response = await request(applicationContext.getHttpServer())
       .post('/service-fees')
-      .set('Authorization', associationUser.token)
-      .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
+      .set('Authorization', assoUser.token)
+      .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
       .send(requestPayload);
     expect(response.status).toEqual(201);
     expect(response.body.data.code).toBeDefined();
   });
 
   it('test that a service fee can be gotten by code', async () => {
-    let association = await factory().upset(Association).use(association => {
-      association.status = GenericStatusConstant.ACTIVE;
-      return association;
-    }).create();
-    let associationUser = await getAssociationUser(GenericStatusConstant.ACTIVE, null, association);
     let serviceFee = await factory().upset(ServiceFee).use((serviceFee) => {
       serviceFee.association = association;
       return serviceFee;
@@ -115,8 +111,8 @@ describe('Service fees set up test ', () => {
 
     let response = await request(applicationContext.getHttpServer())
       .get(`/service-fees/${serviceFee.code}`)
-      .set('Authorization', associationUser.token)
-      .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code);
+      .set('Authorization', assoUser.token)
+      .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code);
     expect(response.status).toEqual(200);
     let data = response.body.data;
     expect(data.status).toEqual(GenericStatusConstant.ACTIVE);
@@ -127,6 +123,45 @@ describe('Service fees set up test ', () => {
     expect(data.billingStartDate).toBeDefined();
   });
 
+
+  it('test that a a services subscriptions summary can be gotten by code', async () => {
+    jest.setTimeout(9000);
+    let serviceFee = await factory().upset(ServiceFee).use((serviceFee) => {
+      serviceFee.association = association;
+      return serviceFee;
+    }).create();
+
+    const subscriptions = await factory().upset(Subscription)
+      .use(subscription => {
+        subscription.serviceFee = serviceFee;
+        return subscription;
+      }).createMany(3);
+
+    const billsPromise: Promise<Bill[]>[] = subscriptions.map(subscription => {
+      return factory().upset(Bill).use(bill => {
+        bill.subscription = subscription;
+        bill.paymentStatus = PaymentStatus.PAID;
+        bill.payableAmountInMinorUnit = 2000_00;
+        bill.totalAmountPaidInMinorUnit = 2000_00;
+        return bill;
+      }).createMany(2);
+    });
+    await Promise.all(billsPromise);
+
+    return request(applicationContext.getHttpServer())
+      .get(`/service-fees/${serviceFee.code}/subscriptions?limit=2`)
+      .set('Authorization', assoUser.token)
+      .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
+      .expect(200)
+      .then(response => {
+        const data = response.body;
+        expect(data.total).toEqual(3);
+        expect(data.offset).toEqual(0);
+        expect(parseInt(data.itemsPerPage.toString())).toEqual(2);
+        expect(data.items.length).toEqual(2);
+      });
+
+  });
 
   afterAll(async () => {
     await connection.close();

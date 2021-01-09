@@ -12,7 +12,7 @@ export class PaymentTransactionModelFactory implements FactoryHelper<PaymentTran
     paymentTransaction.amountInMinorUnit = Math.ceil(Number(faker.finance.amount(2_00_00, 5000_00)));
     paymentTransaction.paymentChannel = faker.random.arrayElement(Object.values(PaymentChannel));
     paymentTransaction.paidBy = `${faker.name.firstName()} ${faker.name.lastName()}`;
-    paymentTransaction.reference = Date.now() + faker.random.alphaNumeric();
+    paymentTransaction.reference = Date.now() + faker.random.alphaNumeric() + faker.random.uuid();
     paymentTransaction.datePaid = faker.date.future();
     return paymentTransaction;
   }

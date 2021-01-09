@@ -1,7 +1,7 @@
 import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 import { BillingCycleConstant } from '../domain/enums/billing-cycle.constant';
 import { IsArray, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min, ValidateIf } from 'class-validator';
-import { IsDateFormat } from '../common/class-validators/date.validator';
+import { IsValidDate } from '../common/class-validators/date.validator';
 
 export class ServiceFeeRequestDto {
 
@@ -28,7 +28,7 @@ export class ServiceFeeRequestDto {
   cycle?: BillingCycleConstant;
 
   @IsNotEmpty()
-  @IsDateFormat({
+  @IsValidDate({
     isBefore: false,
     format: 'DD/MM/YYYY',
   }, {
@@ -36,7 +36,7 @@ export class ServiceFeeRequestDto {
   })
   billingStartDate?: string;
 
-  @IsDateFormat({
+  @IsValidDate({
     isBefore: false,
     format: 'DD/MM/YYYY',
   }, {

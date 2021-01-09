@@ -18,7 +18,7 @@ export class BillRepository extends BaseRepository<Bill> {
     }, GenericStatusConstant.ACTIVE);
   }
 
-  sumTotalAmountOnBills(association: Association, paymentStatus?: PaymentStatus, status = GenericStatusConstant.ACTIVE) {
+  sumTotalAmountByAssociationAndPaymentStatus(association: Association, paymentStatus?: PaymentStatus, status = GenericStatusConstant.ACTIVE) {
     const queryBuilder = this.createQueryBuilder('bill')
       .where('bill.status = :status')
       .innerJoin(Membership, 'membership', 'bill.membership = membership.id')
@@ -67,5 +67,16 @@ export class BillRepository extends BaseRepository<Bill> {
     }
     billSelectQueryBuilder.setParameter('membership', membership.id);
     return billSelectQueryBuilder.getManyAndCount();
+  }
+
+  countBySubscriptionsAndPaymentStatus(subscriptions: Subscription[], paymentStatus: PaymentStatus) {
+    const subscriptionIds = subscriptions.map(subscription => subscription.id);
+    return this.createQueryBuilder('bill')
+      .where('bill.subscription IN (:...ids)', { ids: subscriptionIds })
+      .andWhere('bill.paymentStatus = :paymentStatus', { paymentStatus })
+      .select('COUNT(bill.id)')
+      .addSelect('bill.subscription')
+      .groupBy('bill.subscription')
+      .getRawMany();
   }
 }

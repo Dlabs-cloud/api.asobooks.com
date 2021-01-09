@@ -20,6 +20,7 @@ import { InvoiceController } from './invoice.controller';
 import { PaymentRequestController } from './payment-request.controller';
 import { PaymentTransactionHandler } from './handlers/payment-transaction.handler';
 import { DashboardController } from './dashboard.controller';
+import { SubscriptionHandler } from './handlers/subscriptionHandler';
 
 @Module({
   imports: [
@@ -27,8 +28,7 @@ import { DashboardController } from './dashboard.controller';
     ServiceModule,
     DaoModule,
     CoreModule,
-    CommonModule,
-  ],
+    CommonModule],
   controllers: [
     TestController,
     AuthenticationController,
@@ -47,6 +47,7 @@ import { DashboardController } from './dashboard.controller';
     ResponseTransformInterceptor,
     LoggedInUserInfoHandler,
     PaymentTransactionHandler,
+    SubscriptionHandler,
     {
 
       provide: APP_INTERCEPTOR,

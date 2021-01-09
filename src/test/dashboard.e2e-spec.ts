@@ -15,6 +15,8 @@ import { Membership } from '../domain/entity/membership.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import * as request from 'supertest';
 import { Wallet } from '../domain/entity/wallet.entity';
+import { Bill } from '../domain/entity/bill.entity';
+import { PaymentStatus } from '../domain/enums/payment-status.enum';
 
 describe('Dashboard', () => {
 
@@ -32,6 +34,7 @@ describe('Dashboard', () => {
 
 
   it('Test that dashboard data can be viewed', async () => {
+    jest.setTimeout(9000);
     const association = await factory().create(Association);
 
     await factory().upset(Wallet).use(wallet => {
@@ -39,6 +42,7 @@ describe('Dashboard', () => {
       wallet.availableBalanceInMinorUnits = 2_000_000_00;
       return wallet;
     }).create();
+
 
     const memberships = await factory().upset(PortalAccount).use(portalAccount => {
       portalAccount.association = association;
@@ -50,6 +54,20 @@ describe('Dashboard', () => {
         return membership;
       }).createMany(10);
     });
+
+    await factory().upset(Bill).use(bill => {
+      bill.paymentStatus = PaymentStatus.NOT_PAID;
+      bill.membership = memberships[0];
+      bill.payableAmountInMinorUnit = 5000_00;
+      return bill;
+    }).createMany(5);
+
+    await factory().upset(Bill).use(bill => {
+      bill.paymentStatus = PaymentStatus.PAID;
+      bill.membership = memberships[0];
+      bill.payableAmountInMinorUnit = 5000_00;
+      return bill;
+    }).createMany(4);
 
     const invoicePromises = memberships.map(membership => {
       return factory().upset(Invoice).use(invoice => {
@@ -86,7 +104,13 @@ describe('Dashboard', () => {
           .set('Authorization', testUser.token)
           .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
           .expect(200).then(response => {
-            console.log(response.body);
+
+            const data = response.body.data;
+            expect(data.numberOfMembers).toEqual(10);
+            expect(parseInt(data.totalExpectedDueInMinorUnit.toString())).toEqual(4500000);
+            expect(parseInt(data.totalAmountReceivedInMinorUnit.toString())).toEqual(2500000);
+            expect(parseInt(data.walletBalanceInMinorUnit.toString())).toEqual(200000000);
+            expect(data)
           });
       });
   });
