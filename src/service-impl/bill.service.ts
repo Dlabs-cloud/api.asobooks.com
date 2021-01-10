@@ -29,6 +29,7 @@ export class BillService {
             const amountPaidPerBill = paymentInvoice.amountPaidInMinorUnit / bills.length;
             const billsPromise: Promise<Bill>[] = bills.map(bill => {
               bill.paymentStatus = paymentInvoice.paymentStatus;
+              bill.datePaid = paymentInvoice.datePaid;
               bill.totalAmountPaidInMinorUnit = amountPaidPerBill;
               return entityManager.save(bill);
             });

@@ -46,6 +46,8 @@ export class Invoice extends BaseEntity {
     nullable: true,
   })
   createdById: number;
+  @Column({ nullable: true })
+  datePaid: Date;
 
 
 }

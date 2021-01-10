@@ -36,4 +36,7 @@ export class PaymentTransaction extends BaseEntity {
     unique: true,
   })
   reference: string;
+
+  @Column()
+  confirmedPaymentDate: Date;
 }

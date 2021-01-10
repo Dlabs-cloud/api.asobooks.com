@@ -70,5 +70,8 @@ export class PaymentRequest extends BaseEntity {
   })
   amountPaidInMinorUnit: number;
 
+  @Column({ nullable: true })
+  datePaid: Date;
+
 
 }

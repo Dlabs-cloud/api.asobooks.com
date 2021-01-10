@@ -18,7 +18,8 @@ export class PaymentTransactionService {
 
   createPaymentTransaction(entityManager: EntityManager,
                            paymentRequest: PaymentRequest,
-                           confirmationResponse: VerificationResponseDto) {
+                           confirmationResponse: VerificationResponseDto,
+                           datePaid: Date) {
     return this.connection.getCustomRepository(PaymentTransactionRepository).findOneItemByStatus({
       paymentRequest: paymentRequest,
     }).then(paymentTransaction => {
@@ -35,6 +36,7 @@ export class PaymentTransactionService {
           pTransaction.datePaid = confirmationResponse.datePaid;
           pTransaction.paidBy = confirmationResponse.paidBy;
           pTransaction.reference = paymentTransactionRef;
+          pTransaction.confirmedPaymentDate = datePaid;
           pTransaction.paymentChannel = this.getPaymentChannel(confirmationResponse.paymentOption);
           return entityManager.save(pTransaction);
         });

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { Connection } from 'typeorm/connection/Connection';
@@ -12,6 +12,10 @@ import { ApiResponseDto } from '../dto/api-response.dto';
 import { PaymentTransactionRepository } from '../dao/payment-transaction.repository';
 import { PaymentTransactionHandler } from './handlers/payment-transaction.handler';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
+import * as moment from 'moment';
+import { getMonthDateRange } from '../common/useful-Utils';
+import { ContributionGraphDto } from '../dto/contribution-graph-dto';
+import { mockNewSignUpUser } from '../test/test-utils';
 
 @Controller('/dashboard')
 @AssociationContext()
@@ -21,6 +25,45 @@ export class DashboardController {
               private readonly paymentTransactionHandler: PaymentTransactionHandler) {
   }
 
+
+  @Get('contribution-graph')
+  contributionGraph(@RequestPrincipalContext() requestPrincipal: RequestPrincipal, @Query('year') year: number) {
+    year = year || moment().year();
+    const contributionGraphDto = new ContributionGraphDto();
+    const monthlyContributionPromise = [...Array(12).keys()].map(monthIndex => {
+      const monthDateRange = getMonthDateRange(year, monthIndex + 1);
+      return this.connection.getCustomRepository(BillRepository)
+        .sumTotalBillByMonthRange(requestPrincipal.association, monthDateRange.start, monthDateRange.end).then(sum => {
+          return Promise.resolve({ month: monthIndex, amountInMinorUnit: sum?.sum || 0 });
+        });
+    });
+
+    return Promise.all(monthlyContributionPromise).then(monthlyContribution => {
+      contributionGraphDto.monthlyContribution = monthlyContribution;
+      const startOFTheYear = moment().startOf('year').toDate();
+      const endOfTheYear = moment().endOf('year').toDate();
+      return this.connection
+        .getCustomRepository(BillRepository)
+        .sumTotalBillByMonthRange(requestPrincipal.association, startOFTheYear, endOfTheYear)
+        .then(sum => {
+          contributionGraphDto.yearAmountInMinorUnit = sum?.sum || 0;
+        }).then(() => {
+          const startOfTheMonth = moment().startOf('month').toDate();
+          const endOfTheMonth = moment().endOf('month').toDate();
+          return this.connection
+            .getCustomRepository(BillRepository)
+            .sumTotalBillByMonthRange(requestPrincipal.association, startOfTheMonth, endOfTheMonth)
+            .then(sum => {
+              contributionGraphDto.monthAmountInMinorUnit = sum?.sum || 0;
+            });
+        }).then(() => {
+          return new ApiResponseDto(contributionGraphDto);
+        });
+
+    });
+
+
+  }
 
   @Get()
   dashBoardStarts(@RequestPrincipalContext() requestPrincipal: RequestPrincipal) {

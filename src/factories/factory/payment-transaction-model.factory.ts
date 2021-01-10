@@ -14,6 +14,7 @@ export class PaymentTransactionModelFactory implements FactoryHelper<PaymentTran
     paymentTransaction.paidBy = `${faker.name.firstName()} ${faker.name.lastName()}`;
     paymentTransaction.reference = Date.now() + faker.random.alphaNumeric() + faker.random.uuid();
     paymentTransaction.datePaid = faker.date.future();
+    paymentTransaction.confirmedPaymentDate = new Date();
     return paymentTransaction;
   }
 

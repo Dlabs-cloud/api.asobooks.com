@@ -3,7 +3,7 @@ import { Connection } from 'typeorm/connection/Connection';
 import { TestingModule } from '@nestjs/testing';
 import { baseTestingModule, getAssociationUser } from './test-utils';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
-import { getConnection } from 'typeorm';
+import { getConnection, IsNull, Not } from 'typeorm';
 import { factory } from './factory';
 import { Association } from '../domain/entity/association.entity';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
@@ -17,6 +17,7 @@ import * as request from 'supertest';
 import { Wallet } from '../domain/entity/wallet.entity';
 import { Bill } from '../domain/entity/bill.entity';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
+import { BillRepository } from '../dao/bill.repository';
 
 describe('Dashboard', () => {
 
@@ -33,8 +34,60 @@ describe('Dashboard', () => {
   });
 
 
+  it('test that contribution graph can be viewed on the dash', async () => {
+    const association = await factory().create(Association);
+    return connection.getCustomRepository(BillRepository).delete({
+      id: Not(IsNull()),
+    }).then(() => {
+      return factory().upset(PortalAccount).use(portalAccount => {
+        portalAccount.association = association;
+        portalAccount.type = PortalAccountTypeConstant.MEMBER_ACCOUNT;
+        return portalAccount;
+      }).create().then(portalAccount => {
+        return factory().upset(Membership).use(membership => {
+          membership.portalAccount = portalAccount;
+          return membership;
+        }).create().then(membership => {
+          return factory().upset(Bill).use(bill => {
+            bill.totalAmountPaidInMinorUnit = 7000_00;
+            bill.membership = membership;
+            bill.datePaid = new Date(1999, 5, 25);
+            return bill;
+          }).createMany(2).then(() => {
+            return factory().upset(Bill).use(bill => {
+              bill.totalAmountPaidInMinorUnit = 5000_00;
+              bill.membership = membership;
+              bill.datePaid = new Date();
+              return bill;
+            }).createMany(2).then(() => {
+              return getAssociationUser(GenericStatusConstant.ACTIVE, null, association)
+                .then(testUser => {
+                  return request(applicationContext.getHttpServer())
+                    .get('/dashboard/contribution-graph?year=1999')
+                    .set('Authorization', testUser.token)
+                    .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+                    .expect(200).then(response => {
+                      const data = response.body.data;
+                      expect(data.monthlyContribution).toBeDefined();
+                      expect(parseInt(data.yearAmountInMinorUnit.toString())).toEqual(1000000);
+                      expect(parseInt(data.monthAmountInMinorUnit.toString())).toEqual(1000000);
+                      const indexFive = data.monthlyContribution[5];
+                      expect(parseInt(indexFive.amountInMinorUnit.toString())).toEqual(14000_00);
+                      expect(parseInt(indexFive.month.toString())).toEqual(5)
+                    });
+                });
+
+            });
+
+          });
+        });
+      });
+    });
+  });
+
+
   it('Test that dashboard data can be viewed', async () => {
-    jest.setTimeout(9000);
+    jest.setTimeout(12000);
     const association = await factory().create(Association);
 
     await factory().upset(Wallet).use(wallet => {
@@ -110,7 +163,7 @@ describe('Dashboard', () => {
             expect(parseInt(data.totalExpectedDueInMinorUnit.toString())).toEqual(4500000);
             expect(parseInt(data.totalAmountReceivedInMinorUnit.toString())).toEqual(2500000);
             expect(parseInt(data.walletBalanceInMinorUnit.toString())).toEqual(200000000);
-            expect(data)
+            expect(data);
           });
       });
   });

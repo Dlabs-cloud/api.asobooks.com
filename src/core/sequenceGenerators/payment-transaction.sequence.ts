@@ -2,7 +2,7 @@ import { SequenceGeneratorImpl } from '../../common/sequence/SequenceGeneratorIm
 import { Injectable } from '@nestjs/common';
 import { Connection } from 'typeorm';
 import * as uuid from 'uuid';
-import { zeroFills } from '../../common/UsefulUtils';
+import { zeroFills } from '../../common/useful-Utils';
 
 @Injectable()
 export class PaymentTransactionSequence extends SequenceGeneratorImpl {

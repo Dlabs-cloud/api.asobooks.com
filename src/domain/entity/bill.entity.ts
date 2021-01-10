@@ -46,5 +46,7 @@ export class Bill extends BaseEntity {
     default: PaymentStatus.NOT_PAID,
   })
   paymentStatus: PaymentStatus;
+  @Column({ nullable: true })
+  datePaid: Date;
 
 }

@@ -12,7 +12,7 @@ export class BillModelFactory implements FactoryHelper<Bill> {
       .then(member => {
         let currentAmountInMinorUnit = Math.ceil(Number(faker.finance.amount(100, 1_000_000)));
         let bill = new Bill();
-        bill.code = faker.random.alphaNumeric(10);
+        bill.code = faker.random.alphaNumeric(10) + Date.now() + faker.random.uuid();
         bill.currentAmountInMinorUnit = currentAmountInMinorUnit;
         bill.description = faker.lorem.sentence(10);
         bill.disCountInPercentage = 0;

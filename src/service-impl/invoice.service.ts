@@ -23,12 +23,13 @@ export class InvoiceService {
   }
 
 
-  updateInvoice(entityManager: EntityManager, paymentRequest: PaymentRequest) {
+  updateInvoice(entityManager: EntityManager, paymentRequest: PaymentRequest, datePaid) {
     return this.connection
       .getCustomRepository(InvoiceRepository)
       .findById(GenericStatusConstant.ACTIVE, paymentRequest.invoiceId).then(invoices => {
         const invoice = invoices[0];
         invoice.paymentStatus = paymentRequest.paymentStatus;
+        invoice.datePaid = datePaid;
         return entityManager.save(invoice);
       }).then(invoice => {
         return this.billService.updateBill(entityManager, invoice).then(() => Promise.resolve(invoice));

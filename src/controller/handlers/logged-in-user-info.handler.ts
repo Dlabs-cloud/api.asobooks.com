@@ -53,7 +53,6 @@ export class LoggedInUserInfoHandler {
 
       });
 
-
     return {
       ...response,
       ...{

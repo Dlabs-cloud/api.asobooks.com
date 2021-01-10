@@ -79,4 +79,16 @@ export class BillRepository extends BaseRepository<Bill> {
       .groupBy('bill.subscription')
       .getRawMany();
   }
+
+  sumTotalBillByMonthRange(association: Association, startDate: Date, endDate: Date, status = GenericStatusConstant.ACTIVE) {
+    return this.createQueryBuilder('bill')
+      .innerJoin(Membership, 'membership', 'bill.membership = membership.id')
+      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount = portalAccount.id')
+      .where('bill.datePaid >= :startDate', { startDate })
+      .andWhere('bill.datePaid <= :endDate', { endDate })
+      .andWhere('bill.status = :status', { status })
+      .andWhere('portalAccount.association = :association', { association: association.id })
+      .select('SUM(bill.totalAmountPaidInMinorUnit)')
+      .getRawOne();
+  }
 }

@@ -1,6 +1,6 @@
 import { SequenceGeneratorImpl } from '../../common/sequence/SequenceGeneratorImpl';
 import { Connection } from 'typeorm';
-import { zeroFills } from '../../common/UsefulUtils';
+import { zeroFills } from '../../common/useful-Utils';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

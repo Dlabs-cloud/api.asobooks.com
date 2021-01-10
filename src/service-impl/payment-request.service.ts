@@ -24,6 +24,7 @@ import { WalletService } from './wallet.service';
 import { InitiateTransactionResponse } from '@dlabs/payment/dto/initiate-transaction.response';
 import { Association } from '../domain/entity/association.entity';
 import { PortalUser } from '../domain/entity/portal-user.entity';
+import { now } from 'moment';
 
 @Injectable()
 export class PaymentRequestService {
@@ -57,6 +58,7 @@ export class PaymentRequestService {
 
   updatePayment(paymentRequest: PaymentRequest, merchantReference: string) {
     return this.connection.transaction(entityManager => {
+      const datePaid = new Date();
       return this.thirdPartyPaymentTransactionService
         .verify(merchantReference)
         .then((response: VerificationResponseDto) => {
@@ -67,12 +69,13 @@ export class PaymentRequestService {
           }
           paymentRequest.amountPaidInMinorUnit = response.amountInMinorUnit;
           paymentRequest.merchantReference = merchantReference;
+          paymentRequest.datePaid = datePaid;
           return entityManager.save(paymentRequest)
             .then(paymentRequest => {
               return this.paymentTransactionService
-                .createPaymentTransaction(entityManager, paymentRequest, response)
+                .createPaymentTransaction(entityManager, paymentRequest, response, datePaid)
                 .then(paymentTransaction => {
-                  return this.invoiceService.updateInvoice(entityManager, paymentRequest)
+                  return this.invoiceService.updateInvoice(entityManager, paymentRequest, datePaid)
                     .then(invoice => {
                       return this.walletService.topUpWallet(entityManager, paymentTransaction).then(() => {
                         return Promise.resolve(paymentRequest);
