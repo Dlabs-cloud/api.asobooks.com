@@ -1,5 +1,3 @@
-import { Invoice } from '../domain/entity/invoice.entity';
-import { Column } from 'typeorm';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
 
 export class InvoiceResponseDto {
