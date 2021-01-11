@@ -1,6 +1,6 @@
 import { BaseRepository } from '../common/BaseRepository';
 import { Association } from '../domain/entity/association.entity';
-import { Brackets, EntityRepository } from 'typeorm';
+import { EntityRepository } from 'typeorm';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalUser } from '../domain/entity/portal-user.entity';

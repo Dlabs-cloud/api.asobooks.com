@@ -2,7 +2,6 @@ import { BaseRepository } from '../common/BaseRepository';
 import { EntityRepository } from 'typeorm';
 import { Setting } from '../domain/entity/setting.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { settings } from 'cluster';
 
 @EntityRepository(Setting)
 export class SettingRepository extends BaseRepository<Setting> {

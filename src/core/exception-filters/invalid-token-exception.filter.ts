@@ -1,5 +1,4 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
-import { IllegalArgumentException } from '../../exception/illegal-argument.exception';
 import { InvalidtokenException } from '../../exception/invalidtoken.exception';
 import { Response } from 'express';
 

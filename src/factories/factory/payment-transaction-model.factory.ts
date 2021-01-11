@@ -2,7 +2,6 @@ import { FactoryHelper } from '../../common/test-starter/orm-faker/contracts/Fac
 import { PaymentTransaction } from '../../domain/entity/payment-transaction.entity';
 import { ModelFactory } from '../../common/test-starter/orm-faker/contracts/ModelFactory';
 import { PaymentRequest } from '../../domain/entity/payment-request.entity';
-import { PaymentProvider } from '../../domain/enums/payment-provider.enum';
 import { PaymentChannel } from '../../domain/enums/payment-channel.enum';
 
 export class PaymentTransactionModelFactory implements FactoryHelper<PaymentTransaction> {

@@ -1,11 +1,8 @@
 import { FactoryHelper } from '../../common/test-starter/orm-faker/contracts/FactoryHelper';
-import { Setting } from '../../domain/entity/setting.entity';
 import { ModelFactory } from '../../common/test-starter/orm-faker/contracts/ModelFactory';
 import { Subscription } from '../../domain/entity/subcription.entity';
 import { ServiceTypeConstant } from '../../domain/enums/service-type.constant';
 import { ServiceFee } from '../../domain/entity/service.fee.entity';
-import { factory } from '../../test/factory';
-import { PortalAccountTypeConstant } from '../../domain/enums/portal-account-type-constant';
 import * as moment from 'moment';
 
 export class SubscriptionModelFactory implements FactoryHelper<Subscription> {

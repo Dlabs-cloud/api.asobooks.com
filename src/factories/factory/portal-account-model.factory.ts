@@ -1,7 +1,6 @@
 import { FactoryHelper } from '../../common/test-starter/orm-faker/contracts/FactoryHelper';
 import { PortalAccount } from '../../domain/entity/portal-account.entity';
 import { ModelFactory } from '../../common/test-starter/orm-faker/contracts/ModelFactory';
-import { GenderConstant } from '../../domain/enums/gender-constant';
 import { PortalAccountTypeConstant } from '../../domain/enums/portal-account-type-constant';
 import { Association } from '../../domain/entity/association.entity';
 

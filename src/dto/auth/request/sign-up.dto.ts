@@ -1,5 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MIN_LENGTH, MinLength } from 'class-validator';
-import { AssociationTypeConstant } from '../../../domain/enums/association-type-constant';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class SignUpDto {
   @IsString()

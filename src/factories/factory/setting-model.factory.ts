@@ -1,6 +1,6 @@
-import {FactoryHelper} from '../../common/test-starter/orm-faker/contracts/FactoryHelper';
-import {Setting} from '../../domain/entity/setting.entity';
-import {ModelFactory} from '../../common/test-starter/orm-faker/contracts/ModelFactory';
+import { FactoryHelper } from '../../common/test-starter/orm-faker/contracts/FactoryHelper';
+import { Setting } from '../../domain/entity/setting.entity';
+import { ModelFactory } from '../../common/test-starter/orm-faker/contracts/ModelFactory';
 
 export class SettingModelFactory implements FactoryHelper<Setting> {
 

@@ -1,5 +1,4 @@
 import { ArgumentsHost, Catch, ExceptionFilter, ForbiddenException } from '@nestjs/common';
-import { InActiveAccountException } from '../../exception/in-active-account.exception';
 import { Response } from 'express';
 
 

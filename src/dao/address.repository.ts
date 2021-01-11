@@ -1,6 +1,5 @@
 import { EntityManager, EntityRepository } from 'typeorm';
 import { Address } from '../domain/entity/address.entity';
-import { Country } from '../domain/entity/country.entity';
 import { AddressDto } from '../dto/address.dto';
 import { BaseRepository } from '../common/BaseRepository';
 

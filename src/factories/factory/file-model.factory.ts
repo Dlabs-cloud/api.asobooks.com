@@ -1,7 +1,6 @@
 import { FactoryHelper } from '../../common/test-starter/orm-faker/contracts/FactoryHelper';
 import { FileResource } from '../../domain/entity/file.entity';
 import { ModelFactory } from '../../common/test-starter/orm-faker/contracts/ModelFactory';
-import { PortalAccountTypeConstant } from '../../domain/enums/portal-account-type-constant';
 import { FileTypeConstant } from '../../domain/enums/file-type-constant';
 
 export class FileModelFactory implements FactoryHelper<FileResource> {
