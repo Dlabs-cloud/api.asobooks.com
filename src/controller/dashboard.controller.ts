@@ -59,8 +59,8 @@ export class DashboardController {
 
     @Get('recent-activities')
     recentActivities(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
-                     @Query('limit')limit: number = 1,
-                     @Query('offset')offset: number = 2) {
+                     @Query('limit')limit: number = 20,
+                     @Query('offset')offset: number = 0) {
         console.log(limit, offset)
         return this.connection
             .getCustomRepository(AssociationActivityRepository)

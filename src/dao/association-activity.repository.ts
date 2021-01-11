@@ -11,7 +11,7 @@ export class AssociationActivityRepository extends BaseRepository<AssociationAct
             .where("association-activity.associationId = :associationId", {associationId})
             .andWhere('association-activity.status = :status', {status})
             .limit(limit)
-            .take(offset)
+            .offset(offset)
             .getMany();
     }
 }
