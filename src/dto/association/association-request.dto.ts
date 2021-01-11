@@ -1,16 +1,6 @@
-import {
-  isBoolean,
-  IsBoolean, IsBooleanString,
-  IsEnum,
-  IsNotEmpty,
-  IsObject,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { IsBooleanString, IsEnum, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { AssociationTypeConstant } from '../../domain/enums/association-type-constant';
 import { FileDto } from '../file.dto';
-import { IsEntityExist } from '../../common/class-validators/entity-constraint.validator';
 import { AssociationAddressRequestDto } from './association-address-request.dto';
 import { BankInfoRequestDto } from '../user/bank-info-request.dto';
 import { Type } from 'class-transformer';

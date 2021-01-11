@@ -1,7 +1,6 @@
 import { FactoryHelper } from '../../common/test-starter/orm-faker/contracts/FactoryHelper';
 import { Invoice } from '../../domain/entity/invoice.entity';
 import { ModelFactory } from '../../common/test-starter/orm-faker/contracts/ModelFactory';
-import { ServiceTypeConstant } from '../../domain/enums/service-type.constant';
 import { PaymentStatus } from '../../domain/enums/payment-status.enum';
 import { Membership } from '../../domain/entity/membership.entity';
 

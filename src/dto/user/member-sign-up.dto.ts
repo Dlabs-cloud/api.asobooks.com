@@ -1,13 +1,4 @@
-import {
-  IsBoolean,
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsObject,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AssociationAddressRequestDto } from '../association/association-address-request.dto';
 import { PortalAccountTypeConstant } from '../../domain/enums/portal-account-type-constant';
