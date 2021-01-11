@@ -1,25 +1,27 @@
-import { Controller, Get } from '@nestjs/common';
-import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
-import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
-import { Connection } from 'typeorm/connection/Connection';
-import { MembershipRepository } from '../dao/membership.repository';
-import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
-import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
-import { DashboardDto } from '../dto/dashboard.dto';
-import { BillRepository } from '../dao/bill.repository';
-import { WalletRepository } from '../dao/wallet.repository';
-import { ApiResponseDto } from '../dto/api-response.dto';
-import { PaymentTransactionRepository } from '../dao/payment-transaction.repository';
-import { PaymentTransactionHandler } from './handlers/payment-transaction.handler';
-import { PaymentStatus } from '../domain/enums/payment-status.enum';
+import {Controller, Get, Query} from '@nestjs/common';
+import {AssociationContext} from '../dlabs-nest-starter/security/annotations/association-context';
+import {RequestPrincipalContext} from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
+import {Connection} from 'typeorm/connection/Connection';
+import {MembershipRepository} from '../dao/membership.repository';
+import {RequestPrincipal} from '../dlabs-nest-starter/security/request-principal.service';
+import {PortalAccountTypeConstant} from '../domain/enums/portal-account-type-constant';
+import {DashboardDto} from '../dto/dashboard.dto';
+import {BillRepository} from '../dao/bill.repository';
+import {WalletRepository} from '../dao/wallet.repository';
+import {ApiResponseDto} from '../dto/api-response.dto';
+import {PaymentTransactionRepository} from '../dao/payment-transaction.repository';
+import {PaymentTransactionHandler} from './handlers/payment-transaction.handler';
+import {PaymentStatus} from '../domain/enums/payment-status.enum';
+import {AssociationActivityRepository} from "../dao/association-activity.repository";
+import {GenericStatusConstant} from "../domain/enums/generic-status-constant";
 
 @Controller('/dashboard')
 @AssociationContext()
 export class DashboardController {
 
-  constructor(private readonly connection: Connection,
-              private readonly paymentTransactionHandler: PaymentTransactionHandler) {
-  }
+    constructor(private readonly connection: Connection,
+                private readonly paymentTransactionHandler: PaymentTransactionHandler) {
+    }
 
 
   @Get()
@@ -56,7 +58,15 @@ export class DashboardController {
   }
 
     @Get('recent-activities')
-    recentActivities() {
-        return 'Ok';
+    recentActivities(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
+                     @Query('limit')limit: number = 1,
+                     @Query('offset')offset: number = 2) {
+        console.log(limit, offset)
+        return this.connection
+            .getCustomRepository(AssociationActivityRepository)
+            .findAssociationActivitiesById(requestPrincipal.association.id, GenericStatusConstant.ACTIVE, limit, offset)
+            .then((response) => {
+                return new ApiResponseDto(response);
+            })
     }
 }
