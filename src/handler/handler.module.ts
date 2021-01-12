@@ -7,12 +7,12 @@ import {ConfigModule} from '@nestjs/config';
 import {ForgotPasswordHandler} from './forgot-password-handler';
 import {ServiceModule} from '../service/service.module';
 import {ConfModule} from '../conf/conf.module';
-import {AssociationActivityHandler} from "./association-activity-handler";
+import {ActivityLogEventHandler} from "./activity-log-event-handler";
 
 @Module({
     imports: [DaoModule, ServiceModule, ConfigModule, ConfModule],
     controllers: [],
-    providers: [NewUserAccountSignUpHandler, ForgotPasswordHandler, AssociationActivityHandler],
+    providers: [NewUserAccountSignUpHandler, ForgotPasswordHandler, ActivityLogEventHandler],
 })
 export class HandlerModule {
 
