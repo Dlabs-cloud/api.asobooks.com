@@ -20,6 +20,7 @@ import { InvoiceController } from './invoice.controller';
 import { PaymentRequestController } from './payment-request.controller';
 import { PaymentTransactionHandler } from './handlers/payment-transaction.handler';
 import { DashboardController } from './dashboard.controller';
+import { ActivitiesController } from './activities.controller';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { DashboardController } from './dashboard.controller';
     InvoiceController,
     PaymentRequestController,
     DashboardController,
+    ActivitiesController,
   ],
   providers: [
     ResponseTransformInterceptor,

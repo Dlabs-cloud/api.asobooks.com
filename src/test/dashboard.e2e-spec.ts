@@ -15,6 +15,7 @@ import { Membership } from '../domain/entity/membership.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import * as request from 'supertest';
 import { Wallet } from '../domain/entity/wallet.entity';
+import { ActivityLogEntity } from '../domain/entity/activity-log.entity';
 
 describe('Dashboard', () => {
 
@@ -91,6 +92,32 @@ describe('Dashboard', () => {
       });
   });
 
+
+  it('Test that recent activities can be gotten', async () => {
+    const url = '/activities';
+    return getAssociationUser().then(assoUser => {
+      return factory().upset(ActivityLogEntity).use(activityLog => {
+        activityLog.association = assoUser.association;
+        return activityLog;
+      }).createMany(7).then(activityLogs => {
+        return request(applicationContext.getHttpServer())
+          .get(url)
+          .set('Authorization', assoUser.token)
+          .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
+          .expect(200).then(response => {
+            const data = response.body.data;
+            expect(data.itemsPerPage).toEqual(20);
+            expect(data.offset).toEqual(0);
+            expect(data.total).toEqual(7);
+            const items = data.items;
+            const item = items[0];
+            expect(item.date).toBeDefined();
+            expect(item.description).toBeDefined();
+            expect(item.type).toBeDefined();
+          });
+      });
+    });
+  });
 
   afterAll(async () => {
     await connection.close();

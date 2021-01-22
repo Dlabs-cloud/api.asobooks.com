@@ -59,31 +59,5 @@ export class DashboardController {
       });
   }
 
-  @Get('activities')
-  recentActivities(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
-                   @Query('limit')limit: number = 20,
-                   @Query('offset')offset: number = 0) {
-    return this.connection
-      .getCustomRepository(ActivityLogRepository)
-      .findByAssociationAndLimitAndOffset(requestPrincipal.association, limit, offset)
-      .then((response) => {
-        const activityLogs = response[0];
-        const count = response[1];
-        const data = activityLogs.map(activityLog => {
-          return {
-            date: activityLog.updatedAt,
-            description: activityLog.description,
-            type: activityLog.activityType,
-          };
-        });
-        const res: PaginatedResponseDto<ActivityLogDto> = {
-          items: data,
-          itemsPerPage: limit,
-          offset: offset,
-          total: count,
 
-        };
-        return Promise.resolve(res);
-      });
-  }
 }
