@@ -5,7 +5,6 @@ import { ISendMailOptions } from '@nestjs-modules/mailer/dist/interfaces/send-ma
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import { AuthenticationService } from '../service-impl/authentication.service';
 import * as faker from 'faker';
-import { LoginDto } from '../dto/auth/request/login.dto';
 import { AssociationTypeConstant } from '../domain/enums/association-type-constant';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalUser } from '../domain/entity/portal-user.entity';

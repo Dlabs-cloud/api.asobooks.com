@@ -20,6 +20,7 @@ import { InvoiceController } from './invoice.controller';
 import { PaymentRequestController } from './payment-request.controller';
 import { PaymentTransactionHandler } from './handlers/payment-transaction.handler';
 import { DashboardController } from './dashboard.controller';
+import { ActivitiesController } from './activities.controller';
 import { SubscriptionHandler } from './handlers/subscriptionHandler';
 
 @Module({
@@ -42,6 +43,7 @@ import { SubscriptionHandler } from './handlers/subscriptionHandler';
     InvoiceController,
     PaymentRequestController,
     DashboardController,
+    ActivitiesController,
   ],
   providers: [
     ResponseTransformInterceptor,

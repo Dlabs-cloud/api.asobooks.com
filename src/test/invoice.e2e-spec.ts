@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
 import { TestingModule } from '@nestjs/testing';
-import { baseTestingModule, getAssociationUser, getTestUser } from './test-utils';
+import { baseTestingModule, getAssociationUser } from './test-utils';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { getConnection } from 'typeorm';
 import { factory } from './factory';

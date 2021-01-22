@@ -3,9 +3,7 @@ import { BankRepository } from '../../dao/bank.repository';
 import * as fs from 'fs';
 import { Writable } from 'stream';
 import { Connection, getConnection } from 'typeorm';
-import { Bank } from '../../domain/entity/bank.entity';
 import StreamArray = require('stream-json/streamers/StreamArray');
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class BankUploadStartup implements OnApplicationBootstrap {

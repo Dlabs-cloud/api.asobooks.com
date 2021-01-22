@@ -25,6 +25,8 @@ import { GroupService } from './group.service';
 import { GroupRepository } from '../dao/group.repository';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
+import { ActivityLogEventBuilder } from '../event/builder/activity-log.event.builder';
+import { ActivityTypeConstant } from '../domain/enums/activity-type-constant';
 
 @Injectable()
 export class UserManagementService {
@@ -109,7 +111,7 @@ export class UserManagementService {
   }
 
 
-  public async createAssociationMember(membershipSignUp: MemberSignUpDto, association: Association) {
+  public async createAssociationMember(membershipSignUp: MemberSignUpDto, association: Association, createdBy: PortalUser) {
     return await this.connection.transaction(async entityManager => {
       let portalUser = await this.connection.getCustomRepository(PortalUserRepository)
         .findByUserNameOrEmailOrPhoneNumberAndNotDeleted(membershipSignUp.email);
@@ -164,12 +166,19 @@ export class UserManagementService {
 
 
       if (!groups && groups.length < 0) {
-        throw new IllegalArgumentException('Association does dont have a general group');
+        throw new IllegalArgumentException('Association does not have a general group');
       }
       let group = groups[0];
 
-      await this.groupService.addMember(entityManager, group, membership);
-      this.eventBus.publish(new AssociationMembershipSignUpEvent(portalUser));
+      await this.groupService.addMember(entityManager, group, membership).then(() => {
+        this.eventBus.publish(new AssociationMembershipSignUpEvent(portalUser));
+      }).then(() => {
+        const activityLogEntity = new ActivityLogEventBuilder(ActivityTypeConstant.USER_MANAGEMENT, association)
+          .addDescription(`New user added`).by(createdBy)
+          .build();
+        this.eventBus.publish(activityLogEntity);
+      });
+
       return membership;
     });
 

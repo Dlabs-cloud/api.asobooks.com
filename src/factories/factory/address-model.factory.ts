@@ -1,7 +1,6 @@
 import { FactoryHelper } from '../../common/test-starter/orm-faker/contracts/FactoryHelper';
 import { Address } from '../../domain/entity/address.entity';
 import { ModelFactory } from '../../common/test-starter/orm-faker/contracts/ModelFactory';
-import { add } from 'winston';
 import { Country } from '../../domain/entity/country.entity';
 
 export class AddressModelFactory implements FactoryHelper<Address> {

@@ -15,6 +15,7 @@ import { Membership } from '../domain/entity/membership.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import * as request from 'supertest';
 import { Wallet } from '../domain/entity/wallet.entity';
+import { ActivityLogEntity } from '../domain/entity/activity-log.entity';
 import { Bill } from '../domain/entity/bill.entity';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { BillRepository } from '../dao/bill.repository';

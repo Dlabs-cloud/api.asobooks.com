@@ -9,6 +9,8 @@ import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
 import { Connection } from 'typeorm/connection/Connection';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
+import { Association } from '../domain/entity/association.entity';
+import { ActivityLog } from '../domain/entity/activity-log.entity';
 
 @Injectable()
 export class FakerService implements OnApplicationBootstrap {
@@ -31,19 +33,30 @@ export class FakerService implements OnApplicationBootstrap {
                 return pUser;
               }).create();
             }).then(portalUser => {
-              return this.seedPaymentTransactions(portalUser);
+              return getTestUser(GenericStatusConstant.ACTIVE, portalUser, null, PortalAccountTypeConstant.EXECUTIVE_ACCOUNT)
+                .then(testUser => {
+                  return this.seedPaymentTransactions(testUser.association)
+                    .then(() => {
+                      return this.seedActivityLog(testUser.association);
+                    });
+                });
             });
         }
       });
 
   }
 
+  seedActivityLog(association: Association) {
+    return factory().upset(ActivityLog).use(activityLog => {
+      activityLog.association = association;
+      return activityLog;
+    }).createMany(50);
+  }
 
-  async seedPaymentTransactions(portalUser: PortalUser) {
-    console.log('Seedeing payment transactions');
-    const testUser = await getTestUser(GenericStatusConstant.ACTIVE, portalUser, null, PortalAccountTypeConstant.EXECUTIVE_ACCOUNT);
+
+  async seedPaymentTransactions(association) {
     const paymentRequests = await factory().upset(PaymentRequest).use(paymentRequest => {
-      paymentRequest.association = testUser.association;
+      paymentRequest.association = association;
       return paymentRequest;
     }).createMany(50);
     for (let i = 0; i < paymentRequests.length; i++) {

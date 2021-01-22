@@ -16,6 +16,10 @@ import * as moment from 'moment';
 import { getMonthDateRange } from '../common/useful-Utils';
 import { ContributionGraphDto } from '../dto/contribution-graph-dto';
 import { mockNewSignUpUser } from '../test/test-utils';
+import { ActivityLogRepository } from '../dao/activity-log.repository';
+import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { PaginatedResponseDto } from '../dto/paginated-response.dto';
+import { ActivityLogDto } from '../dto/activity-log.dto';
 
 @Controller('/dashboard')
 @AssociationContext()
@@ -96,4 +100,6 @@ export class DashboardController {
           });
       });
   }
+
+
 }
