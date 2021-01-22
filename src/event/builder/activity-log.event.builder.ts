@@ -1,7 +1,7 @@
 import { Association } from '../../domain/entity/association.entity';
 import { ActivityTypeConstant } from '../../domain/enums/activity-type-constant';
 import { PortalUser } from '../../domain/entity/portal-user.entity';
-import { ActivityLogEntity } from '../../domain/entity/activity-log.entity';
+import { ActivityLog } from '../../domain/entity/activity-log.entity';
 
 export class ActivityLogEventBuilder {
   private description: string;
@@ -23,7 +23,7 @@ export class ActivityLogEventBuilder {
   }
 
   build() {
-    return new ActivityLogEntity();
+    return new ActivityLog();
   }
 
 }
