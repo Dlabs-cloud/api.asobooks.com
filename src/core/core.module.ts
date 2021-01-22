@@ -18,7 +18,7 @@ import { PaymentRequestReferenceSequence } from './sequenceGenerators/payment-re
 import { ServiceUnavailableExceptionFilter } from './exception-filters/service-unavailable-exception.filter';
 import { NotFoundExceptionFilter } from './exception-filters/not-found-exception.filter';
 import { PaymentTransactionSequence } from './sequenceGenerators/payment-transaction.sequence';
-
+import { CommonModule } from '../common/common.module';
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
   useClass: IllegalArgumentExceptionFilter,
@@ -55,6 +55,7 @@ const serviceUnAvailableException = {
 @Module({
   imports: [
     ConfModule,
+    CommonModule,
   ],
   exports: [
     PortalAccountSequence,

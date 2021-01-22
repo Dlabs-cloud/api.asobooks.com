@@ -25,6 +25,7 @@ import { InvoiceService } from './invoice.service';
 import { PaymentRequestService } from './payment-request.service';
 import { PaymentTransactionService } from './payment-transaction.service';
 import { BankService } from './bank.service';
+import { FakerService } from './faker.service';
 
 
 @Module({
@@ -79,6 +80,7 @@ import { BankService } from './bank.service';
     BankService,
     WalletService,
     BillService,
+    FakerService,
   ],
 })
 export class ServiceImplModule {
