@@ -24,7 +24,7 @@ export class PaymentRequestRepository extends BaseRepository<PaymentRequest> {
   }
 
   findByPaymentTransaction(paymentTransactions: PaymentTransaction[]) {
-    const paymentTransactionIds = paymentTransactions.map(paymentTransaction => paymentTransaction.id);
-    return this.findByIds(paymentTransactionIds);
+    const paymentRequestIds = paymentTransactions.map(paymentTransaction => paymentTransaction.paymentRequestId);
+    return this.findByIds(paymentRequestIds);
   }
 }

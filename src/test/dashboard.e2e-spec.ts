@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
 import { TestingModule } from '@nestjs/testing';
-import { baseTestingModule, getAssociationUser } from './test-utils';
+import { baseTestingModule, getAssociationUser, mockPaymentTransactions } from './test-utils';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { getConnection, IsNull, Not } from 'typeorm';
 import { factory } from './factory';
@@ -15,7 +15,6 @@ import { Membership } from '../domain/entity/membership.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import * as request from 'supertest';
 import { Wallet } from '../domain/entity/wallet.entity';
-import { ActivityLogEntity } from '../domain/entity/activity-log.entity';
 import { Bill } from '../domain/entity/bill.entity';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { BillRepository } from '../dao/bill.repository';
@@ -74,7 +73,7 @@ describe('Dashboard', () => {
                       expect(parseInt(data.monthAmountInMinorUnit.toString())).toEqual(1000000);
                       const indexFive = data.monthlyContribution[5];
                       expect(parseInt(indexFive.amountInMinorUnit.toString())).toEqual(14000_00);
-                      expect(parseInt(indexFive.month.toString())).toEqual(5)
+                      expect(parseInt(indexFive.month.toString())).toEqual(5);
                     });
                 });
 
@@ -98,58 +97,7 @@ describe('Dashboard', () => {
     }).create();
 
 
-    const memberships = await factory().upset(PortalAccount).use(portalAccount => {
-      portalAccount.association = association;
-      portalAccount.type = PortalAccountTypeConstant.MEMBER_ACCOUNT;
-      return portalAccount;
-    }).create().then(portalAccount => {
-      return factory().upset(Membership).use(membership => {
-        membership.portalAccount = portalAccount;
-        return membership;
-      }).createMany(10);
-    });
-
-    await factory().upset(Bill).use(bill => {
-      bill.paymentStatus = PaymentStatus.NOT_PAID;
-      bill.membership = memberships[0];
-      bill.payableAmountInMinorUnit = 5000_00;
-      return bill;
-    }).createMany(5);
-
-    await factory().upset(Bill).use(bill => {
-      bill.paymentStatus = PaymentStatus.PAID;
-      bill.membership = memberships[0];
-      bill.payableAmountInMinorUnit = 5000_00;
-      return bill;
-    }).createMany(4);
-
-    const invoicePromises = memberships.map(membership => {
-      return factory().upset(Invoice).use(invoice => {
-        invoice.association = association;
-        invoice.createdBy = membership;
-        return invoice;
-      }).create();
-    });
-
-    const invoices: Invoice[] = await Promise.all(invoicePromises);
-
-    const paymentRequestPromises = invoices.map(invoice => {
-      return factory().upset(PaymentRequest).use(paymentRequest => {
-        paymentRequest.association = association;
-        paymentRequest.invoice = invoice;
-        return paymentRequest;
-      }).create();
-    });
-    const paymentRequests = await Promise.all(paymentRequestPromises);
-    const paymentTransactionPromises = paymentRequests.map(paymentRequest => {
-      return factory().upset(PaymentTransaction).use(paymentTransaction => {
-        paymentTransaction.paymentRequest = paymentRequest;
-        return paymentTransaction;
-      }).create();
-    });
-
-    await Promise.all(paymentTransactionPromises);
-
+    await mockPaymentTransactions(association);
     return getAssociationUser(GenericStatusConstant.ACTIVE, null, association)
       .then(testUser => {
         const url = '/dashboard';
@@ -158,7 +106,6 @@ describe('Dashboard', () => {
           .set('Authorization', testUser.token)
           .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
           .expect(200).then(response => {
-
             const data = response.body.data;
             expect(data.numberOfMembers).toEqual(10);
             expect(parseInt(data.totalExpectedDueInMinorUnit.toString())).toEqual(4500000);

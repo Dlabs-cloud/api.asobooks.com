@@ -11,6 +11,7 @@ import { Connection } from 'typeorm/connection/Connection';
 import { AuthenticationUtils } from '../common/utils/authentication-utils.service';
 import { Association } from '../domain/entity/association.entity';
 import { ActivityLog } from '../domain/entity/activity-log.entity';
+import { Wallet } from '../domain/entity/wallet.entity';
 
 @Injectable()
 export class FakerService implements OnApplicationBootstrap {
@@ -19,7 +20,13 @@ export class FakerService implements OnApplicationBootstrap {
               private readonly authenticationUtils: AuthenticationUtils) {
   }
 
+
   onApplicationBootstrap(): any {
+    return this.seed();
+
+  }
+
+  seed() {
     const email = 'seeders@asobooks.com';
     return this.connection.getCustomRepository(PortalUserRepository)
       .findByUserNameOrEmailOrPhoneNumberAndNotDeleted(email).then(poralUser => {
@@ -37,13 +44,15 @@ export class FakerService implements OnApplicationBootstrap {
                 .then(testUser => {
                   return this.seedPaymentTransactions(testUser.association)
                     .then(() => {
+                      return this.createWallet(testUser.association);
+                    })
+                    .then(() => {
                       return this.seedActivityLog(testUser.association);
                     });
                 });
             });
         }
       });
-
   }
 
   seedActivityLog(association: Association) {
@@ -67,6 +76,14 @@ export class FakerService implements OnApplicationBootstrap {
       }).create();
     }
 
+  }
+
+
+  createWallet(association: Association) {
+    return factory().upset(Wallet).use(wallet => {
+      wallet.association = association;
+      return wallet;
+    }).create();
   }
 
 

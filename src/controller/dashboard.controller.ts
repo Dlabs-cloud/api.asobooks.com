@@ -15,11 +15,7 @@ import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import * as moment from 'moment';
 import { getMonthDateRange } from '../common/useful-Utils';
 import { ContributionGraphDto } from '../dto/contribution-graph-dto';
-import { mockNewSignUpUser } from '../test/test-utils';
-import { ActivityLogRepository } from '../dao/activity-log.repository';
-import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { PaginatedResponseDto } from '../dto/paginated-response.dto';
-import { ActivityLogDto } from '../dto/activity-log.dto';
+
 
 @Controller('/dashboard')
 @AssociationContext()
@@ -79,18 +75,21 @@ export class DashboardController {
       .then(membershipCount => dashboardDto.numberOfMembers = membershipCount)
       .then(() => {
         return this.connection.getCustomRepository(BillRepository).sumTotalAmountByAssociationAndPaymentStatus(association)
-          .then(billSum => dashboardDto.totalExpectedDueInMinorUnit = billSum)
+          .then(billSum => dashboardDto.totalExpectedDueInMinorUnit = billSum ?? 0)
           .then(() => {
             return this.connection.getCustomRepository(BillRepository).sumTotalAmountByAssociationAndPaymentStatus(association, PaymentStatus.NOT_PAID)
-              .then(paidBillCount => dashboardDto.totalAmountReceivedInMinorUnit = paidBillCount)
+              .then(paidBillCount => dashboardDto.totalAmountReceivedInMinorUnit = paidBillCount ?? 0)
               .then(() => {
                 return this.connection.getCustomRepository(WalletRepository)
                   .findByAssociation(association)
                   .then(wallet => dashboardDto.walletBalanceInMinorUnit = wallet.availableBalanceInMinorUnits)
                   .then(() => {
-                    return this.connection.getCustomRepository(PaymentTransactionRepository).findByAssociationTop(association, 10)
+                    return this.connection.getCustomRepository(PaymentTransactionRepository).findByAssociationAndQuery(association, {
+                      limit: 10,
+                      offSet: 0,
+                    })
                       .then((paymentTransactions) => {
-                        return this.paymentTransactionHandler.transform(paymentTransactions).then(paymentTransactions => dashboardDto.paymentTransactions = paymentTransactions);
+                        return this.paymentTransactionHandler.transform(paymentTransactions[0]).then(paymentTransactions => dashboardDto.paymentTransactions = paymentTransactions);
                       }).then(() => {
                         return new ApiResponseDto(dashboardDto);
                       });

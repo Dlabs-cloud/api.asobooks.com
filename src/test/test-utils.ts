@@ -28,6 +28,12 @@ import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { WorkerModule } from '../worker/worker.module';
 import { PaymentModule } from '@dlabs/payment';
+import { FakerService } from '../service-impl/faker.service';
+import { Bill } from '../domain/entity/bill.entity';
+import { PaymentStatus } from '../domain/enums/payment-status.enum';
+import { Invoice } from '../domain/entity/invoice.entity';
+import { PaymentRequest } from '../domain/entity/payment-request.entity';
+import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
 
 
 export const init = async (entityManager?: EntityManager) => {
@@ -48,6 +54,60 @@ export const init = async (entityManager?: EntityManager) => {
 
 };
 
+
+export const mockPaymentTransactions = async (association: Association) => {
+  const memberships = await factory().upset(PortalAccount).use(portalAccount => {
+    portalAccount.association = association;
+    portalAccount.type = PortalAccountTypeConstant.MEMBER_ACCOUNT;
+    return portalAccount;
+  }).create().then(portalAccount => {
+    return factory().upset(Membership).use(membership => {
+      membership.portalAccount = portalAccount;
+      return membership;
+    }).createMany(10);
+  });
+
+  await factory().upset(Bill).use(bill => {
+    bill.paymentStatus = PaymentStatus.NOT_PAID;
+    bill.membership = memberships[0];
+    bill.payableAmountInMinorUnit = 5000_00;
+    return bill;
+  }).createMany(5);
+
+  await factory().upset(Bill).use(bill => {
+    bill.paymentStatus = PaymentStatus.PAID;
+    bill.membership = memberships[0];
+    bill.payableAmountInMinorUnit = 5000_00;
+    return bill;
+  }).createMany(4);
+
+  const invoicePromises = memberships.map(membership => {
+    return factory().upset(Invoice).use(invoice => {
+      invoice.association = association;
+      invoice.createdBy = membership;
+      return invoice;
+    }).create();
+  });
+
+  const invoices: Invoice[] = await Promise.all(invoicePromises);
+
+  const paymentRequestPromises = invoices.map(invoice => {
+    return factory().upset(PaymentRequest).use(paymentRequest => {
+      paymentRequest.association = association;
+      paymentRequest.invoice = invoice;
+      return paymentRequest;
+    }).create();
+  });
+  const paymentRequests = await Promise.all(paymentRequestPromises);
+  const paymentTransactionPromises = paymentRequests.map(paymentRequest => {
+    return factory().upset(PaymentTransaction).use(paymentTransaction => {
+      paymentTransaction.paymentRequest = paymentRequest;
+      return paymentTransaction;
+    }).create();
+  });
+
+  return await Promise.all(paymentTransactionPromises);
+};
 
 export const mockNewSignUpUser = async (authenticationService: AuthenticationService): Promise<SignUpDto> => {
 
@@ -166,6 +226,8 @@ export const mockSendEmail = () => jest.fn().mockImplementation((sendEmailOption
   return Promise.resolve('Email has been sent successfully');
 });
 
+export const mockFakerService = () => jest.fn().mockResolvedValue(null);
+
 export function baseTestingModule() {
   return Test.createTestingModule({
     imports: [AppModule, ServiceImplModule, WorkerModule, PaymentModule],
@@ -173,6 +235,10 @@ export function baseTestingModule() {
   }).overrideProvider(MailerService)
     .useValue({
       sendMail: mockSendEmail(),
+    })
+    .overrideProvider(FakerService)
+    .useValue({
+      seed: mockFakerService(),
     })
     .overrideProvider(BankUploadStartup)
     .useClass(BankUploadStartupMock);
