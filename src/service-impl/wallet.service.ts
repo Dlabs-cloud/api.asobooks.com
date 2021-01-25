@@ -41,11 +41,11 @@ export class WalletService {
           throw new InternalServerErrorException('Wallet is not created for association');
         }
         const walletTransaction = new WalletTransaction();
-        walletTransaction.amount = paymentTransaction.amountInMinorUnit;
+        walletTransaction.amount = Number(paymentTransaction.amountInMinorUnit);
         walletTransaction.paymentTransaction = paymentTransaction;
         walletTransaction.paymentType = PaymentType.CREDIT;
         walletTransaction.wallet = wallet;
-        walletTransaction.previousWalletBalanceInMinorUnit = wallet.availableBalanceInMinorUnits;
+        walletTransaction.previousWalletBalanceInMinorUnit = Number(wallet.availableBalanceInMinorUnits);
         return entityManager.save(walletTransaction)
           .then(() => {
             wallet.availableBalanceInMinorUnits = +wallet.availableBalanceInMinorUnits + +paymentTransaction.amountInMinorUnit;
