@@ -123,7 +123,7 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
       .where('portalUser.status = :status')
       .andWhere('portalAccount.association = :association')
       .limit(limit)
-      .take(offset)
+      .offset(offset)
       .setParameter('status', status)
       .setParameter('association', association.id);
 
