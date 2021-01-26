@@ -12,6 +12,7 @@ import { ApiResponseDto } from '../dto/api-response.dto';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { PaymentRequestService } from '../service-impl/payment-request.service';
 import { InvoiceRepository } from '../dao/invoice.repository';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 
 @Controller('invoice')
 @AssociationContext()
@@ -25,7 +26,7 @@ export class InvoiceController {
   getPaymentLink(@Param('code')invoiceCode: string, @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
     return this.connection
       .getCustomRepository(MembershipRepository)
-      .findByUserAndAssociation(requestPrincipal.portalUser, requestPrincipal.association)
+      .findByAssociationAndUserAndAccountType(requestPrincipal.association, requestPrincipal.portalUser, PortalAccountTypeConstant.MEMBER_ACCOUNT)
       .then(membership => {
         return this.connection.getCustomRepository(InvoiceRepository).findByCodeAndCreatedBy(invoiceCode, membership);
       }).then(invoice => {
@@ -42,7 +43,7 @@ export class InvoiceController {
   @Post()
   createInvoice(@Body() request: InvoiceRequestDto, @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
     return this.connection.getCustomRepository(MembershipRepository)
-      .findByUserAndAssociation(requestPrincipal.portalUser, requestPrincipal.association)
+      .findByAssociationAndUserAndAccountType(requestPrincipal.association, requestPrincipal.portalUser, PortalAccountTypeConstant.MEMBER_ACCOUNT)
       .then(member => {
         return this.connection.getCustomRepository(BillRepository)
           .findByMembershipAndCode(member, ...request.billCodes).then(bills => {

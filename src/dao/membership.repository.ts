@@ -34,13 +34,39 @@ export class MembershipRepository extends BaseRepository<Membership> {
     return this.createQueryBuilder('membership')
       .select()
       .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.id = membership.portalAccountId')
+      .where('membership.portalUser = :portalUser', { portalUser: user.id })
+      .andWhere('membership.status = :status', { status: status })
+      .andWhere('portalAccount.association = :association', { association: association.id })
+      .getMany();
+  }
+
+  findByAssociationAndUserAndAccountType(association: Association, user: PortalUser, accountType: PortalAccountTypeConstant) {
+    return this.createQueryBuilder('membership')
+      .select()
+      .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.id = membership.portalAccountId')
       .innerJoin(Association, 'association', 'association.id = portalAccount.associationId')
       .where('membership.portalUser = :portalUser', { portalUser: user.id })
+      .andWhere('portalAccount.type = :type', { type: accountType })
       .andWhere('membership.status = :status', { status: status })
       .andWhere('association.id = :association', { association: association.id })
       .getOne();
-
   }
+
+  findByAssociationAndUsers(association: Association, status: GenericStatusConstant.ACTIVE, ...users: PortalUser[]) {
+    const userIds = users.map(user => user.id);
+    if (!userIds.length) {
+      return Promise.resolve([]);
+    }
+    const builder = this.createQueryBuilder('membership')
+      .select()
+      .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.id = membership.portalAccountId')
+      .innerJoin(Association, 'association', 'association.id = portalAccount.associationId')
+      .andWhere('membership.status = :status', { status: status })
+      .where('membership.portalUser IN (:...portalUserIds)', { portalUserIds: userIds })
+      .andWhere('association.id = :association', { association: association.id });
+    return builder.getMany();
+  }
+
 
   public findByAssociationAndAccountTypeAndStatusAndUserIds(association: Association,
                                                             accountType: PortalAccountTypeConstant,

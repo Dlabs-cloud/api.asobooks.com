@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
 import { UserManagementService } from '../service-impl/user-management.service';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
@@ -7,11 +7,11 @@ import { ApiResponseDto } from '../dto/api-response.dto';
 import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
 import { Connection } from 'typeorm';
 import { PortalUserRepository } from '../dao/portal-user.repository';
-import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalUserDto } from '../dto/portal-user.dto';
+import { PortalUserQueryDto } from '../dto/portal-user-query.dto';
 
 
 @Controller('membership-management')
@@ -26,39 +26,55 @@ export class MembershipManagementController {
   @Post('create')
   public async createAssociationMember(@Body() memberSignUpDto: MemberSignUpDto,
                                        @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
-    const membership = await this.userManagementService.createAssociationMember(memberSignUpDto, requestPrincipal.association);
-
-    return new ApiResponseDto(membership, 201);
+    await this.userManagementService.createAssociationMember(memberSignUpDto, requestPrincipal.association);
+    return new ApiResponseDto({}, 201);
   }
-
-
 
 
   @Get()
   public async getAssociationMembers(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
-                                     @Query('type') type = PortalAccountTypeConstant.MEMBER_ACCOUNT,
-                                     @Query('limit') limit?: number,
-                                     @Query('offset') offset?: number) {
-    let portalUsersAndCount = await this.connection
+                                     @Query() query: PortalUserQueryDto) {
+    return this.connection
       .getCustomRepository(PortalUserRepository)
-      .getByAssociationAndAccountType(requestPrincipal.association, type, GenericStatusConstant.ACTIVE, limit, offset);
-    let users = (portalUsersAndCount[0] as PortalUser[]).map(portalUser => {
-      return {
-        email: portalUser.email,
-        firstName: portalUser.firstName,
-        lastName: portalUser.lastName,
-        phoneNumber: portalUser.phoneNumber,
-        username: portalUser.username,
-        dateCreated: portalUser.createdAt,
-      };
-    });
-    const response: PaginatedResponseDto<PortalUserDto> = {
-      items: users,
-      itemsPerPage: limit,
-      offset: offset,
-      total: portalUsersAndCount[1],
-    };
-    return new ApiResponseDto(response, 200);
+      .getByAssociationAndQuery(requestPrincipal.association, query, GenericStatusConstant.ACTIVE)
+      .then(portalUsersAndCount => {
+        const users = (portalUsersAndCount[0] as PortalUser[]).map(portalUser => {
+          return {
+            email: portalUser.email,
+            firstName: portalUser.firstName,
+            lastName: portalUser.lastName,
+            phoneNumber: portalUser.phoneNumber,
+            username: portalUser.username,
+            dateCreated: portalUser.createdAt,
+            id: portalUser.id,
+          };
+        });
+        return Promise.resolve({ users, total: portalUsersAndCount[1] });
+      }).then(usersCount => {
+        const response: PaginatedResponseDto<PortalUserDto> = {
+          items: usersCount.users,
+          itemsPerPage: query.limit,
+          offset: query.offset,
+          total: usersCount.total,
+        };
+        return Promise.resolve(new ApiResponseDto(response, 200));
+      });
+  }
+
+
+  @Delete(':userId')
+  public deleteMember(@Param('userId') userId: number, @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
+    console.log(requestPrincipal.association);
+    return this.connection.getCustomRepository(PortalUserRepository)
+      .findByAssociationAndId(requestPrincipal.association, userId).then(portalUser => {
+        if (!portalUser) {
+          throw new NotFoundException(`User with id ${userId} cannot be found`);
+        }
+        return this.userManagementService.deActivateUser(portalUser, requestPrincipal.association)
+          .then(() => {
+            return Promise.resolve(new ApiResponseDto({}, 200));
+          });
+      });
   }
 
 

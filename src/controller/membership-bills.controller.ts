@@ -9,6 +9,7 @@ import { MembershipRepository } from '../dao/membership.repository';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { ApiResponseDto } from '../dto/api-response.dto';
 import { SubscriptionRepository } from '../dao/subscription.repository';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 
 @Controller('/member-bills')
 @AssociationContext()
@@ -21,7 +22,7 @@ export class MembershipBillsController {
   getBills(@RequestPrincipalContext() requestPrincipal: RequestPrincipal, @Query()billSearchQuery: BillSearchQueryDto) {
 
     return this.connection.getCustomRepository(MembershipRepository)
-      .findByUserAndAssociation(requestPrincipal.portalUser, requestPrincipal.association)
+      .findByAssociationAndUserAndAccountType(requestPrincipal.association, requestPrincipal.portalUser, PortalAccountTypeConstant.MEMBER_ACCOUNT)
       .then(membership => {
         return this.connection.getCustomRepository(BillRepository).findMembershipBillByQuery(membership, billSearchQuery);
       }).then(result => {

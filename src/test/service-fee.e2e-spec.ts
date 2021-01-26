@@ -20,7 +20,6 @@ import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-c
 import { Subscription } from '../domain/entity/subcription.entity';
 import { Bill } from '../domain/entity/bill.entity';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
-import { json } from 'express';
 
 describe('Service fees set up test ', () => {
   let applicationContext: INestApplication;

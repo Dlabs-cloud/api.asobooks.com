@@ -10,5 +10,6 @@ export class PortalUserDto {
   email: string;
   phoneNumber: string;
   createdBy?: PortalUser;
+  identifier?: string;
   dateCreated?: Date;
 }

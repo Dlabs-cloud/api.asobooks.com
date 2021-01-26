@@ -1,7 +1,8 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 import { PortalAccount } from './portal-account.entity';
 import { PortalUser } from './portal-user.entity';
+import { Address } from './address.entity';
 
 @Entity()
 export class Membership extends BaseEntity {
@@ -24,7 +25,11 @@ export class Membership extends BaseEntity {
   @Column({
     nullable: true,
   })
-  code: string;
+  identificationNumber: string;
+
+  @OneToOne(() => Address)
+  @JoinColumn()
+  address: Address;
 
 
 }

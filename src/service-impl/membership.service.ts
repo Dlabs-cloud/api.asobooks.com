@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Membership } from '../domain/entity/membership.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { EntityManager } from 'typeorm';
 import { MembershipDto } from '../dto/membership.dto';
 import { MembershipCodeSequence } from '../core/sequenceGenerators/membership-code.sequence';
+import { PortalUser } from '../domain/entity/portal-user.entity';
+import { Association } from '../domain/entity/association.entity';
+import { MembershipRepository } from '../dao/membership.repository';
+import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 
 @Injectable()
 export class MembershipService {
@@ -23,9 +27,23 @@ export class MembershipService {
       membership.portalUser = membershipDto.portalUser;
       membership.portalAccount = membershipDto.portalAccount;
       membership.status = status;
-      membership.code = sequenceCode;
+      membership.identificationNumber = sequenceCode;
       return entityManager.save(membership);
     });
+  }
 
+
+  public deactivateUserMemberships(entityManager: EntityManager, portalUser: PortalUser, association: Association) {
+    return entityManager.getCustomRepository(MembershipRepository).findByUserAndAssociation(portalUser, association)
+      .then(memberships => {
+        if (!memberships.length) {
+          throw new NotFoundException('Membership tied to user cannot be found');
+        }
+        const membershipPromise = memberships.map(membership => {
+          membership.status = GenericStatusConstant.DELETED;
+          return entityManager.save(membership);
+        });
+        return Promise.all(membershipPromise);
+      });
   }
 }
