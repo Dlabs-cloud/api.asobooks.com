@@ -114,7 +114,7 @@ describe('Membership-management-controller ', () => {
       phoneNumber: faker.phone.phoneNumber(),
       types: [PortalAccountTypeConstant.MEMBER_ACCOUNT, PortalAccountTypeConstant.EXECUTIVE_ACCOUNT],
     };
-    await userManagementService.createAssociationMember(membershipSignUp, associationUser.association);
+    await userManagementService.createAssociationMember(membershipSignUp, associationUser.association, associationUser.portalUser);
     return request(applicationContext.getHttpServer())
       .post(`/membership-management/create`)
       .send(membershipSignUp)
@@ -150,7 +150,7 @@ describe('Membership-management-controller ', () => {
     expect(item.lastName).toBeDefined();
     expect(item.phoneNumber).toBeDefined();
     expect(item.username).toBeDefined();
-    expect(item.identifier).toBeDefined();
+    expect(item.id).toBeDefined();
     expect(item.dateCreated).toBeDefined();
     expect(responseData.total).toEqual(totalExistingValue);
     expect(responseData.total).toBeGreaterThan(1);
