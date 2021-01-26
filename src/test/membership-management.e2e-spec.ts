@@ -17,6 +17,11 @@ import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { GroupRepository } from '../dao/group.repository';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { MembershipRepository } from '../dao/membership.repository';
+import { Membership } from '../domain/entity/membership.entity';
+import { PortalAccount } from '../domain/entity/portal-account.entity';
+import { PortalUser } from '../domain/entity/portal-user.entity';
+import { isDateCtor } from '@nestjs/swagger/dist/utils/is-date-ctor.util';
+import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 
 describe('Membership-management-controller ', () => {
   let applicationContext: INestApplication;
@@ -56,7 +61,7 @@ describe('Membership-management-controller ', () => {
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
       phoneNumber: faker.phone.phoneNumber(),
-      type: PortalAccountTypeConstant.EXECUTIVE_ACCOUNT,
+      types: [PortalAccountTypeConstant.EXECUTIVE_ACCOUNT, PortalAccountTypeConstant.MEMBER_ACCOUNT],
 
     };
     return request(applicationContext.getHttpServer())
@@ -77,23 +82,27 @@ describe('Membership-management-controller ', () => {
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
       phoneNumber: faker.phone.phoneNumber(),
-      type: faker.random.arrayElement(Object.values(PortalAccountTypeConstant)),
+      types: [PortalAccountTypeConstant.MEMBER_ACCOUNT, PortalAccountTypeConstant.EXECUTIVE_ACCOUNT],
     };
-    let response = await request(applicationContext.getHttpServer())
+    await request(applicationContext.getHttpServer())
       .post(`/membership-management/create`)
       .send(membershipSignUpDto)
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
       .expect(201);
-    let membership = await connection
-      .getCustomRepository(MembershipRepository)
-      .findOneItemByStatus({ code: response.body.data.code });
 
-    let membershipGroups = await connection
-      .getCustomRepository(GroupRepository)
-      .findByAssociationAndMembershipAndType(associationUser.association, membership, GroupTypeConstant.GENERAL);
-
-    expect(1).toEqual(membershipGroups.length);
+    return connection.getCustomRepository(PortalUserRepository)
+      .findOne({ email: membershipSignUpDto.email.toLowerCase() })
+      .then(portalUser => {
+        return connection.getCustomRepository(MembershipRepository).findByUserAndAssociation(portalUser, associationUser.association);
+      }).then(memberships => {
+        expect(2).toEqual(memberships.length);
+        return connection
+          .getCustomRepository(GroupRepository)
+          .findByAssociationAndMembershipAndType(associationUser.association, memberships[0], GroupTypeConstant.GENERAL);
+      }).then(membershipGroups => {
+        expect(1).toEqual(membershipGroups.length);
+      });
 
   });
 
@@ -103,7 +112,7 @@ describe('Membership-management-controller ', () => {
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
       phoneNumber: faker.phone.phoneNumber(),
-      type: faker.random.arrayElement(Object.values(PortalAccountTypeConstant)),
+      types: [PortalAccountTypeConstant.MEMBER_ACCOUNT, PortalAccountTypeConstant.EXECUTIVE_ACCOUNT],
     };
     await userManagementService.createAssociationMember(membershipSignUp, associationUser.association);
     return request(applicationContext.getHttpServer())
@@ -116,15 +125,65 @@ describe('Membership-management-controller ', () => {
   });
 
   it('test that association user can get all is association members ', async () => {
+    await factory().upset(PortalAccount).use(portalAccount => {
+      portalAccount.association = associationUser.association;
+      portalAccount.type = PortalAccountTypeConstant.MEMBER_ACCOUNT;
+      return portalAccount;
+    }).create().then(portalAccount => {
+      return factory().upset(Membership).use(membership => {
+        membership.portalAccount = portalAccount;
+        return membership;
+      }).createMany(3);
+    });
+
     let totalExistingValue = await connection.getCustomRepository(PortalUserRepository).countByAssociationAndAccountType(associationUser.association, PortalAccountTypeConstant.MEMBER_ACCOUNT);
     let response = await request(applicationContext.getHttpServer())
-      .get(`/membership-management`)
+      .get(`/membership-management?type=${PortalAccountTypeConstant.MEMBER_ACCOUNT}`)
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
       .expect(200);
 
     let responseData = response.body.data;
+    const item = responseData.items[0];
+    expect(item.email).toBeDefined();
+    expect(item.firstName).toBeDefined();
+    expect(item.lastName).toBeDefined();
+    expect(item.phoneNumber).toBeDefined();
+    expect(item.username).toBeDefined();
+    expect(item.identifier).toBeDefined();
+    expect(item.dateCreated).toBeDefined();
     expect(responseData.total).toEqual(totalExistingValue);
+    expect(responseData.total).toBeGreaterThan(1);
+
+  });
+
+
+  it('Test that a member can be deleted', () => {
+    return factory().create(PortalUser).then(portalUser => {
+      return factory().upset(PortalAccount).use(portalAccount => {
+        portalAccount.association = associationUser.association;
+        return portalAccount;
+      }).create().then(portalAccount => {
+        return factory().upset(Membership).use(membership => {
+          membership.portalAccount = portalAccount;
+          membership.portalUser = portalUser;
+          return membership;
+        }).create();
+      }).then((membership) => {
+        return request(applicationContext.getHttpServer())
+          .delete(`/membership-management/${portalUser.id}`)
+          .set('Authorization', associationUser.token)
+          .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
+          .then(response => {
+            expect(response.status).toEqual(200);
+            connection.getCustomRepository(MembershipRepository).findOne({
+              id: membership.id,
+            }).then(membership => {
+              expect(membership.status).toEqual(GenericStatusConstant.IN_ACTIVE);
+            });
+          });
+      });
+    });
 
   });
 

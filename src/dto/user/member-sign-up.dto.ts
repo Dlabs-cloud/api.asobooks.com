@@ -1,7 +1,18 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsString,
+  MIN,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { AssociationAddressRequestDto } from '../association/association-address-request.dto';
 import { PortalAccountTypeConstant } from '../../domain/enums/portal-account-type-constant';
+import { IsEntityExist } from '../../common/class-validators/entity-constraint.validator';
 
 export class MemberSignUpDto {
   @IsNotEmpty()
@@ -12,6 +23,11 @@ export class MemberSignUpDto {
   lastName: string;
   @IsString()
   @IsEmail()
+  @IsEntityExist({
+    column: 'email',
+    isExist: false,
+    name: 'portal_user',
+  })
   email: string;
   @IsString()
   @IsOptional()
@@ -21,8 +37,7 @@ export class MemberSignUpDto {
   @IsObject()
   @Type(() => AssociationAddressRequestDto)
   address?: AssociationAddressRequestDto;
-  @IsEnum(PortalAccountTypeConstant)
-  @IsNotEmpty()
-  type: PortalAccountTypeConstant;
+  @IsEnum(PortalAccountTypeConstant, { each: true })
+  types: PortalAccountTypeConstant[];
 
 }

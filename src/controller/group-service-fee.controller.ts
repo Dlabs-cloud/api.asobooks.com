@@ -14,6 +14,7 @@ import { ApiResponseDto } from '../dto/api-response.dto';
 import { PortalUserRepository } from '../dao/portal-user.repository';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
+import { PortalUserQueryDto } from '../dto/portal-user-query.dto';
 
 @Controller('service-fees')
 @AssociationContext()
@@ -60,19 +61,13 @@ export class GroupServiceFeeController {
   @Get('/:code/members')
   public async getMembers(@RequestPrincipalContext()requestPrincipal: RequestPrincipal,
                           @Param('code')code: string,
-                          @Query('limit')limit = 20,
-                          @Query('offset')offset = 0) {
+                          @Query() query: PortalUserQueryDto) {
 
-    limit = limit > 100 ? 100 : limit;
-    offset = offset < 0 ? 0 : offset;
+    query.limit = query.limit > 100 ? 100 : query.limit;
+    query.offset = query.offset < 0 ? 0 : query.offset;
     let portalUsers = await this.connection
       .getCustomRepository(PortalUserRepository)
-      .getByAssociationAndAccountType(
-        requestPrincipal.association,
-        PortalAccountTypeConstant.MEMBER_ACCOUNT,
-        GenericStatusConstant.ACTIVE,
-        limit,
-        offset);
+      .getByAssociationAndQuery(requestPrincipal.association, query);
     let serviceFee = await this.connection
       .getCustomRepository(ServiceFeeRepository)
       .findByCodeAndAssociation(code, requestPrincipal.association);
@@ -93,8 +88,8 @@ export class GroupServiceFeeController {
     let paginatedResponseDto = new PaginatedResponseDto();
     paginatedResponseDto.items = response;
     paginatedResponseDto.total = portalUsers[1];
-    paginatedResponseDto.itemsPerPage = limit;
-    paginatedResponseDto.offset = offset;
+    paginatedResponseDto.itemsPerPage = query.limit;
+    paginatedResponseDto.offset = query.offset;
     return paginatedResponseDto;
   }
 

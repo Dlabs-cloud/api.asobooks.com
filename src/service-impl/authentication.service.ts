@@ -73,6 +73,7 @@ export class AuthenticationService {
         firstName: signUpRequestDto.firstName,
         lastName: signUpRequestDto.lastName,
         password: signUpRequestDto.password,
+        identifier: '',
         phoneNumber: signUpRequestDto.phoneNumber,
       };
 
@@ -87,6 +88,8 @@ export class AuthenticationService {
       const membership = await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.PENDING_ACTIVATION);
 
       delete portalUser.password;
+
+      portalUserDto.identifier = membership.identificationNumber;
 
       this.eventBus.publish(new NewUserAccountSignUpEvent(executivePortalAccount, portalUser));
       return membership;

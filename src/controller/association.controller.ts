@@ -11,6 +11,7 @@ import { ASSOCIATION_SERVICE, AssociationService, CACHE_ASSOCIATION_SERVICE } fr
 import { CacheService } from '../common/utils/cache.service';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { AssociationOnboardingDto } from '../dto/association-onboarding.dto';
+import { Public } from '../dlabs-nest-starter/security/annotations/public';
 
 @Controller('associations')
 export class AssociationController extends BaseController {
@@ -20,7 +21,6 @@ export class AssociationController extends BaseController {
   }
 
   @UseInterceptors(
-
     ImageUploadInterceptor('logo'),
   )
   @ApiConsumes('multipart/form-data')
@@ -28,6 +28,7 @@ export class AssociationController extends BaseController {
     description: 'Onboard associations',
     type: AssociationOnboardingDto,
   })
+  @Public()
   @Put('/onboard')
   public async createAssociation(@UploadedFile() file,
                                  @Body() associationRequestDto: AssociationRequestDto,

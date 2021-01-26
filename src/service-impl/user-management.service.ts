@@ -20,7 +20,6 @@ import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-c
 import { PortalAccountDto } from '../dto/portal-account.dto';
 import { MembershipDto } from '../dto/membership.dto';
 import { AssociationMembershipSignUpEvent } from '../event/AssociationMembershipSignUpEvent';
-import { PortalUserRepository } from '../dao/portal-user.repository';
 import { GroupService } from './group.service';
 import { GroupRepository } from '../dao/group.repository';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
@@ -92,19 +91,15 @@ export class UserManagementService {
     if (userUpdateDto.lastName) {
       portalUser.lastName = userUpdateDto.lastName;
     }
-
     if (userUpdateDto.status) {
       portalUser.status = userUpdateDto.status;
     }
-
     if (userUpdateDto.phoneNumber) {
       portalUser.phoneNumber = userUpdateDto.phoneNumber;
     }
-
     if (userUpdateDto.password) {
       portalUser.password = userUpdateDto.password;
     }
-
     portalUser.updatedAt = new Date();
     await entityManager.save(portalUser);
     return portalUser;
@@ -113,75 +108,61 @@ export class UserManagementService {
 
   public async createAssociationMember(membershipSignUp: MemberSignUpDto, association: Association, createdBy: PortalUser) {
     return await this.connection.transaction(async entityManager => {
-      let portalUser = await this.connection.getCustomRepository(PortalUserRepository)
-        .findByUserNameOrEmailOrPhoneNumberAndNotDeleted(membershipSignUp.email);
-      if (portalUser) {
-        portalUser.lastName = membershipSignUp.lastName;
-        portalUser.phoneNumber = membershipSignUp.phoneNumber;
-        portalUser.firstName = membershipSignUp.firstName;
-        await entityManager.save(portalUser);
-      } else {
-        let portalUserDto: PortalUserDto = {
-          email: membershipSignUp.email,
-          firstName: membershipSignUp.firstName,
-          lastName: membershipSignUp.lastName,
-          password: Math.random().toString(36).slice(-8),
-          phoneNumber: membershipSignUp.phoneNumber,
-          username: membershipSignUp.email,
-        };
-        portalUser = await this.portalUserService.createPortalUser(entityManager, portalUserDto, GenericStatusConstant.ACTIVE);
-      }
-
+      let portalUserDto: PortalUserDto = {
+        email: membershipSignUp.email,
+        firstName: membershipSignUp.firstName,
+        lastName: membershipSignUp.lastName,
+        password: Math.random().toString(36).slice(-8),
+        phoneNumber: membershipSignUp.phoneNumber,
+        username: membershipSignUp.email,
+      };
+      const portalUser = await this.portalUserService.createPortalUser(entityManager, portalUserDto, GenericStatusConstant.ACTIVE);
       let portalAccount: PortalAccount = null;
 
-      if (membershipSignUp.type === PortalAccountTypeConstant.EXECUTIVE_ACCOUNT) {
+
+      for (let i = 0; i < membershipSignUp.types.length; i++) {
+        const membershipType: PortalAccountTypeConstant = membershipSignUp.types[i];
         portalAccount = await entityManager
           .getCustomRepository(PortalAccountRepository)
-          .findByStatusAndTypeAndAssociations(PortalAccountTypeConstant.EXECUTIVE_ACCOUNT, GenericStatusConstant.ACTIVE, association);
-        if (!portalAccount) {
-          throw new IllegalArgumentException('An executive account should have been created for association');
+          .findByStatusAndTypeAndAssociations(membershipType, GenericStatusConstant.ACTIVE, association);
+        if (membershipType === PortalAccountTypeConstant.EXECUTIVE_ACCOUNT && portalAccount) {
+          const membershipDto: MembershipDto = { association, portalAccount, portalUser };
+          let membership = await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE);
         }
-      } else {
-        portalAccount = await entityManager
-          .getCustomRepository(PortalAccountRepository)
-          .findByStatusAndTypeAndAssociations(PortalAccountTypeConstant.MEMBER_ACCOUNT, GenericStatusConstant.ACTIVE, association);
-        if (!portalAccount) {
-          const portalAccountDto: PortalAccountDto = {
-            association: association,
-            name: `${association.name} Membership Account`,
-            type: PortalAccountTypeConstant.MEMBER_ACCOUNT,
-          };
-          portalAccount = await this.portalAccountService.createPortalAccount(entityManager, portalAccountDto, GenericStatusConstant.ACTIVE);
+
+        if (membershipType === PortalAccountTypeConstant.MEMBER_ACCOUNT) {
+          if (!portalAccount) {
+            const portalAccountDto: PortalAccountDto = {
+              association: association,
+              name: `${association.name} Membership Account`,
+              type: PortalAccountTypeConstant.MEMBER_ACCOUNT,
+            };
+            portalAccount = await this.portalAccountService.createPortalAccount(entityManager, portalAccountDto, GenericStatusConstant.ACTIVE);
+          }
+
+          const membershipDto: MembershipDto = { association, portalAccount, portalUser };
+          let membership = await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE);
+
+          let groups = await entityManager
+            .getCustomRepository(GroupRepository)
+            .findByAssociation(association, GroupTypeConstant.GENERAL);
+          if (!groups && groups.length < 0) {
+            throw new IllegalArgumentException('Association does dont have a general group');
+          }
+          let group = groups[0];
+          await this.groupService.addMember(entityManager, group, membership);
+          this.eventBus.publish(new AssociationMembershipSignUpEvent(portalUser));
         }
       }
-
-
-      const membershipDto: MembershipDto = { association, portalAccount, portalUser };
-
-      let membership = await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE);
-
-      let groups = await entityManager
-        .getCustomRepository(GroupRepository)
-        .findByAssociation(association, GroupTypeConstant.GENERAL);
-
-
-      if (!groups && groups.length < 0) {
-        throw new IllegalArgumentException('Association does not have a general group');
-      }
-      let group = groups[0];
-
-      await this.groupService.addMember(entityManager, group, membership).then(() => {
-        this.eventBus.publish(new AssociationMembershipSignUpEvent(portalUser));
-      }).then(() => {
-        const activityLogEntity = new ActivityLogEventBuilder(ActivityTypeConstant.USER_MANAGEMENT, association)
-          .addDescription(`New user added`).by(createdBy)
-          .build();
-        this.eventBus.publish(activityLogEntity);
-      });
-
-      return membership;
     });
-
   }
 
+  public deActivateUser(portalUser: PortalUser, association: Association) {
+    return this.connection.transaction(async entityManager => {
+      portalUser.status = GenericStatusConstant.DELETED;
+      await entityManager.save(portalUser);
+      return this.membershipService
+        .deactivateUserMemberships(entityManager, portalUser, association);
+    });
+  }
 }
