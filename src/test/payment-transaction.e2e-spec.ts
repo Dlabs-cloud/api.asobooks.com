@@ -8,8 +8,8 @@ import { getConnection } from 'typeorm';
 import { factory } from './factory';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import * as request from 'supertest';
-import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
-import { PaymentRequest } from '../domain/entity/payment-request.entity';
+import * as moment from 'moment';
+import { PaymentTransactionSearchQueryDto } from '../dto/payment-transaction-search.query.dto';
 
 describe('Payment Transactions', () => {
   let applicationContext: INestApplication;
@@ -22,7 +22,6 @@ describe('Payment Transactions', () => {
     applicationContext = moduleRef.createNestApplication();
     applicationContext.useGlobalPipes(new ValidatorTransformPipe());
     await applicationContext.init();
-
     connection = getConnection();
     association = await factory().upset(Association).use(association => {
       association.status = GenericStatusConstant.ACTIVE;
@@ -33,12 +32,14 @@ describe('Payment Transactions', () => {
   });
 
   it('Test that a payment transaction can be gotten by query', async () => {
-    jest.setTimeout(12000)
+    jest.setTimeout(12000);
     await mockPaymentTransactions(association);
+    const url = `/payment-transactions?limit=${5}&offset=${0}&minAmountInMinorUnit=${45_000_00}&maxAmountInMinorUnit=${50_000_00}&dateCreatedBefore=${moment(new Date()).format('DD/MM/YYYY')}&dateCreatedAfter=${moment(new Date()).format('DD/MM/YYYY')}`;
     let response = await request(applicationContext.getHttpServer())
-      .get(`/payment-transactions?limit=${5}`)
+      .get(url)
       .set('Authorization', assoUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code);
+
 
     const data = response.body.items[0];
     expect(parseInt(response.body.itemsPerPage.toString())).toEqual(5);

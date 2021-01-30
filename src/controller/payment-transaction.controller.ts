@@ -20,7 +20,8 @@ export class PaymentTransactionController {
   @Get()
   get(@RequestPrincipalContext()requestPrincipal: RequestPrincipal, @Query() query: PaymentTransactionSearchQueryDto) {
     query.limit = query.limit > 20 ? 20 : query.limit;
-    query.offSet = query.offSet < 0 ? 0 : query.offSet;
+    query.offset = query.offset < 0 ? 0 : query.offset;
+
     return this.connection.getCustomRepository(PaymentTransactionRepository)
       .findByAssociationAndQuery(requestPrincipal.association, query)
       .then(paymentsAndCount => {
@@ -32,7 +33,7 @@ export class PaymentTransactionController {
             const response: PaginatedResponseDto<PaymentTransactionsDto> = {
               items: paymentTransactionResponse,
               itemsPerPage: query.limit,
-              offset: query.offSet,
+              offset: query.offset,
               total: count,
             };
             return Promise.resolve(response);

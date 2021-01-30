@@ -86,7 +86,7 @@ export class DashboardController {
                   .then(() => {
                     return this.connection.getCustomRepository(PaymentTransactionRepository).findByAssociationAndQuery(association, {
                       limit: 10,
-                      offSet: 0,
+                      offset: 0,
                     })
                       .then((paymentTransactions) => {
                         return this.paymentTransactionHandler.transform(paymentTransactions[0]).then(paymentTransactions => dashboardDto.paymentTransactions = paymentTransactions);

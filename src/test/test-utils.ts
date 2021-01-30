@@ -102,6 +102,7 @@ export const mockPaymentTransactions = async (association: Association) => {
   const paymentTransactionPromises = paymentRequests.map(paymentRequest => {
     return factory().upset(PaymentTransaction).use(paymentTransaction => {
       paymentTransaction.paymentRequest = paymentRequest;
+      paymentTransaction.amountInMinorUnit = 50_000_00;
       return paymentTransaction;
     }).create();
   });

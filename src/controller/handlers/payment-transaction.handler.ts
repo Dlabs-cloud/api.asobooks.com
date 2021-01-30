@@ -17,7 +17,9 @@ export class PaymentTransactionHandler {
   }
 
   async transform(paymentTransactions: PaymentTransaction[]) {
-
+    if (!paymentTransactions.length) {
+      return Promise.resolve([]);
+    }
     const paymentRequests = await this.connection.getCustomRepository(PaymentRequestRepository).findByPaymentTransaction(paymentTransactions);
     const invoices = paymentRequests.map(paymentRequest => paymentRequest.invoice);
     const membershipIds = invoices.map(invoice => invoice.createdById);
