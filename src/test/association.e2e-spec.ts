@@ -100,7 +100,7 @@ describe('AssociationController', () => {
     let response = await request(applicationContext.getHttpServer())
       .put('/associations/onboard')
       .set('Authorization', loginToken)
-      .send(payload);
+      .send(payload).expect(201);
     await connection.getCustomRepository(WalletRepository).findByAssociation(assoc.association).then(wallet => {
       expect(wallet.reference).toBeDefined();
       expect(0).toEqual(Number(wallet.availableBalanceInMinorUnits));
@@ -121,9 +121,8 @@ describe('AssociationController', () => {
     let response = await request(applicationContext.getHttpServer())
       .put('/associations/onboard')
       .set('Authorization', loginToken)
-      .send(payload);
+      .send(payload).expect(201);
 
-    expect(response.status).toEqual(201);
     expect(response.body.data.address).toBeDefined();
     expect(response.body.data.type).toBeDefined();
   });

@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
 import { TestingModule } from '@nestjs/testing';
-import { baseTestingModule, getAssociationUser } from './test-utils';
+import { baseTestingModule, generateToken, getAssociationUser, getTestUser } from './test-utils';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { getConnection } from 'typeorm';
 import { factory } from './factory';
@@ -10,6 +10,8 @@ import { Bill } from '../domain/entity/bill.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import * as request from 'supertest';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { testForBuffer } from 'class-transformer/TransformOperationExecutor';
 
 describe('membership-bills controller', () => {
 
@@ -28,7 +30,8 @@ describe('membership-bills controller', () => {
 
 
   it('test that a logged in user can get all its bills', async () => {
-    let membership = await factory().create(Membership);
+    const testUser = await getTestUser(GenericStatusConstant.ACTIVE, null, null, PortalAccountTypeConstant.MEMBER_ACCOUNT);
+    let membership = testUser.membership;
     await factory().upset(Bill).use(bill => {
       bill.membership = membership;
       bill.paymentStatus = PaymentStatus.NOT_PAID;
@@ -36,11 +39,11 @@ describe('membership-bills controller', () => {
     }).createMany(3);
 
 
-    return getAssociationUser(GenericStatusConstant.ACTIVE, membership.portalUser, membership.portalAccount.association).then(associationUser => {
+    return generateToken(membership).then(token => {
       return request(applicationContext.getHttpServer())
         .get(`/member-bills`)
-        .set('Authorization', associationUser.token)
-        .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
+        .set('Authorization', token)
+        .set('X-ASSOCIATION-IDENTIFIER', membership.portalAccount.association.code)
         .expect(200).then(response => {
           let data = response.body.data;
           expect(data.total).toBe(3);

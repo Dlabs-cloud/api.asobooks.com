@@ -34,7 +34,7 @@ export class PaymentTransactionHandler {
         paidByFirstName: portalUser.firstName,
         paidByLastLastName: portalUser.lastName,
         amountInMinorUnit: paymentTransaction.amountInMinorUnit,
-        membershipReference: membership.code,
+        membershipReference: membership.identificationNumber,
         paymentDate: paymentTransaction.datePaid,
         transactionReference: paymentTransaction.reference,
       };

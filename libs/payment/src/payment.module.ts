@@ -15,7 +15,6 @@ import {
 export class PaymentModule {
 
   static forRoot(config: PaymentConfig) {
-    console.log(config);
     const providers = [
       ...createPaymentProvider(config),
       HttpClientProvider,

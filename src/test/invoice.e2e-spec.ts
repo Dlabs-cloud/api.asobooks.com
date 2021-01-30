@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
 import { TestingModule } from '@nestjs/testing';
-import { baseTestingModule, getAssociationUser } from './test-utils';
+import { baseTestingModule, generateToken, getAssociationUser, getTestUser } from './test-utils';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { getConnection } from 'typeorm';
 import { factory } from './factory';
@@ -17,6 +17,7 @@ import { PaymentProvider } from '../domain/enums/payment-provider.enum';
 import { PaymentType } from '../domain/enums/payment-type.enum';
 import { FLUTTERWAVETRANSACTION, PaymentModule, PaymentTransactionService } from '@dlabs/payment';
 import { InitiateTransactionResponse } from '@dlabs/payment/dto/initiate-transaction.response';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 
 describe('invoice', () => {
 
@@ -42,7 +43,7 @@ describe('invoice', () => {
     const data: InvoiceRequestDto = {
       billCodes: [faker.random.alphaNumeric(), faker.random.alphaNumeric()],
     };
-    return getAssociationUser().then(user => {
+    return getAssociationUser(GenericStatusConstant.ACTIVE, null, null, PortalAccountTypeConstant.MEMBER_ACCOUNT).then(user => {
       return request(applicationContext.getHttpServer())
         .post(`/invoice`)
         .send(data)
@@ -59,19 +60,21 @@ describe('invoice', () => {
       paymentLink: faker.internet.url(),
     };
     const spy = jest.spyOn(paymentTransaction, 'initiate').mockResolvedValue(paymentInitiationResponse);
-    let membership = await factory().create(Membership);
+    const testUser = await getTestUser(GenericStatusConstant.ACTIVE, null, null, PortalAccountTypeConstant.MEMBER_ACCOUNT);
+    let membership = testUser.membership;
     return factory().upset(Invoice).use(invoice => {
       invoice.createdBy = membership;
       invoice.paymentStatus = PaymentStatus.NOT_PAID;
       return invoice;
     }).create().then(invoice => {
-      return getAssociationUser(GenericStatusConstant.ACTIVE, membership.portalUser, membership.portalAccount.association)
-        .then(associationUser => {
+      return generateToken(membership)
+        .then(token => {
           return request(applicationContext.getHttpServer())
             .get(`/invoice/${invoice.code}/payment-request`)
-            .set('Authorization', associationUser.token)
-            .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
-            .expect(200).then(response => {
+            .set('Authorization', token)
+            .set('X-ASSOCIATION-IDENTIFIER', membership.portalAccount.association.code)
+            .expect(200)
+            .then(response => {
               const body = response.body;
               const data = body.data;
               spy.mockRestore();
@@ -90,7 +93,8 @@ describe('invoice', () => {
   });
 
   it('Test that invoice can be created', async () => {
-    let membership = await factory().create(Membership);
+    const testUser = await getTestUser(GenericStatusConstant.ACTIVE, null, null, PortalAccountTypeConstant.MEMBER_ACCOUNT);
+    const membership = testUser.membership;
     const bills = await factory().upset(Bill).use(bill => {
       bill.membership = membership;
       bill.paymentStatus = PaymentStatus.NOT_PAID;
@@ -113,14 +117,16 @@ describe('invoice', () => {
       billCodes: bills.map(bill => bill.code),
     };
 
-    return getAssociationUser(GenericStatusConstant.ACTIVE, membership.portalUser, membership.portalAccount.association)
-      .then(associationUser => {
+
+    return generateToken(membership)
+      .then(token => {
         return request(applicationContext.getHttpServer())
           .post(`/invoice`)
+          .set('Authorization', token)
+          .set('X-ASSOCIATION-IDENTIFIER', membership.portalAccount.association.code)
           .send(data)
-          .set('Authorization', associationUser.token)
-          .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
-          .expect(201).then(response => {
+          .expect(201)
+          .then(response => {
             const data = response.body.data;
             expect(data.amount).toEqual(totalPayableAmount);
             expect(data.payableAmount).toBeDefined();

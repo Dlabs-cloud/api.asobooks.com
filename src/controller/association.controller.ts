@@ -28,7 +28,6 @@ export class AssociationController extends BaseController {
     description: 'Onboard associations',
     type: AssociationOnboardingDto,
   })
-  @Public()
   @Put('/onboard')
   public async createAssociation(@UploadedFile() file,
                                  @Body() associationRequestDto: AssociationRequestDto,

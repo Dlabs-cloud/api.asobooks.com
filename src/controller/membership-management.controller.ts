@@ -26,7 +26,7 @@ export class MembershipManagementController {
   @Post('create')
   public async createAssociationMember(@Body() memberSignUpDto: MemberSignUpDto,
                                        @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
-    await this.userManagementService.createAssociationMember(memberSignUpDto, requestPrincipal.association);
+    await this.userManagementService.createAssociationMember(memberSignUpDto, requestPrincipal.association, requestPrincipal.portalUser);
     return new ApiResponseDto({}, 201);
   }
 
@@ -64,7 +64,6 @@ export class MembershipManagementController {
 
   @Delete(':userId')
   public deleteMember(@Param('userId') userId: number, @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
-    console.log(requestPrincipal.association);
     return this.connection.getCustomRepository(PortalUserRepository)
       .findByAssociationAndId(requestPrincipal.association, userId).then(portalUser => {
         if (!portalUser) {

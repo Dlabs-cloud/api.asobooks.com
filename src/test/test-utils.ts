@@ -28,12 +28,12 @@ import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { WorkerModule } from '../worker/worker.module';
 import { PaymentModule } from '@dlabs/payment';
-import { FakerService } from '../service-impl/faker.service';
 import { Bill } from '../domain/entity/bill.entity';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { Invoice } from '../domain/entity/invoice.entity';
 import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
+import { FakerService } from '../service-impl/faker.service';
 
 
 export const init = async (entityManager?: EntityManager) => {
@@ -196,14 +196,11 @@ export const getAssociationUser = async (status?: GenericStatusConstant, portalU
   return Promise.resolve(response);
 };
 
-export const getLoginUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association, accountType = PortalAccountTypeConstant.EXECUTIVE_ACCOUNT) => {
-  status = status ?? GenericStatusConstant.ACTIVE;
-  const testUser = await getTestUser(status, portalUser, association, accountType);
-
+export function generateToken(membership: Membership) {
   const jwtPayload: JwtPayloadDto = {
-    sub: testUser.membership.portalUser.id,
-    email: testUser.membership.portalUser.email,
-    subStatus: testUser.membership.portalUser.status,
+    sub: membership.portalUser.id,
+    email: membership.portalUser.email,
+    subStatus: membership.portalUser.status,
     type: TokenTypeConstant.LOGIN,
   };
 
@@ -211,14 +208,19 @@ export const getLoginUser = async (status?: GenericStatusConstant, portalUser?: 
   return authenticationUtils.generateGenericToken(jwtPayload).then(token => {
     const authorizationToken = `Bearer ${token}`;
     return Promise.resolve(authorizationToken);
-  }).then(token => {
+  });
+}
+
+export const getLoginUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association, accountType = PortalAccountTypeConstant.EXECUTIVE_ACCOUNT) => {
+  status = status ?? GenericStatusConstant.ACTIVE;
+  const testUser = await getTestUser(status, portalUser, association, accountType);
+  const membership = testUser.membership;
+  return generateToken(membership).then(token => {
     return {
       token,
       user: testUser,
     };
   });
-
-
 };
 
 

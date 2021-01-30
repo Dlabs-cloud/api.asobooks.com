@@ -40,7 +40,7 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .getMany();
   }
 
-  findByAssociationAndUserAndAccountType(association: Association, user: PortalUser, accountType: PortalAccountTypeConstant) {
+  findByAssociationAndUserAndAccountType(association: Association, user: PortalUser, accountType: PortalAccountTypeConstant, status = GenericStatusConstant.ACTIVE) {
     return this.createQueryBuilder('membership')
       .select()
       .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.id = membership.portalAccountId')
