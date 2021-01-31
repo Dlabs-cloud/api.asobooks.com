@@ -13,7 +13,7 @@ export function IsDateFormat(format: string, options?: ValidationOptions) {
       validator: {
         validate(value: any, args: ValidationArguments) {
           const format = args.constraints[0] as string;
-          if (!format) {
+          if (!value) {
             return Promise.resolve(true);
           }
           let momentDate = moment(value, format);

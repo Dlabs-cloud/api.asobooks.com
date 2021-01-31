@@ -19,8 +19,8 @@ export class PaymentTransactionController {
 
   @Get()
   get(@RequestPrincipalContext()requestPrincipal: RequestPrincipal, @Query() query: PaymentTransactionSearchQueryDto) {
-    query.limit = query.limit > 20 ? 20 : query.limit;
-    query.offset = query.offset < 0 ? 0 : query.offset;
+    query.limit = query.limit > 20 || !query.limit ? 20 : query.limit;
+    query.offset = query.offset < 0 || !query.offset ? 0 : query.offset;
 
     return this.connection.getCustomRepository(PaymentTransactionRepository)
       .findByAssociationAndQuery(requestPrincipal.association, query)
