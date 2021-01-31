@@ -197,7 +197,7 @@ describe('Membership-management-controller ', () => {
           .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
           .then(response => {
             expect(response.status).toEqual(200);
-            connection.getCustomRepository(MembershipRepository).findOne({
+            return connection.getCustomRepository(MembershipRepository).findOne({
               id: membership.id,
             }).then(membership => {
               expect(membership.status).toEqual(GenericStatusConstant.IN_ACTIVE);
