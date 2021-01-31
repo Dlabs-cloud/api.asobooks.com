@@ -20,8 +20,8 @@ import { MembershipRepository } from '../dao/membership.repository';
 import { Membership } from '../domain/entity/membership.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { PortalUser } from '../domain/entity/portal-user.entity';
-import { isDateCtor } from '@nestjs/swagger/dist/utils/is-date-ctor.util';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { AddressRepository } from '../dao/address.repository';
 
 describe('Membership-management-controller ', () => {
   let applicationContext: INestApplication;
@@ -56,11 +56,13 @@ describe('Membership-management-controller ', () => {
       address: {
         address: faker.address.streetAddress(),
         countryCode: (await factory().create(Country)).code,
+        unit: faker.random.alphaNumeric(),
       },
       email: faker.internet.email(),
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
       phoneNumber: faker.phone.phoneNumber(),
+      identifier: faker.random.alphaNumeric(),
       types: [PortalAccountTypeConstant.EXECUTIVE_ACCOUNT, PortalAccountTypeConstant.MEMBER_ACCOUNT],
 
     };
@@ -69,7 +71,26 @@ describe('Membership-management-controller ', () => {
       .send(membershipSignUpDto)
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
-      .expect(201);
+      .expect(201).then(() => {
+        console.log(membershipSignUpDto.email);
+        return connection.getCustomRepository(PortalUserRepository)
+          .findByUserNameOrEmailOrPhoneNumberAndStatus(membershipSignUpDto.email.toLowerCase(), GenericStatusConstant.ACTIVE)
+          .then(portalUser => {
+            return connection.getCustomRepository(MembershipRepository)
+              .findByUserAndAssociation(portalUser, associationUser.association)
+              .then(memberships => {
+                const membership = memberships[0];
+                expect(membership.identificationNumber).toEqual(membershipSignUpDto.identifier);
+                return connection.getCustomRepository(AddressRepository)
+                  .findOne({ id: membership.addressId })
+                  .then(address => {
+                    expect(address.unit).toEqual(membershipSignUpDto.address.unit);
+                    expect(address.name).toEqual(membershipSignUpDto.address.address);
+                  });
+              });
+
+          });
+      });
   });
 
   it('Test that an when a member is created he his added to the association general group', async () => {

@@ -10,4 +10,7 @@ export class Address extends BaseEntity {
   @ManyToOne(() => Country)
   country: Country;
 
+  @Column({ nullable: true })
+  unit: string;
+
 }

@@ -31,5 +31,7 @@ export class Membership extends BaseEntity {
   @JoinColumn()
   address: Address;
 
+  @Column({ nullable: true })
+  addressId: number;
 
 }

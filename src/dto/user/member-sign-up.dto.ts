@@ -13,6 +13,8 @@ import { Type } from 'class-transformer';
 import { AssociationAddressRequestDto } from '../association/association-address-request.dto';
 import { PortalAccountTypeConstant } from '../../domain/enums/portal-account-type-constant';
 import { IsEntityExist } from '../../common/class-validators/entity-constraint.validator';
+import { GenericStatusConstant } from '../../domain/enums/generic-status-constant';
+import { Membership } from '../../domain/entity/membership.entity';
 
 export class MemberSignUpDto {
   @IsNotEmpty()
@@ -39,5 +41,11 @@ export class MemberSignUpDto {
   address?: AssociationAddressRequestDto;
   @IsEnum(PortalAccountTypeConstant, { each: true })
   types: PortalAccountTypeConstant[];
+  @IsEntityExist({
+    name: 'membership',
+    column: 'identificationNumber',
+    isExist: false,
+  })
+  identifier?: string;
 
 }

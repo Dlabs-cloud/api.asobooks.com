@@ -26,6 +26,9 @@ import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { ActivityLogEventBuilder } from '../event/builder/activity-log.event.builder';
 import { ActivityTypeConstant } from '../domain/enums/activity-type-constant';
+import { Address } from '../domain/entity/address.entity';
+import { CountryRepository } from '../dao/country.repository';
+import { Membership } from '../domain/entity/membership.entity';
 
 @Injectable()
 export class UserManagementService {
@@ -119,7 +122,6 @@ export class UserManagementService {
       const portalUser = await this.portalUserService.createPortalUser(entityManager, portalUserDto, GenericStatusConstant.ACTIVE);
       let portalAccount: PortalAccount = null;
 
-
       for (let i = 0; i < membershipSignUp.types.length; i++) {
         const membershipType: PortalAccountTypeConstant = membershipSignUp.types[i];
         portalAccount = await entityManager
@@ -127,7 +129,11 @@ export class UserManagementService {
           .findByStatusAndTypeAndAssociations(membershipType, GenericStatusConstant.ACTIVE, association);
         if (membershipType === PortalAccountTypeConstant.EXECUTIVE_ACCOUNT && portalAccount) {
           const membershipDto: MembershipDto = { association, portalAccount, portalUser };
-          let membership = await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE);
+          const membership = await this.membershipService
+            .createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE)
+            .then(membership => {
+              return this.updateIdentifierAndAddress(entityManager, membershipSignUp, membership);
+            });
         }
 
         if (membershipType === PortalAccountTypeConstant.MEMBER_ACCOUNT) {
@@ -151,9 +157,9 @@ export class UserManagementService {
           }
           let group = groups[0];
           await this.groupService.addMember(entityManager, group, membership);
-          this.eventBus.publish(new AssociationMembershipSignUpEvent(portalUser));
         }
       }
+      this.eventBus.publish(new AssociationMembershipSignUpEvent(portalUser));
     });
   }
 
@@ -164,5 +170,23 @@ export class UserManagementService {
       return this.membershipService
         .deactivateUserMemberships(entityManager, portalUser, association);
     });
+  }
+
+
+  private async updateIdentifierAndAddress(entityManager: EntityManager, data: MemberSignUpDto, membership: Membership) {
+    membership.identificationNumber = data.identifier || membership.identificationNumber;
+    if (data.address) {
+      const address = new Address();
+      membership.address = await entityManager
+        .getCustomRepository(CountryRepository)
+        .findOne({ code: data.address.countryCode })
+        .then(country => {
+          address.country = country;
+          address.name = data.address.address;
+          address.unit = data.address.unit;
+          return entityManager.save(address);
+        });
+    }
+    return entityManager.save(membership);
   }
 }

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { IsEntityExist } from '../../common/class-validators/entity-constraint.validator';
 
 export class AssociationAddressRequestDto {
@@ -16,4 +16,6 @@ export class AssociationAddressRequestDto {
     message: 'Country with code does not exist',
   })
   countryCode: string;
+  @IsOptional()
+  unit?: string;
 }
