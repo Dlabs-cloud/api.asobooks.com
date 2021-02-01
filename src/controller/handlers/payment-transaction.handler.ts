@@ -9,6 +9,8 @@ import { InvoiceRepository } from '../../dao/invoice.repository';
 import { PortalUserRepository } from '../../dao/portal-user.repository';
 import { connectableObservableDescriptor } from 'rxjs/internal/observable/ConnectableObservable';
 import { dtsDtsxOrDtsDtsxMapRegex } from 'ts-loader/dist/constants';
+import { MembershipInfoRepository } from '../../dao/membership-info.repository';
+import { Association } from '../../domain/entity/association.entity';
 
 @Injectable()
 export class PaymentTransactionHandler {
@@ -16,7 +18,7 @@ export class PaymentTransactionHandler {
   constructor(private readonly connection: Connection) {
   }
 
-  async transform(paymentTransactions: PaymentTransaction[]) {
+  async transform(paymentTransactions: PaymentTransaction[], association: Association) {
     if (!paymentTransactions.length) {
       return Promise.resolve([]);
     }
@@ -25,6 +27,7 @@ export class PaymentTransactionHandler {
     const membershipIds = invoices.map(invoice => invoice.createdById);
     const memberships = await this.connection.getCustomRepository(MembershipRepository).findByIds(membershipIds);
     const portalUsers = await this.connection.getCustomRepository(PortalUserRepository).findByMemberships(memberships);
+    const membershipInfos = await this.connection.getCustomRepository(MembershipInfoRepository).findByAssociationAndPortalUsers(association, portalUsers);
 
     return paymentTransactions.map(paymentTransaction => {
       const paymentRequest = paymentRequests.find(paymentRequest => paymentRequest.id === paymentTransaction.paymentRequestId);
@@ -32,11 +35,12 @@ export class PaymentTransactionHandler {
       const invoice = invoices.find(invoice => invoice.id === paymentRequest.invoiceId);
       const membership = memberships.find(membership => membership.id === invoice.createdById);
       const portalUser = portalUsers.find(portalUser => portalUser.id === membership.portalUserId);
+      const membershipInfo = membershipInfos.find(membershipInfo => membershipInfo.portalUserId === portalUser.id);
       const data: PaymentTransactionsDto = {
         paidByFirstName: portalUser.firstName,
         paidByLastLastName: portalUser.lastName,
         amountInMinorUnit: paymentTransaction.amountInMinorUnit,
-        membershipReference: membership.identificationNumber,
+        membershipReference: membershipInfo.identifier,
         paymentDate: paymentTransaction.datePaid,
         transactionReference: paymentTransaction.reference,
       };

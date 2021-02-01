@@ -28,7 +28,7 @@ export class PaymentTransactionController {
         const paymentTransactions = paymentsAndCount[0];
         const count = paymentsAndCount[1];
         return this.paymentTransactionHandler
-          .transform(paymentTransactions)
+          .transform(paymentTransactions, requestPrincipal.association)
           .then(paymentTransactionResponse => {
             const response: PaginatedResponseDto<PaymentTransactionsDto> = {
               items: paymentTransactionResponse,
