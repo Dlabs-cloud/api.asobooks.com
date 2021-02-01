@@ -26,6 +26,8 @@ import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { InActiveAccountException } from '../exception/in-active-account.exception';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
+import { MembershipInfoService } from './membership-info.service';
+import { MembershipCodeSequence } from '../core/sequenceGenerators/membership-code.sequence';
 
 @Injectable()
 export class AuthenticationService {
@@ -38,6 +40,8 @@ export class AuthenticationService {
               private readonly associationCodeSequence: AssociationCodeSequence,
               private readonly membershipService: MembershipService,
               private readonly portalAccountService: PortalAccountService,
+              private readonly membershipCodeSequence: MembershipCodeSequence,
+              private readonly membershipInfoService: MembershipInfoService,
               private readonly eventBus: EventBus) {
 
   }
@@ -79,17 +83,20 @@ export class AuthenticationService {
 
       const portalUser = await this.portalUserService.createPortalUser(entityManager, portalUserDto, GenericStatusConstant.PENDING_ACTIVATION);
 
-
+      const membershipInfo = await this.membershipCodeSequence.next().then(code => {
+        return this.membershipInfoService.createMembershipInfo(entityManager, portalUser, association, null, code);
+      });
       const membershipDto: MembershipDto = {
         association,
         portalAccount: executivePortalAccount,
+        membershipInfo,
         portalUser,
       };
       const membership = await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.PENDING_ACTIVATION);
 
       delete portalUser.password;
 
-      portalUserDto.identifier = membership.identificationNumber;
+      portalUserDto.identifier = membershipInfo.identifier;
 
       this.eventBus.publish(new NewUserAccountSignUpEvent(executivePortalAccount, portalUser));
       return membership;

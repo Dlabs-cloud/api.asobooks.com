@@ -22,6 +22,9 @@ import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { AddressRepository } from '../dao/address.repository';
+import { MembershipInfoRepository } from '../dao/membership-info.repository';
+import { add } from 'winston';
+import { MembershipInfo } from '../domain/entity/association-member-info.entity';
 
 describe('Membership-management-controller ', () => {
   let applicationContext: INestApplication;
@@ -62,17 +65,16 @@ describe('Membership-management-controller ', () => {
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
       phoneNumber: faker.phone.phoneNumber(),
-      identifier: faker.random.alphaNumeric(),
+      identifier: faker.random.alphaNumeric() + faker.random.uuid(),
       types: [PortalAccountTypeConstant.EXECUTIVE_ACCOUNT, PortalAccountTypeConstant.MEMBER_ACCOUNT],
-
     };
     return request(applicationContext.getHttpServer())
       .post(`/membership-management/create`)
       .send(membershipSignUpDto)
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
-      .expect(201).then(() => {
-        console.log(membershipSignUpDto.email);
+      .expect(201)
+      .then((response) => {
         return connection.getCustomRepository(PortalUserRepository)
           .findByUserNameOrEmailOrPhoneNumberAndStatus(membershipSignUpDto.email.toLowerCase(), GenericStatusConstant.ACTIVE)
           .then(portalUser => {
@@ -80,12 +82,15 @@ describe('Membership-management-controller ', () => {
               .findByUserAndAssociation(portalUser, associationUser.association)
               .then(memberships => {
                 const membership = memberships[0];
-                expect(membership.identificationNumber).toEqual(membershipSignUpDto.identifier);
-                return connection.getCustomRepository(AddressRepository)
-                  .findOne({ id: membership.addressId })
-                  .then(address => {
-                    expect(address.unit).toEqual(membershipSignUpDto.address.unit);
-                    expect(address.name).toEqual(membershipSignUpDto.address.address);
+                return connection.getCustomRepository(MembershipInfoRepository)
+                  .findOne({ id: membership.membershipInfoId })
+                  .then(membershipInfo => {
+                    expect(membershipInfo.identifier).toEqual(membershipSignUpDto.identifier);
+                    return connection.getCustomRepository(AddressRepository).findOne({ id: membershipInfo.addressId })
+                      .then(address => {
+                        expect(address.unit).toEqual(membershipSignUpDto.address.unit);
+                        expect(address.name).toEqual(membershipSignUpDto.address.address);
+                      });
                   });
               });
 
@@ -146,16 +151,25 @@ describe('Membership-management-controller ', () => {
   });
 
   it('test that association user can get all is association members ', async () => {
-    await factory().upset(PortalAccount).use(portalAccount => {
+    const membershipInfos = await factory().upset(MembershipInfo).use(membershipInfo => {
+      membershipInfo.association = associationUser.association;
+      return membershipInfo;
+    }).createMany(4);
+    const portalAccount = await factory().upset(PortalAccount).use(portalAccount => {
       portalAccount.association = associationUser.association;
       portalAccount.type = PortalAccountTypeConstant.MEMBER_ACCOUNT;
       return portalAccount;
-    }).create().then(portalAccount => {
+    }).create();
+
+    const membershipsPromise: Promise<Membership[]>[] = membershipInfos.map(membershipInfo => {
       return factory().upset(Membership).use(membership => {
         membership.portalAccount = portalAccount;
+        membership.portalUser = membershipInfo.portalUser;
         return membership;
       }).createMany(3);
     });
+    await Promise.all(membershipsPromise);
+
 
     let totalExistingValue = await connection.getCustomRepository(PortalUserRepository).countByAssociationAndAccountType(associationUser.association, PortalAccountTypeConstant.MEMBER_ACCOUNT);
     let response = await request(applicationContext.getHttpServer())
@@ -172,6 +186,7 @@ describe('Membership-management-controller ', () => {
     expect(item.phoneNumber).toBeDefined();
     expect(item.username).toBeDefined();
     expect(item.id).toBeDefined();
+    expect(item.identifier).toBeDefined();
     expect(item.dateCreated).toBeDefined();
     expect(responseData.total).toEqual(totalExistingValue);
     expect(responseData.total).toBeGreaterThan(1);
@@ -200,7 +215,7 @@ describe('Membership-management-controller ', () => {
             return connection.getCustomRepository(MembershipRepository).findOne({
               id: membership.id,
             }).then(membership => {
-              expect(membership.status).toEqual(GenericStatusConstant.IN_ACTIVE);
+              expect(membership.status).toEqual(GenericStatusConstant.DELETED);
             });
           });
       });
@@ -213,4 +228,5 @@ describe('Membership-management-controller ', () => {
     await connection.close();
     await applicationContext.close();
   });
-});
+})
+;

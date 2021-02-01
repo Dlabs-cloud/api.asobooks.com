@@ -9,7 +9,6 @@ export class MembershipModelFactory implements FactoryHelper<Membership> {
     const membership = new Membership();
     membership.portalUser = await modelFactory.create(PortalUser);
     membership.portalAccount = await modelFactory.create(PortalAccount);
-    membership.identificationNumber = faker.random.uuid() + Date.now();
     return membership;
   }
 

@@ -12,6 +12,7 @@ import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalUserDto } from '../dto/portal-user.dto';
 import { PortalUserQueryDto } from '../dto/portal-user-query.dto';
+import { MembershipInfoRepository } from '../dao/membership-info.repository';
 
 
 @Controller('membership-management')
@@ -38,26 +39,37 @@ export class MembershipManagementController {
       .getCustomRepository(PortalUserRepository)
       .getByAssociationAndQuery(requestPrincipal.association, query, GenericStatusConstant.ACTIVE)
       .then(portalUsersAndCount => {
-        const users = (portalUsersAndCount[0] as PortalUser[]).map(portalUser => {
-          return {
-            email: portalUser.email,
-            firstName: portalUser.firstName,
-            lastName: portalUser.lastName,
-            phoneNumber: portalUser.phoneNumber,
-            username: portalUser.username,
-            dateCreated: portalUser.createdAt,
-            id: portalUser.id,
-          };
-        });
-        return Promise.resolve({ users, total: portalUsersAndCount[1] });
-      }).then(usersCount => {
-        const response: PaginatedResponseDto<PortalUserDto> = {
-          items: usersCount.users,
-          itemsPerPage: query.limit,
-          offset: query.offset,
-          total: usersCount.total,
-        };
-        return Promise.resolve(new ApiResponseDto(response, 200));
+        const portalUsers = portalUsersAndCount[0] as PortalUser[];
+        if (!portalUsers.length) {
+          return Promise.resolve(null);
+        }
+        return this.connection.getCustomRepository(MembershipInfoRepository)
+          .findByAssociationAndPortalUsers(requestPrincipal.association, portalUsers)
+          .then(membershipInfos => {
+            const users = portalUsers.map(portalUser => {
+              const membershipInfo = membershipInfos.find(membershipInfo => membershipInfo.portalUserId === portalUser.id);
+              return {
+                email: portalUser.email,
+                firstName: portalUser.firstName,
+                lastName: portalUser.lastName,
+                phoneNumber: portalUser.phoneNumber,
+                username: portalUser.username,
+                dateCreated: portalUser.createdAt,
+                id: portalUser.id,
+                identifier: membershipInfo.identifier,
+              };
+            });
+            return Promise.resolve({ users, total: portalUsersAndCount[1] });
+
+          }).then(usersCount => {
+            const response: PaginatedResponseDto<PortalUserDto> = {
+              items: usersCount?.users || [],
+              itemsPerPage: query.limit,
+              offset: query.offset,
+              total: usersCount?.total || 0,
+            };
+            return Promise.resolve(new ApiResponseDto(response, 200));
+          });
       });
   }
 

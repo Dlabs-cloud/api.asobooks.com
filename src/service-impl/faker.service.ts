@@ -16,6 +16,8 @@ import { Wallet } from '../domain/entity/wallet.entity';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
 import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { ActivityLog } from '../domain/entity/activity-log.entity';
+import { MembershipInfo } from '../domain/entity/association-member-info.entity';
+import { PortalAccountRepository } from '../dao/portal-account.repository';
 
 @Injectable()
 export class FakerService implements OnApplicationBootstrap {
@@ -53,6 +55,9 @@ export class FakerService implements OnApplicationBootstrap {
                     })
                     .then(() => {
                       return this.seedActivityLog(testUser.association);
+                    })
+                    .then(() => {
+                      return this.createMembers(testUser.association);
                     });
                 });
 
@@ -92,6 +97,31 @@ export class FakerService implements OnApplicationBootstrap {
       wallet.association = association;
       return wallet;
     }).create();
+  }
+
+  async createMembers(association) {
+    const membershipInfos = await factory().upset(MembershipInfo).use(membershipInfo => {
+      membershipInfo.association = association;
+      return membershipInfo;
+    }).createMany(50);
+    let portalAccount = await this.connection.getCustomRepository(PortalAccountRepository)
+      .findByTypeAndAssociationAndStatus(PortalAccountTypeConstant.MEMBER_ACCOUNT, association);
+    if (!portalAccount) {
+      portalAccount = await factory().upset(PortalAccount).use(portalAccount => {
+        portalAccount.association = association;
+        portalAccount.type = PortalAccountTypeConstant.MEMBER_ACCOUNT;
+        return portalAccount;
+      }).create();
+    }
+    const membershipPromise = membershipInfos.map(membershipInfo => {
+      return factory().upset(Membership).use(membership => {
+        membership.portalAccount = portalAccount;
+        membership.portalUser = membershipInfo.portalUser;
+        membership.membershipInfo = membershipInfo;
+        return membership;
+      }).create();
+    });
+    return Promise.all(membershipPromise);
   }
 
 

@@ -1,4 +1,5 @@
 import {
+  ArrayMinSize,
   IsArray,
   IsEmail,
   IsEnum,
@@ -6,7 +7,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
-  MIN,
+  MIN, MinLength,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -29,7 +30,7 @@ export class MemberSignUpDto {
     column: 'email',
     isExist: false,
     name: 'portal_user',
-  })
+  }, { message: 'Email already exist' })
   email: string;
   @IsString()
   @IsOptional()
@@ -39,13 +40,15 @@ export class MemberSignUpDto {
   @IsObject()
   @Type(() => AssociationAddressRequestDto)
   address?: AssociationAddressRequestDto;
+  @IsArray()
+  @ArrayMinSize(1, { message: 'At least one account type must be provided' })
   @IsEnum(PortalAccountTypeConstant, { each: true })
   types: PortalAccountTypeConstant[];
   @IsEntityExist({
-    name: 'membership',
-    column: 'identificationNumber',
+    name: 'membership_info',
+    column: 'identifier',
     isExist: false,
-  })
+  }, { message: 'Identifier has already been used' })
   identifier?: string;
 
 }

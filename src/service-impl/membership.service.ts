@@ -27,7 +27,7 @@ export class MembershipService {
       membership.portalUser = membershipDto.portalUser;
       membership.portalAccount = membershipDto.portalAccount;
       membership.status = status;
-      membership.identificationNumber = sequenceCode;
+      membership.membershipInfo = membershipDto.membershipInfo;
       return entityManager.save(membership);
     });
   }

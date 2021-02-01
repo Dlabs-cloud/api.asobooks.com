@@ -41,6 +41,8 @@ import { PaymentTransaction } from '../domain/entity/payment-transaction.entity'
 import { PaymentTransactionModelFactory } from './factory/payment-transaction-model.factory';
 import { ActivityLogModelFactory } from './factory/activity-log-model.factory';
 import { ActivityLog } from '../domain/entity/activity-log.entity';
+import { MembershipInfo } from '../domain/entity/association-member-info.entity';
+import { MembershipInfoFactory } from './factory/membership-info.factory';
 
 export class ModelFactoryRoster {
   static register(modelFactory: ModelFactory) {
@@ -65,5 +67,6 @@ export class ModelFactoryRoster {
     modelFactory.register(BankInfo, BankInfoFactory);
     modelFactory.register(PaymentTransaction, PaymentTransactionModelFactory);
     modelFactory.register(ActivityLog, ActivityLogModelFactory);
+    modelFactory.register(MembershipInfo, MembershipInfoFactory);
   }
 }

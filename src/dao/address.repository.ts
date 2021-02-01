@@ -10,6 +10,7 @@ export class AddressRepository extends BaseRepository<Address> {
     const address = new Address();
     address.country = addressDto.country;
     address.name = addressDto.name;
+    address.unit = addressDto.unit;
     await entityManager.save(address);
     return address;
   }

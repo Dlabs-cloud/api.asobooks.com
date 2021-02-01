@@ -3,6 +3,7 @@ import { BaseEntity } from '../../common/base.entity';
 import { PortalAccount } from './portal-account.entity';
 import { PortalUser } from './portal-user.entity';
 import { Address } from './address.entity';
+import { MembershipInfo } from './association-member-info.entity';
 
 @Entity()
 export class Membership extends BaseEntity {
@@ -22,16 +23,10 @@ export class Membership extends BaseEntity {
   @Column({ nullable: true })
   portalAccountId?: number;
 
-  @Column({
-    nullable: true,
-  })
-  identificationNumber: string;
-
-  @OneToOne(() => Address)
-  @JoinColumn()
-  address: Address;
+  @ManyToOne(() => MembershipInfo)
+  membershipInfo: MembershipInfo;
 
   @Column({ nullable: true })
-  addressId: number;
+  membershipInfoId?: number;
 
 }

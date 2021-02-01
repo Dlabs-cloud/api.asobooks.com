@@ -44,7 +44,6 @@ export function IsEntityExist(param: EntityConstraintParam, options?: Validation
 
 }
 
-
 export interface EntityConstraintParam {
   name: string;
   column: string,

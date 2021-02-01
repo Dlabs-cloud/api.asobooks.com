@@ -26,6 +26,7 @@ import { PaymentRequestService } from './payment-request.service';
 import { PaymentTransactionService } from './payment-transaction.service';
 import { BankService } from './bank.service';
 import { FakerService } from './faker.service';
+import { MembershipInfoService } from './membership-info.service';
 
 
 @Module({
@@ -81,6 +82,7 @@ import { FakerService } from './faker.service';
     WalletService,
     BillService,
     FakerService,
+    MembershipInfoService,
   ],
 })
 export class ServiceImplModule {

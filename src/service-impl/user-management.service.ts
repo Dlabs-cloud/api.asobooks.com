@@ -24,11 +24,14 @@ import { GroupService } from './group.service';
 import { GroupRepository } from '../dao/group.repository';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
-import { ActivityLogEventBuilder } from '../event/builder/activity-log.event.builder';
-import { ActivityTypeConstant } from '../domain/enums/activity-type-constant';
 import { Address } from '../domain/entity/address.entity';
 import { CountryRepository } from '../dao/country.repository';
 import { Membership } from '../domain/entity/membership.entity';
+import { MembershipInfo } from '../domain/entity/association-member-info.entity';
+import { MembershipCodeSequence } from '../core/sequenceGenerators/membership-code.sequence';
+import { add } from 'winston';
+import { MembershipInfoService } from './membership-info.service';
+import { AddressDto } from '../dto/address.dto';
 
 @Injectable()
 export class UserManagementService {
@@ -38,6 +41,7 @@ export class UserManagementService {
               private readonly portalAccountService: PortalAccountService,
               private readonly membershipService: MembershipService,
               private readonly portalUserService: PortalUserService,
+              private readonly membershipInfoService: MembershipInfoService,
               private readonly groupService: GroupService,
               private readonly eventBus: EventBus) {
   }
@@ -120,20 +124,36 @@ export class UserManagementService {
         username: membershipSignUp.email,
       };
       const portalUser = await this.portalUserService.createPortalUser(entityManager, portalUserDto, GenericStatusConstant.ACTIVE);
+
+      let addressDto: AddressDto = null;
+
+      if (membershipSignUp.address) {
+        addressDto = {
+          country: await entityManager.getCustomRepository(CountryRepository).findOne({ code: membershipSignUp.address.countryCode }),
+          name: membershipSignUp.address.address,
+          unit: membershipSignUp.address.unit,
+        };
+      }
+      const membershipInfo = await this.membershipInfoService
+        .createMembershipInfo(entityManager,
+          portalUser,
+          association,
+          addressDto, membershipSignUp.identifier);
       let portalAccount: PortalAccount = null;
+
+      if (membershipSignUp.types.length < 1) {
+        throw new IllegalArgumentException('At least one type must be provided');
+      }
 
       for (let i = 0; i < membershipSignUp.types.length; i++) {
         const membershipType: PortalAccountTypeConstant = membershipSignUp.types[i];
         portalAccount = await entityManager
           .getCustomRepository(PortalAccountRepository)
-          .findByStatusAndTypeAndAssociations(membershipType, GenericStatusConstant.ACTIVE, association);
+          .findByTypeAndAssociationAndStatus(membershipType, association);
         if (membershipType === PortalAccountTypeConstant.EXECUTIVE_ACCOUNT && portalAccount) {
-          const membershipDto: MembershipDto = { association, portalAccount, portalUser };
+          const membershipDto: MembershipDto = { association, portalAccount, portalUser, membershipInfo };
           const membership = await this.membershipService
-            .createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE)
-            .then(membership => {
-              return this.updateIdentifierAndAddress(entityManager, membershipSignUp, membership);
-            });
+            .createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE);
         }
 
         if (membershipType === PortalAccountTypeConstant.MEMBER_ACCOUNT) {
@@ -146,8 +166,9 @@ export class UserManagementService {
             portalAccount = await this.portalAccountService.createPortalAccount(entityManager, portalAccountDto, GenericStatusConstant.ACTIVE);
           }
 
-          const membershipDto: MembershipDto = { association, portalAccount, portalUser };
-          let membership = await this.membershipService.createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE);
+          const membershipDto: MembershipDto = { association, portalAccount, portalUser, membershipInfo };
+          let membership = await this.membershipService
+            .createMembership(entityManager, membershipDto, GenericStatusConstant.ACTIVE);
 
           let groups = await entityManager
             .getCustomRepository(GroupRepository)
@@ -173,20 +194,4 @@ export class UserManagementService {
   }
 
 
-  private async updateIdentifierAndAddress(entityManager: EntityManager, data: MemberSignUpDto, membership: Membership) {
-    membership.identificationNumber = data.identifier || membership.identificationNumber;
-    if (data.address) {
-      const address = new Address();
-      membership.address = await entityManager
-        .getCustomRepository(CountryRepository)
-        .findOne({ code: data.address.countryCode })
-        .then(country => {
-          address.country = country;
-          address.name = data.address.address;
-          address.unit = data.address.unit;
-          return entityManager.save(address);
-        });
-    }
-    return entityManager.save(membership);
-  }
 }

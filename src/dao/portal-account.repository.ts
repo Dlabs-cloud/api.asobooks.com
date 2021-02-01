@@ -56,18 +56,13 @@ export class PortalAccountRepository extends BaseRepository<PortalAccount> {
   }
 
 
-  findByStatusAndTypeAndAssociations(type: PortalAccountTypeConstant, status = GenericStatusConstant.ACTIVE, ...associations: Association[]): Promise<PortalAccount> {
-    if (!associations.length) {
-      return Promise.resolve(null);
-    }
-    let associationIds = associations.map(association => association.id);
+  findByTypeAndAssociationAndStatus(type: PortalAccountTypeConstant, association: Association, status = GenericStatusConstant.ACTIVE): Promise<PortalAccount> {
     return this.createQueryBuilder('portalAccount')
       .select()
-      .innerJoin(Association, 'association', 'portalAccount.association = association.id ')
       .where('portalAccount.status = :status')
       .andWhere('portalAccount.type = :portalAccountType')
-      .andWhere('association.id IN (:...associations)')
-      .setParameter('associations', associationIds)
+      .andWhere('portalAccount.association = :association')
+      .setParameter('association', association.id)
       .setParameter('status', status)
       .setParameter('portalAccountType', type)
       .getOne();
