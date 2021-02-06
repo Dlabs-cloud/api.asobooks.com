@@ -17,7 +17,7 @@ export class WalletService {
   }
 
 
-  createAssociationWallet(entityManager: EntityManager, association: Association, bankInfo: BankInfo) {
+  createAssociationWallet(entityManager: EntityManager, association: Association, bankInfo?: BankInfo) {
     return this.walletSequence.next().then(reference => {
       let wallet = new Wallet();
       wallet.association = association;

@@ -36,14 +36,38 @@ export class PortalAccountRepository extends BaseRepository<PortalAccount> {
       .setParameter('status', status);
   }
 
+  findByPortalUserAndAssociationAndStatus(portalUser: PortalUser, association: Association, status = GenericStatusConstant) {
+    return this.createQueryBuilder('portalAccount')
+      .select()
+      .innerJoin(Membership, 'membership', 'membership.portalAccount=portalAccount.id')
+      .innerJoin(PortalUser, 'portalUser', 'membership.portalUser=portalUser.id')
+      .where('portalUser.id=:portalUserId')
+      .andWhere('portalAccount.status=:status')
+      .andWhere('portalAccount.association = :association')
+      .addOrderBy('portalAccount.createdAt', 'ASC')
+      .setParameter('portalUserId', portalUser.id)
+      .setParameter('association', association.id)
+      .setParameter('status', status).getMany();
+  }
+
+  findByPortalUserAndAssociation(portalUser: PortalUser, association: Association) {
+    return this.createQueryBuilder('portalAccount')
+      .select()
+      .innerJoin(Membership, 'membership', 'membership.portalAccount=portalAccount.id')
+      .innerJoin(PortalUser, 'portalUser', 'membership.portalUser=portalUser.id')
+      .where('portalUser.id=:portalUserId')
+      .andWhere('portalAccount.association = :association')
+      .addOrderBy('portalAccount.createdAt', 'ASC')
+      .setParameter('portalUserId', portalUser.id)
+      .setParameter('association', association.id)
+      .getMany();
+  }
+
   findByPortalUserAndStatus(portalUser: PortalUser, status: GenericStatusConstant = GenericStatusConstant.ACTIVE) {
     return this.findByPortalUserAndStatusBuilder(portalUser, status).getMany();
   }
 
   findByStatusAndAssociation(status = GenericStatusConstant.ACTIVE, ...associations: Association[]) {
-    if (!associations.length) {
-      return Promise.resolve([]);
-    }
     let associationIds = associations.map(association => association.id);
     return this.createQueryBuilder('portalAccount')
       .select()
@@ -56,16 +80,16 @@ export class PortalAccountRepository extends BaseRepository<PortalAccount> {
   }
 
 
-  findByTypeAndAssociationAndStatus(type: PortalAccountTypeConstant, association: Association, status = GenericStatusConstant.ACTIVE): Promise<PortalAccount> {
+  findByAssociationAndStatusAndTypes(association: Association, status = GenericStatusConstant.ACTIVE, ...types: PortalAccountTypeConstant[]): Promise<PortalAccount[]> {
     return this.createQueryBuilder('portalAccount')
       .select()
       .where('portalAccount.status = :status')
-      .andWhere('portalAccount.type = :portalAccountType')
+      .andWhere('portalAccount.type IN (:...portalAccountType)')
       .andWhere('portalAccount.association = :association')
       .setParameter('association', association.id)
       .setParameter('status', status)
-      .setParameter('portalAccountType', type)
-      .getOne();
+      .setParameter('portalAccountType', types)
+      .getMany();
   }
 
 

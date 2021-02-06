@@ -12,16 +12,14 @@ export class AssociationRequestDto {
   name: string;
   @IsEnum(AssociationTypeConstant)
   type: AssociationTypeConstant;
-  @ValidateNested()
   @IsOptional()
+  @ValidateNested()
   @IsObject()
   @Type(() => AssociationAddressRequestDto)
   address?: AssociationAddressRequestDto;
-  @IsBooleanString()
-  activateAssociation: boolean | string;
+  @IsOptional()
   @ValidateNested()
   @IsObject()
-  @IsOptional()
   @Type(() => BankInfoRequestDto)
   bankInfo?: BankInfoRequestDto;
   @ApiHideProperty()

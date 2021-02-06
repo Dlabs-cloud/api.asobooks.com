@@ -27,6 +27,7 @@ import { PaymentTransactionService } from './payment-transaction.service';
 import { BankService } from './bank.service';
 import { FakerService } from './faker.service';
 import { MembershipInfoService } from './membership-info.service';
+import { AddressService } from './address.service';
 
 
 @Module({
@@ -53,6 +54,7 @@ import { MembershipInfoService } from './membership-info.service';
     ServiceFeeService,
     GroupServiceFeeService,
     SubscriptionService,
+    UserManagementService,
     GroupService,
     BillService,
     CachedAssociationServiceImpl,
@@ -60,6 +62,7 @@ import { MembershipInfoService } from './membership-info.service';
     WalletService,
     BankService,
     PaymentTransactionService,
+    AddressService
   ],
   providers: [
     AuthenticationService,
@@ -76,6 +79,8 @@ import { MembershipInfoService } from './membership-info.service';
     MembershipService,
     AssociationServiceImpl,
     CachedAssociationServiceImpl,
+    UserManagementService,
+    AddressService,
     GroupServiceFeeService,
     PaymentTransactionService,
     BankService,

@@ -3,12 +3,9 @@ import { Connection } from 'typeorm/connection/Connection';
 import { TestingModule } from '@nestjs/testing';
 import { baseTestingModule, getAssociationUser, mockPaymentTransactions } from './test-utils';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
-import { getConnection, IsNull, Not } from 'typeorm';
+import { getConnection, IsNull, MoreThanOrEqual, Not } from 'typeorm';
 import { factory } from './factory';
 import { Association } from '../domain/entity/association.entity';
-import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
-import { PaymentRequest } from '../domain/entity/payment-request.entity';
-import { Invoice } from '../domain/entity/invoice.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { Membership } from '../domain/entity/membership.entity';
@@ -16,8 +13,8 @@ import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import * as request from 'supertest';
 import { Wallet } from '../domain/entity/wallet.entity';
 import { Bill } from '../domain/entity/bill.entity';
-import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { BillRepository } from '../dao/bill.repository';
+import { PaymentTransactionRepository } from '../dao/payment-transaction.repository';
 
 describe('Dashboard', () => {
 
@@ -88,6 +85,9 @@ describe('Dashboard', () => {
 
   it('Test that dashboard data can be viewed', async () => {
     jest.setTimeout(12000);
+    await connection.getCustomRepository(PaymentTransactionRepository).delete({
+      id: MoreThanOrEqual(1),
+    });
     const association = await factory().create(Association);
 
     await factory().upset(Wallet).use(wallet => {
@@ -96,23 +96,25 @@ describe('Dashboard', () => {
       return wallet;
     }).create();
 
-
-    await mockPaymentTransactions(association);
-    return getAssociationUser(GenericStatusConstant.ACTIVE, null, association)
+    return getAssociationUser(GenericStatusConstant.ACTIVE, null, association, PortalAccountTypeConstant.EXECUTIVE_ACCOUNT)
       .then(testUser => {
-        const url = '/dashboard';
-        return request(applicationContext.getHttpServer())
-          .get(url)
-          .set('Authorization', testUser.token)
-          .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
-          .expect(200).then(response => {
-            const data = response.body.data;
-            expect(data.numberOfMembers).toEqual(10);
-            expect(parseInt(data.totalExpectedDueInMinorUnit.toString())).toEqual(4500000);
-            expect(parseInt(data.totalAmountReceivedInMinorUnit.toString())).toEqual(2500000);
-            expect(parseInt(data.walletBalanceInMinorUnit.toString())).toEqual(200000000);
-            expect(data);
+        return mockPaymentTransactions(association)
+          .then(() => {
+            const url = '/dashboard';
+            return request(applicationContext.getHttpServer())
+              .get(url)
+              .set('Authorization', testUser.token)
+              .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+              .expect(200).then(response => {
+                const data = response.body.data;
+                expect(data.numberOfMembers).toEqual(11);
+                expect(parseInt(data.totalExpectedDueInMinorUnit.toString())).toEqual(4500000);
+                expect(parseInt(data.totalAmountReceivedInMinorUnit.toString())).toEqual(2500000);
+                expect(parseInt(data.walletBalanceInMinorUnit.toString())).toEqual(200000000);
+                expect(data);
+              });
           });
+
       });
   });
 

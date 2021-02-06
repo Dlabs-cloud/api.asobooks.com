@@ -24,7 +24,6 @@ import { Association } from '../domain/entity/association.entity';
 import { Membership } from '../domain/entity/membership.entity';
 import { ServiceModule } from '../service/service.module';
 import { MembershipRepository } from '../dao/membership.repository';
-import { PortalAccountRepository } from '../dao/portal-account.repository';
 
 describe('AuthController', () => {
   let applicationContext: INestApplication;
@@ -221,9 +220,8 @@ describe('AuthController', () => {
 
     let portalUser = await connection.getCustomRepository(PortalUserRepository).findByUserNameOrEmailOrPhoneNumberAndStatus(testUser.membership.portalUser.email, GenericStatusConstant.ACTIVE);
     expect(portalUser).toBeDefined();
-    let portalAccount = await connection.getCustomRepository(PortalAccountRepository).findByIdAndStatus(testUser.membership.portalAccount.id, GenericStatusConstant.ACTIVE);
-    expect(portalAccount).toBeDefined();
-    let membership = await connection.getCustomRepository(MembershipRepository).findByPortalAccountAndPortalUser(portalUser, portalAccount, GenericStatusConstant.ACTIVE);
+
+    let membership = await connection.getCustomRepository(MembershipRepository).findByUserAndAssociation(portalUser, testUser.association);
     expect(membership).toBeDefined();
 
   });

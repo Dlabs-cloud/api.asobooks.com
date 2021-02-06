@@ -58,10 +58,9 @@ export class AuthenticationService {
 
       await entityManager.save(association);
 
-
       let accountName = signUpRequestDto.associationName ?? `${signUpRequestDto.email}`;
 
-      accountName = `${accountName} Excos Account`;
+      accountName = `${accountName} Executive Account`;
 
       let executivePortalAccountDto: PortalAccountDto = {
         name: accountName,
@@ -97,7 +96,6 @@ export class AuthenticationService {
       delete portalUser.password;
 
       portalUserDto.identifier = membershipInfo.identifier;
-
       this.eventBus.publish(new NewUserAccountSignUpEvent(executivePortalAccount, portalUser));
       return membership;
     });

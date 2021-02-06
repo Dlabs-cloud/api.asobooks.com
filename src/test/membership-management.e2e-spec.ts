@@ -23,8 +23,8 @@ import { PortalUser } from '../domain/entity/portal-user.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { AddressRepository } from '../dao/address.repository';
 import { MembershipInfoRepository } from '../dao/membership-info.repository';
-import { add } from 'winston';
 import { MembershipInfo } from '../domain/entity/association-member-info.entity';
+import { PortalAccountRepository } from '../dao/portal-account.repository';
 
 describe('Membership-management-controller ', () => {
   let applicationContext: INestApplication;
@@ -73,7 +73,7 @@ describe('Membership-management-controller ', () => {
       .send(membershipSignUpDto)
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
-      .expect(201)
+      // .expect(201)
       .then((response) => {
         return connection.getCustomRepository(PortalUserRepository)
           .findByUserNameOrEmailOrPhoneNumberAndStatus(membershipSignUpDto.email.toLowerCase(), GenericStatusConstant.ACTIVE)
@@ -155,11 +155,9 @@ describe('Membership-management-controller ', () => {
       membershipInfo.association = associationUser.association;
       return membershipInfo;
     }).createMany(4);
-    const portalAccount = await factory().upset(PortalAccount).use(portalAccount => {
-      portalAccount.association = associationUser.association;
-      portalAccount.type = PortalAccountTypeConstant.MEMBER_ACCOUNT;
-      return portalAccount;
-    }).create();
+
+    const portalAccount = await connection.getCustomRepository(PortalAccountRepository)
+      .findOne({ association: associationUser.association, type: PortalAccountTypeConstant.MEMBER_ACCOUNT });
 
     const membershipsPromise: Promise<Membership[]>[] = membershipInfos.map(membershipInfo => {
       return factory().upset(Membership).use(membership => {
@@ -190,7 +188,6 @@ describe('Membership-management-controller ', () => {
     expect(item.dateCreated).toBeDefined();
     expect(responseData.total).toEqual(totalExistingValue);
     expect(responseData.total).toBeGreaterThan(1);
-
   });
 
 

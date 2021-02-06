@@ -7,34 +7,14 @@ import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 @EntityRepository(BankInfo)
 export class BankInfoRepository extends BaseRepository<BankInfo> {
 
-  findOneByAssociation(association: Association, status: GenericStatusConstant = GenericStatusConstant.ACTIVE) {
+  countByAssociation(association: Association, status = GenericStatusConstant.ACTIVE) {
     return this.createQueryBuilder('bankInfo').select()
       .innerJoin(Association, 'association', 'bankInfo.association=association.id')
       .where('association.id = :association')
       .andWhere('bankInfo.status = :status')
       .setParameter('association', association.id)
       .setParameter('status', status)
-      .getOne();
-  }
-
-  findByAssociation(association: Association, status: GenericStatusConstant = GenericStatusConstant.ACTIVE) {
-    return this.createQueryBuilder('bankInfo').select()
-      .innerJoin(Association, 'association', 'bankInfo.association=association.id')
-      .where('association.id = :association')
-      .andWhere('bankInfo.status = :status')
-      .setParameter('association', association.id)
-      .setParameter('status', status)
-      .getMany();
-  }
-
-  countByAssociation(association: Association, status = GenericStatusConstant.ACTIVE){
-    return this.createQueryBuilder('bankInfo').select()
-      .innerJoin(Association, 'association', 'bankInfo.association=association.id')
-      .where('association.id = :association')
-      .andWhere('bankInfo.status = :status')
-      .setParameter('association', association.id)
-      .setParameter('status', status)
-      .getCount()
+      .getCount();
   }
 }
 

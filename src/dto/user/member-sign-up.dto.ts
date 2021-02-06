@@ -33,7 +33,6 @@ export class MemberSignUpDto {
   }, { message: 'Email already exist' })
   email: string;
   @IsString()
-  @IsOptional()
   phoneNumber: string;
   @ValidateNested()
   @IsOptional()

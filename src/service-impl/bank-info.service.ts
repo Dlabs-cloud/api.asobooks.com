@@ -15,8 +15,6 @@ export class BankInfoService {
   async create(entityManager: EntityManager, bankInfo: BankInfoDto, association: Association): Promise<BankInfo> {
     let newBankInfo = new BankInfo();
     newBankInfo.accountNumber = bankInfo.accountNumber;
-    newBankInfo.association = association;
-
     let bank = await this.connection
       .getCustomRepository(BankRepository)
       .findOneItemByStatus({ code: bankInfo.code });

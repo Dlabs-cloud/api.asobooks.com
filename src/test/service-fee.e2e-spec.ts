@@ -129,7 +129,7 @@ describe('Service fees set up test ', () => {
       serviceFee.association = association;
       return serviceFee;
     }).create();
-
+    
     const subscriptions = await factory().upset(Subscription)
       .use(subscription => {
         subscription.serviceFee = serviceFee;

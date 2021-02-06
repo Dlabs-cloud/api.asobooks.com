@@ -7,12 +7,14 @@ import { MembershipCodeSequence } from '../core/sequenceGenerators/membership-co
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { Association } from '../domain/entity/association.entity';
 import { MembershipRepository } from '../dao/membership.repository';
-import { IllegalArgumentException } from '../exception/illegal-argument.exception';
+import { Connection } from 'typeorm/connection/Connection';
 
 @Injectable()
 export class MembershipService {
 
-  constructor(private readonly membershipCodeSequence: MembershipCodeSequence) {
+  constructor(
+    private readonly connection: Connection,
+    private readonly membershipCodeSequence: MembershipCodeSequence) {
   }
 
   public activateMembership(entityManager: EntityManager, membership: Membership) {
@@ -46,4 +48,5 @@ export class MembershipService {
         return Promise.all(membershipPromise);
       });
   }
+
 }

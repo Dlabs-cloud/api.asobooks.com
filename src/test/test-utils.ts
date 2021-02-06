@@ -34,6 +34,8 @@ import { Invoice } from '../domain/entity/invoice.entity';
 import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
 import { FakerService } from '../service-impl/faker.service';
+import { MembershipInfo } from '../domain/entity/association-member-info.entity';
+import { PortalAccountRepository } from '../dao/portal-account.repository';
 
 
 export const init = async (entityManager?: EntityManager) => {
@@ -56,16 +58,24 @@ export const init = async (entityManager?: EntityManager) => {
 
 
 export const mockPaymentTransactions = async (association: Association) => {
-  const memberships = await factory().upset(PortalAccount).use(portalAccount => {
-    portalAccount.association = association;
-    portalAccount.type = PortalAccountTypeConstant.MEMBER_ACCOUNT;
-    return portalAccount;
-  }).create().then(portalAccount => {
-    return factory().upset(Membership).use(membership => {
-      membership.portalAccount = portalAccount;
-      return membership;
-    }).createMany(10);
-  });
+  const membershipInfos = await factory().upset(MembershipInfo).use(membershipInfo => {
+    membershipInfo.association = association;
+    return membershipInfo;
+  }).createMany(10);
+  const memberships = await getConnection().getCustomRepository(PortalAccountRepository)
+    .findByStatusAndAssociation(GenericStatusConstant.ACTIVE, association)
+    .then(portalAccounts => {
+      const portalAccount = portalAccounts.find(portalAccount => portalAccount.type === PortalAccountTypeConstant.MEMBER_ACCOUNT);
+      const memberships = membershipInfos.map(membershipInfo => {
+        return factory().upset(Membership).use(membership => {
+          membership.portalAccount = portalAccount;
+          membership.portalUser = membershipInfo.portalUser;
+          membership.membershipInfo = membershipInfo;
+          return membership;
+        }).create();
+      });
+      return Promise.all(memberships);
+    });
 
   await factory().upset(Bill).use(bill => {
     bill.paymentStatus = PaymentStatus.NOT_PAID;
@@ -142,27 +152,43 @@ export const getTestUser = async (status?: GenericStatusConstant, portalUser?: P
     association.status = status;
     return association;
   }).create();
-  const portalAccount = await factory()
-    .upset(PortalAccount)
-    .use(portalAccount => {
-      portalAccount.status = status;
-      portalAccount.association = association;
-      portalAccount.type = accountType;
-      return portalAccount;
-    }).create();
   portalUser = portalUser ?? await factory().upset(PortalUser).use(portalUser => {
     portalUser.status = status;
     return portalUser;
   }).create();
 
-  let membership = await (factory()
-    .upset(Membership)
-    .use(membership => {
-      membership.portalAccount = portalAccount;
-      membership.portalUser = portalUser;
-      membership.status = status;
-      return membership;
-    }).create());
+  const portalAccounts = await factory()
+    .upset(PortalAccount)
+    .use(portalAccount => {
+      portalAccount.status = status;
+      portalAccount.association = association;
+      portalAccount.type = PortalAccountTypeConstant.EXECUTIVE_ACCOUNT;
+      return portalAccount;
+    }).create().then(executiveAccount => {
+      return factory().upset(PortalAccount).use(membershipPortalAccount => {
+        membershipPortalAccount.status = status;
+        membershipPortalAccount.association = association;
+        membershipPortalAccount.type = PortalAccountTypeConstant.MEMBER_ACCOUNT;
+        return membershipPortalAccount;
+      }).create().then(membershipAccount => {
+        return [membershipAccount, executiveAccount];
+      });
+    });
+
+
+  const membershipPromise = portalAccounts.map(portalAccount => {
+    return factory()
+      .upset(Membership)
+      .use(membership => {
+        membership.portalAccount = portalAccount;
+        membership.portalUser = portalUser;
+        membership.status = status;
+        return membership;
+      }).create();
+  });
+  const memberships = await Promise.all(membershipPromise);
+  const membership = memberships.find(membership => membership.portalAccount.type === accountType);
+
   let group = await factory().upset(Group).use(group => {
     group.association = association;
     group.type = GroupTypeConstant.GENERAL;

@@ -13,6 +13,4 @@ export class BankInfo extends BaseEntity {
     nullable: true,
   })
   payStackRef: string;
-  @ManyToOne(() => Association)
-  association: Association;
 }

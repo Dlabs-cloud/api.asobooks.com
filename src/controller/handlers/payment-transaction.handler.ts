@@ -11,6 +11,7 @@ import { connectableObservableDescriptor } from 'rxjs/internal/observable/Connec
 import { dtsDtsxOrDtsDtsxMapRegex } from 'ts-loader/dist/constants';
 import { MembershipInfoRepository } from '../../dao/membership-info.repository';
 import { Association } from '../../domain/entity/association.entity';
+import { PortalAccountRepository } from '../../dao/portal-account.repository';
 
 @Injectable()
 export class PaymentTransactionHandler {
@@ -25,10 +26,11 @@ export class PaymentTransactionHandler {
     const paymentRequests = await this.connection.getCustomRepository(PaymentRequestRepository).findByPaymentTransaction(paymentTransactions);
     const invoices = paymentRequests.map(paymentRequest => paymentRequest.invoice);
     const membershipIds = invoices.map(invoice => invoice.createdById);
-    const memberships = await this.connection.getCustomRepository(MembershipRepository).findByIds(membershipIds);
-    const portalUsers = await this.connection.getCustomRepository(PortalUserRepository).findByMemberships(memberships);
-    const membershipInfos = await this.connection.getCustomRepository(MembershipInfoRepository).findByAssociationAndPortalUsers(association, portalUsers);
 
+    const memberships = await this.connection.getCustomRepository(MembershipRepository).findByIds(membershipIds);
+
+    const portalUsers = await this.connection.getCustomRepository(PortalUserRepository).findByMemberships(memberships);
+    const membershipInfos = await this.connection.getCustomRepository(MembershipInfoRepository).findByMemberships(memberships);
     return paymentTransactions.map(paymentTransaction => {
       const paymentRequest = paymentRequests.find(paymentRequest => paymentRequest.id === paymentTransaction.paymentRequestId);
 

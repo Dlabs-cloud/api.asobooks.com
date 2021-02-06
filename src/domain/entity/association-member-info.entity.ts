@@ -21,7 +21,7 @@ export class MembershipInfo extends BaseEntity {
   association: Association;
 
 
-  @ManyToOne(() => PortalUser)
+  @ManyToOne(() => PortalUser, { eager: true })
   @JoinColumn({ name: 'portalUserId', referencedColumnName: 'id' })
   portalUser: PortalUser;
 

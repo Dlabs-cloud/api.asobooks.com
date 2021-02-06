@@ -14,7 +14,6 @@ import { Membership } from '../domain/entity/membership.entity';
 import { ServiceSubscriptionSearchQueryDto } from '../dto/service-subscription-search-query.dto';
 import { SubscriptionRepository } from '../dao/subscription.repository';
 import { ServiceFee } from '../domain/entity/service.fee.entity';
-import { Bill } from '../domain/entity/bill.entity';
 import * as moment from 'moment';
 import { SubscriptionHandler } from './handlers/subscriptionHandler';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
@@ -77,11 +76,10 @@ export class ServiceFeeController {
         const queryBuilder = this.connection.getCustomRepository(SubscriptionRepository)
           .createQueryBuilder('subscription')
           .select()
-          .innerJoin(ServiceFee, 'serviceFee', 'serviceFee.id = subscription.serviceFee')
-          .leftJoin(Bill, 'bill', 'bill.subscription = bill.id')
+          .innerJoin(ServiceFee, 'serviceFee', 'subscription.serviceFee = serviceFee.id')
+          .where('subscription.serviceFee = :serviceFee', { serviceFee: serviceFee.id })
           .limit(query.limit)
-          .offset(query.offset)
-          .where('subscription.serviceFee = :serviceFee', { serviceFee: serviceFee.id });
+          .offset(query.offset);
 
         if (query.startDate) {
           queryBuilder.andWhere('subscription.startDate >= :date', { date: moment(query.startDate, 'DD/MM/YYYY') });
@@ -89,7 +87,6 @@ export class ServiceFeeController {
         if (query.endDate) {
           queryBuilder.andWhere('subscription.endDate <= :date', { date: moment(query.endDate, 'DD/MM/YYYY') });
         }
-
         return queryBuilder.getManyAndCount().then(manyAndCount => {
           const total = manyAndCount[1];
           const subscriptions = manyAndCount[0];
