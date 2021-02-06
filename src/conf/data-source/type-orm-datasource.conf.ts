@@ -25,7 +25,7 @@ export class TypeOrmDatasourceConf {
       password: this.configService.get<string>('DB_PASSWORD', 'postgres'),
       username: this.configService.get('DB_USERNAME', 'postgres'),
       database: this.configService.get('DB_DATABASE', 'postgres'),
-      dropSchema: true,
+      dropSchema: this.refreshSchema(),
       logging: false,
       entities: [
         __dirname + '/../../domain/entity/*.entity{.js,.ts}',
