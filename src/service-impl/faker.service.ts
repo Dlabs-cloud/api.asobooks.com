@@ -16,6 +16,9 @@ import { Wallet } from '../domain/entity/wallet.entity';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
 import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { ActivityLog } from '../domain/entity/activity-log.entity';
+import { MembershipInfo } from '../domain/entity/association-member-info.entity';
+import { PortalAccountRepository } from '../dao/portal-account.repository';
+import { Invoice } from '../domain/entity/invoice.entity';
 
 @Injectable()
 export class FakerService implements OnApplicationBootstrap {
@@ -44,19 +47,18 @@ export class FakerService implements OnApplicationBootstrap {
                 return pUser;
               }).create();
             }).then(portalUser => {
-
               return this.getTestUser(GenericStatusConstant.ACTIVE, portalUser, null, PortalAccountTypeConstant.EXECUTIVE_ACCOUNT)
                 .then(testUser => {
-                  return this.seedPaymentTransactions(testUser.association)
-                    .then(() => {
-                      return this.createWallet(testUser.association);
-                    })
-                    .then(() => {
-                      return this.seedActivityLog(testUser.association);
-                    })
-                    .then(() => {
-                      // return this.createMembers(testUser.association);
+                  return this.createMembers(testUser.association).then(members => {
+                    const paymentTransactions = members.slice(1, 15).map(member => {
+                      return this.createPaymentTransactions(member, testUser.association);
                     });
+                    return Promise.all(paymentTransactions);
+                  }).then(() => {
+                    return this.createWallet(testUser.association);
+                  }).then(() => {
+                    return this.seedActivityLog(testUser.association);
+                  });
                 });
 
 
@@ -73,23 +75,6 @@ export class FakerService implements OnApplicationBootstrap {
     }).createMany(50);
   }
 
-
-  async seedPaymentTransactions(association) {
-    const paymentRequests = await factory().upset(PaymentRequest).use(paymentRequest => {
-      paymentRequest.association = association;
-      return paymentRequest;
-    }).createMany(50);
-    for (let i = 0; i < paymentRequests.length; i++) {
-      const paymentRequest = paymentRequests[i];
-      await factory().upset(PaymentTransaction).use(pTransaction => {
-        pTransaction.paymentRequest = paymentRequest;
-        return pTransaction;
-      }).create();
-    }
-
-  }
-
-
   createWallet(association: Association) {
     return factory().upset(Wallet).use(wallet => {
       wallet.association = association;
@@ -97,30 +82,47 @@ export class FakerService implements OnApplicationBootstrap {
     }).create();
   }
 
-  // async createMembers(association) {
-  //   const membershipInfos = await factory().upset(MembershipInfo).use(membershipInfo => {
-  //     membershipInfo.association = association;
-  //     return membershipInfo;
-  //   }).createMany(50);
-  //   let portalAccount = await this.connection.getCustomRepository(PortalAccountRepository)
-  //     .findByTypeAndAssociationAndStatus(PortalAccountTypeConstant.MEMBER_ACCOUNT, association);
-  //   if (!portalAccount) {
-  //     portalAccount = await factory().upset(PortalAccount).use(portalAccount => {
-  //       portalAccount.association = association;
-  //       portalAccount.type = PortalAccountTypeConstant.MEMBER_ACCOUNT;
-  //       return portalAccount;
-  //     }).create();
-  //   }
-  //   const membershipPromise = membershipInfos.map(membershipInfo => {
-  //     return factory().upset(Membership).use(membership => {
-  //       membership.portalAccount = portalAccount;
-  //       membership.portalUser = membershipInfo.portalUser;
-  //       membership.membershipInfo = membershipInfo;
-  //       return membership;
-  //     }).create();
-  //   });
-  //   return Promise.all(membershipPromise);
-  // }
+  async createMembers(association) {
+    const membershipInfos = await factory().upset(MembershipInfo).use(membershipInfo => {
+      membershipInfo.association = association;
+      return membershipInfo;
+    }).createMany(50);
+    let portalAccount = await this.connection.getCustomRepository(PortalAccountRepository)
+      .findOne({
+        type: PortalAccountTypeConstant.MEMBER_ACCOUNT,
+        association: association,
+      });
+    console.log('Portal Account is this');
+    console.log(portalAccount);
+    const membershipPromise = membershipInfos.map(membershipInfo => {
+      return factory().upset(Membership).use(membership => {
+        membership.portalAccount = portalAccount;
+        membership.portalUser = membershipInfo.portalUser;
+        membership.membershipInfo = membershipInfo;
+        return membership;
+      }).create();
+    });
+    return Promise.all(membershipPromise);
+  }
+
+  createPaymentTransactions(member: Membership, association: Association) {
+    return factory().upset(Invoice).use(invoice => {
+      invoice.createdBy = member;
+      invoice.association = association;
+      return invoice;
+    }).create().then(invoice => {
+      return factory().upset(PaymentRequest).use(paymenRequest => {
+        paymenRequest.association = association;
+        paymenRequest.invoice = invoice;
+        return paymenRequest;
+      }).create();
+    }).then(paymentRequest => {
+      return factory().upset(PaymentTransaction).use(paymentTransaction => {
+        paymentTransaction.paymentRequest = paymentRequest;
+        return paymentTransaction;
+      }).create();
+    });
+  }
 
 
   getTestUser = async (status?: GenericStatusConstant, portalUser?: PortalUser, association?: Association, accountType = PortalAccountTypeConstant.MEMBER_ACCOUNT) => {
@@ -140,7 +142,7 @@ export class FakerService implements OnApplicationBootstrap {
         return factory().upset(PortalAccount).use(portalAccount => {
           portalAccount.status = status;
           portalAccount.association = association;
-          portalAccount.type = PortalAccountTypeConstant.EXECUTIVE_ACCOUNT;
+          portalAccount.type = PortalAccountTypeConstant.MEMBER_ACCOUNT;
           return portalAccount;
         }).create().then(membershipExecutive => {
           const portalAccount = [executiveAccount, membershipExecutive]

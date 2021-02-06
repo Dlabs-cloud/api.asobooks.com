@@ -13,6 +13,7 @@ import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalUserDto } from '../dto/portal-user.dto';
 import { PortalUserQueryDto } from '../dto/portal-user-query.dto';
 import { MembershipInfoRepository } from '../dao/membership-info.repository';
+import { EditMemberDto } from '../dto/edit-member.dto';
 
 
 @Controller('membership-management')
@@ -90,8 +91,10 @@ export class MembershipManagementController {
 
 
   @Patch(':identifier')
-  public updateMember(@Param('identifier') identifier: string, @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
-    this
+  public updateMember(@Param('identifier') identifier: string,
+                      @RequestPrincipalContext() requestPrincipal: RequestPrincipal,
+                      @Body() editMemberInfo: EditMemberDto) {
+    return this
       .connection
       .getCustomRepository(MembershipInfoRepository)
       .findByIdentifierAndAssociationAndStatus(identifier, requestPrincipal.association)
@@ -99,7 +102,10 @@ export class MembershipManagementController {
         if (!membershipInfo) {
           throw new NotFoundException(`Membership with identifier ${identifier} does not exit`);
         }
-
+        return this.userManagementService.updateMembership(membershipInfo, editMemberInfo)
+          .then(() => {
+            return new ApiResponseDto();
+          });
       });
   }
 

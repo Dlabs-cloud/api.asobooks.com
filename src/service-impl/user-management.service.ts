@@ -192,7 +192,8 @@ export class UserManagementService {
   }
 
 
-  public async updateMembership(membershipInfo: MembershipInfo, updateInfo: EditMemberDto, association: Association) {
+  public async updateMembership(membershipInfo: MembershipInfo, updateInfo: EditMemberDto) {
+    const association = membershipInfo.association;
     await this.connection.transaction(async entityManager => {
       const portalUser = membershipInfo.portalUser;
       if (updateInfo.firstName) {
@@ -246,9 +247,7 @@ export class UserManagementService {
         }
         return Promise.resolve(membership);
       });
-
       return Promise.all(updatedMemberships).then(() => Promise.resolve(portalUser));
-
     });
   }
 
