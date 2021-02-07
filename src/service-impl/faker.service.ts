@@ -92,8 +92,6 @@ export class FakerService implements OnApplicationBootstrap {
         type: PortalAccountTypeConstant.MEMBER_ACCOUNT,
         association: association,
       });
-    console.log('Portal Account is this');
-    console.log(portalAccount);
     const membershipPromise = membershipInfos.map(membershipInfo => {
       return factory().upset(Membership).use(membership => {
         membership.portalAccount = portalAccount;
