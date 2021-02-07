@@ -25,6 +25,7 @@ import { AddressRepository } from '../dao/address.repository';
 import { MembershipInfoRepository } from '../dao/membership-info.repository';
 import { MembershipInfo } from '../domain/entity/association-member-info.entity';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
+import { EditMemberDto } from '../dto/edit-member.dto';
 
 describe('Membership-management-controller ', () => {
   let applicationContext: INestApplication;
@@ -73,7 +74,7 @@ describe('Membership-management-controller ', () => {
       .send(membershipSignUpDto)
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
-      // .expect(201)
+      .expect(201)
       .then((response) => {
         return connection.getCustomRepository(PortalUserRepository)
           .findByUserNameOrEmailOrPhoneNumberAndStatus(membershipSignUpDto.email.toLowerCase(), GenericStatusConstant.ACTIVE)
@@ -220,10 +221,83 @@ describe('Membership-management-controller ', () => {
 
   });
 
+  it('test that association member info can be edited', () => {
+    return connection.getCustomRepository(PortalAccountRepository)
+      .findOne({
+        type: PortalAccountTypeConstant.MEMBER_ACCOUNT,
+        association: associationUser.association,
+      }).then(membershipPortalAccount => {
+        return factory().upset(MembershipInfo).use(membershipInfo => {
+          membershipInfo.association = associationUser.association;
+          membershipInfo.status = GenericStatusConstant.ACTIVE;
+          return membershipInfo;
+        }).create().then(membershipInfo => {
+          return factory().upset(Membership).use(membership => {
+            membership.membershipInfo = membershipInfo;
+            membership.portalAccount = membershipPortalAccount;
+            membership.portalUser = membershipInfo.portalUser;
+            return membership;
+          }).create().then(async membership => {
+            const payload: EditMemberDto = {
+              address: {
+                countryCode: (await factory().create(Country)).code,
+                address: 'Ogunbela avenue',
+                unit: 'A simple unit',
+              },
+              firstName: 'tester@tester',
+              lastName: 'tester@tester',
+              phoneNumber: '+2348162507399',
+              types: [PortalAccountTypeConstant.EXECUTIVE_ACCOUNT, PortalAccountTypeConstant.MEMBER_ACCOUNT],
+            };
+            const membershipInfo = membership.membershipInfo;
+            return request(applicationContext.getHttpServer())
+              .patch(`/membership-management/${membershipInfo.identifier}`)
+              .set('Authorization', associationUser.token)
+              .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
+              .send(payload)
+              .expect(200)
+              .then(response => {
+                return getConnection()
+                  .getCustomRepository(MembershipInfoRepository)
+                  .findOne({ identifier: membershipInfo.identifier })
+                  .then(membershipInfo => {
+                    expect(membershipInfo).toBeDefined();
+                    const portalUser = membershipInfo.portalUser;
+                    expect(portalUser.phoneNumber).toEqual(payload.phoneNumber);
+                    expect(portalUser.lastName).toEqual(payload.lastName);
+                    expect(portalUser.firstName).toEqual(payload.firstName);
+                  }).then(() => {
+                    return getConnection()
+                      .getCustomRepository(AddressRepository)
+                      .findOne({ id: membershipInfo.addressId })
+                      .then(address => {
+                        console.log(address);
+                        expect(address).toBeDefined();
+                        expect(address.country.code).toEqual(payload.address.countryCode);
+                        expect(address.name).toEqual(payload.address.address);
+                        expect(address.unit).toEqual(payload.address.unit);
+                      });
+                  }).then(() => {
+                    return getConnection()
+                      .getCustomRepository(PortalAccountRepository)
+                      .findByPortalUserAndStatus(membershipInfo.portalUser)
+                      .then(portalAccounts => {
+                        expect(portalAccounts).toBeDefined();
+                        expect(portalAccounts.length).toEqual(2);
+                      });
+                  });
+              });
+          });
+
+        });
+      });
+
+  });
+
 
   afterAll(async () => {
     await connection.close();
     await applicationContext.close();
   });
-})
-;
+
+});

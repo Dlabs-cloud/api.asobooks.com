@@ -102,7 +102,7 @@ export class MembershipManagementController {
         if (!membershipInfo) {
           throw new NotFoundException(`Membership with identifier ${identifier} does not exit`);
         }
-        return this.userManagementService.updateMembership(membershipInfo, editMemberInfo)
+        return this.userManagementService.updateMembership(requestPrincipal.association, membershipInfo, editMemberInfo)
           .then(() => {
             return new ApiResponseDto();
           });

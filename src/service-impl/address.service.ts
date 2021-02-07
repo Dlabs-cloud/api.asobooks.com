@@ -5,13 +5,14 @@ import { AddressUpdateDto } from '../dto/address.update.dto';
 import { AddressRepository } from '../dao/address.repository';
 import { CountryRepository } from '../dao/country.repository';
 import { AddressDto } from '../dto/address.dto';
+import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 
 @Injectable()
 export class AddressService {
   public async updateMemberAddress(entityManager: EntityManager, membershipInfo: MembershipInfo, addressUpdate: AddressUpdateDto) {
     const addressRepository = entityManager.getCustomRepository(AddressRepository);
     await addressRepository
-      .findByIdAndStatus(membershipInfo.addressId)
+      .findByIdAndStatus(membershipInfo.addressId, GenericStatusConstant.ACTIVE)
       .then(async address => {
         if (!address) {
           return entityManager

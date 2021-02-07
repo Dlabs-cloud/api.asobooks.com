@@ -7,7 +7,7 @@ export class Address extends BaseEntity {
   @Column()
   name: string;
 
-  @ManyToOne(() => Country)
+  @ManyToOne(() => Country, { eager: true })
   country: Country;
 
   @Column({ nullable: true })

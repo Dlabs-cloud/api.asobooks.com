@@ -192,8 +192,7 @@ export class UserManagementService {
   }
 
 
-  public async updateMembership(membershipInfo: MembershipInfo, updateInfo: EditMemberDto) {
-    const association = membershipInfo.association;
+  public async updateMembership(association: Association, membershipInfo: MembershipInfo, updateInfo: EditMemberDto) {
     await this.connection.transaction(async entityManager => {
       const portalUser = membershipInfo.portalUser;
       if (updateInfo.firstName) {
