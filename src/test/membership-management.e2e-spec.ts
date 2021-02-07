@@ -24,6 +24,8 @@ import { MembershipInfoRepository } from '../dao/membership-info.repository';
 import { MembershipInfo } from '../domain/entity/association-member-info.entity';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { EditMemberDto } from '../dto/edit-member.dto';
+import { response } from 'express';
+import { PortalUserDto } from '../dto/portal-user.dto';
 
 describe('Membership-management-controller ', () => {
   let applicationContext: INestApplication;
@@ -226,6 +228,21 @@ describe('Membership-management-controller ', () => {
         });
       });
 
+  });
+
+  it('Test that association can get one user', () => {
+    return getAssociationUser().then(associationUser => {
+      return request(applicationContext.getHttpServer())
+        .get(`/membership-management/${associationUser.user.membership.membershipInfo.identifier}`)
+        .set('Authorization', associationUser.token)
+        .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
+        .expect(200)
+        .then(response => {
+          const data = response.body.data;
+          const portalUserDto = data as PortalUserDto;
+          expect(portalUserDto).toBeDefined();
+        });
+    });
   });
 
   it('test that association member info can be edited', () => {
