@@ -15,12 +15,16 @@ import { PortalUserRepository } from '../dao/portal-user.repository';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { PortalUserQueryDto } from '../dto/portal-user-query.dto';
+import { MembershipInfoHandler } from './handlers/membership-info.handler';
+import { MembershipInfo } from '../domain/entity/association-member-info.entity';
+import { MembershipInfoRepository } from '../dao/membership-info.repository';
 
 @Controller('service-fees')
 @AssociationContext()
 export class GroupServiceFeeController {
 
   constructor(private readonly connection: Connection,
+              private readonly membershipInfoHandler: MembershipInfoHandler,
               private readonly groupService: GroupService) {
   }
 
@@ -32,11 +36,11 @@ export class GroupServiceFeeController {
 
     let memberships = await this.connection
       .getCustomRepository(MembershipRepository)
-      .findByAssociationAndAccountTypeAndStatusAndUserIds(
+      .findByAssociationAndAccountTypeAndStatusAndIdentifiers(
         requestPrincipal.association,
         PortalAccountTypeConstant.MEMBER_ACCOUNT,
         GenericStatusConstant.ACTIVE,
-        ...request.recipients,
+        ...request.memberIdentifiers,
       );
 
     let serviceFee = await this.connection.getCustomRepository(ServiceFeeRepository).findByCodeAndAssociation(code, requestPrincipal.association);
@@ -65,19 +69,17 @@ export class GroupServiceFeeController {
 
     query.limit = query.limit > 100 ? 100 : query.limit;
     query.offset = query.offset < 0 ? 0 : query.offset;
-    let portalUsers = await this.connection
-      .getCustomRepository(PortalUserRepository)
-      .getByAssociationAndQuery(requestPrincipal.association, query);
+    let membershipInfos = await this.connection
+      .getCustomRepository(MembershipInfoRepository)
+      .findByAssociationAndUserQuery(requestPrincipal.association, query);
+    const transformData = await this.membershipInfoHandler.transform(membershipInfos[0]);
     let serviceFee = await this.connection
       .getCustomRepository(ServiceFeeRepository)
       .findByCodeAndAssociation(code, requestPrincipal.association);
 
-    let serviceFeeUsers
-      = await this.connection
-      .getCustomRepository(PortalUserRepository)
-      .findByServiceFeeAndStatus(serviceFee);
+    let serviceFeeUsers = await this.connection.getCustomRepository(PortalUserRepository).findByServiceFeeAndStatus(serviceFee);
 
-    let response = portalUsers[0].map(portalUser => {
+    let response = transformData.map(portalUser => {
       const isUserServiceFee = !!serviceFeeUsers[0].find(serviceFeeUser => serviceFeeUser.id === portalUser.id);
       return {
         portalUser,
@@ -87,7 +89,7 @@ export class GroupServiceFeeController {
 
     let paginatedResponseDto = new PaginatedResponseDto();
     paginatedResponseDto.items = response;
-    paginatedResponseDto.total = portalUsers[1];
+    paginatedResponseDto.total = membershipInfos[1];
     paginatedResponseDto.itemsPerPage = query.limit;
     paginatedResponseDto.offset = query.offset;
     return paginatedResponseDto;
@@ -95,20 +97,26 @@ export class GroupServiceFeeController {
 
   @Delete('/:serviceCode/members')
   public async removeMember(@Param('serviceCode') serviceCode: string,
-                            @Query('userId') userIds: number[],
+                            @Query('memberIdentifier') memberIdentifiers: string[],
                             @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
 
 
+    if (!memberIdentifiers.length) {
+      throw new IllegalArgumentException('member identifiers must be provided');
+    }
+
     let memberships = await this.connection
       .getCustomRepository(MembershipRepository)
-      .findByAssociationAndAccountTypeAndStatusAndUserIds(
+      .findByAssociationAndAccountTypeAndStatusAndIdentifiers(
         requestPrincipal.association,
         PortalAccountTypeConstant.MEMBER_ACCOUNT,
         GenericStatusConstant.ACTIVE,
-        ...userIds,
+        ...memberIdentifiers,
       );
 
-
+    if (!memberships) {
+      throw new IllegalArgumentException('non of the member identifiers can be found');
+    }
     let serviceFee = await this.connection.getCustomRepository(ServiceFeeRepository)
       .findByCodeAndAssociation(serviceCode, requestPrincipal.association);
     if (!serviceFee) {

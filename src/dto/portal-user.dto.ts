@@ -1,5 +1,7 @@
 import { GenderConstant } from '../domain/enums/gender-constant';
 import { PortalUser } from '../domain/entity/portal-user.entity';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { AddressDto } from './address.dto';
 
 export class PortalUserDto {
   firstName: string;
@@ -12,4 +14,6 @@ export class PortalUserDto {
   createdBy?: PortalUser;
   identifier?: string;
   dateCreated?: Date;
+  accounts: PortalAccountTypeConstant[];
+  address?: AddressDto;
 }

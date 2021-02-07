@@ -18,8 +18,6 @@ import { GroupRepository } from '../dao/group.repository';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { MembershipRepository } from '../dao/membership.repository';
 import { Membership } from '../domain/entity/membership.entity';
-import { PortalAccount } from '../domain/entity/portal-account.entity';
-import { PortalUser } from '../domain/entity/portal-user.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { AddressRepository } from '../dao/address.repository';
 import { MembershipInfoRepository } from '../dao/membership-info.repository';
@@ -152,6 +150,11 @@ describe('Membership-management-controller ', () => {
   });
 
   it('test that association user can get all is association members ', async () => {
+
+    const existingCount = await connection.getCustomRepository(MembershipInfoRepository).count({
+      association: associationUser.association,
+    });
+
     const membershipInfos = await factory().upset(MembershipInfo).use(membershipInfo => {
       membershipInfo.association = associationUser.association;
       return membershipInfo;
@@ -159,20 +162,18 @@ describe('Membership-management-controller ', () => {
 
     const portalAccount = await connection.getCustomRepository(PortalAccountRepository)
       .findOne({ association: associationUser.association, type: PortalAccountTypeConstant.MEMBER_ACCOUNT });
-
-    const membershipsPromise: Promise<Membership[]>[] = membershipInfos.map(membershipInfo => {
+    const membershipsPromise = membershipInfos.map(membershipInfo => {
       return factory().upset(Membership).use(membership => {
         membership.portalAccount = portalAccount;
         membership.portalUser = membershipInfo.portalUser;
+        membership.membershipInfo = membershipInfo;
         return membership;
-      }).createMany(3);
+      }).create();
     });
     await Promise.all(membershipsPromise);
-
-
-    let totalExistingValue = await connection.getCustomRepository(PortalUserRepository).countByAssociationAndAccountType(associationUser.association, PortalAccountTypeConstant.MEMBER_ACCOUNT);
+    const url = `/membership-management?type=${PortalAccountTypeConstant.MEMBER_ACCOUNT}&offset=0&limit=20`;
     let response = await request(applicationContext.getHttpServer())
-      .get(`/membership-management?type=${PortalAccountTypeConstant.MEMBER_ACCOUNT}`)
+      .get(url)
       .set('Authorization', associationUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
       .expect(200);
@@ -187,37 +188,43 @@ describe('Membership-management-controller ', () => {
     expect(item.id).toBeDefined();
     expect(item.identifier).toBeDefined();
     expect(item.dateCreated).toBeDefined();
-    expect(responseData.total).toEqual(totalExistingValue);
+    expect(responseData.total).toEqual(4 + existingCount);
     expect(responseData.total).toBeGreaterThan(1);
   });
 
 
   it('Test that a member can be deleted', () => {
-    return factory().create(PortalUser).then(portalUser => {
-      return factory().upset(PortalAccount).use(portalAccount => {
-        portalAccount.association = associationUser.association;
-        return portalAccount;
-      }).create().then(portalAccount => {
-        return factory().upset(Membership).use(membership => {
-          membership.portalAccount = portalAccount;
-          membership.portalUser = portalUser;
-          return membership;
-        }).create();
-      }).then((membership) => {
-        return request(applicationContext.getHttpServer())
-          .delete(`/membership-management/${portalUser.id}`)
-          .set('Authorization', associationUser.token)
-          .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
-          .then(response => {
-            expect(response.status).toEqual(200);
-            return connection.getCustomRepository(MembershipRepository).findOne({
-              id: membership.id,
+    return getAssociationUser(GenericStatusConstant.ACTIVE, null)
+      .then(associationUser => {
+        return factory().upset(MembershipInfo).use(membershipInfo => {
+          membershipInfo.association = associationUser.association;
+          return membershipInfo;
+        }).create().then(membershipInfo => {
+          return connection.getCustomRepository(PortalAccountRepository)
+            .findOne({ association: associationUser.association, type: PortalAccountTypeConstant.MEMBER_ACCOUNT })
+            .then(portalAccount => {
+              return factory().upset(Membership).use(membership => {
+                membership.portalAccount = portalAccount;
+                membership.portalUser = membershipInfo.portalUser;
+                membership.membershipInfo = membershipInfo;
+                return membership;
+              }).create();
             }).then(membership => {
-              expect(membership.status).toEqual(GenericStatusConstant.DELETED);
+              return request(applicationContext.getHttpServer())
+                .delete(`/membership-management/${membership.membershipInfo.identifier}`)
+                .set('Authorization', associationUser.token)
+                .set('X-ASSOCIATION-IDENTIFIER', associationUser.association.code)
+                .then(response => {
+                  expect(response.status).toEqual(200);
+                  return connection.getCustomRepository(MembershipRepository).find({
+                    membershipInfo: membershipInfo,
+                  }).then(memberships => {
+                    expect(memberships[0].status).toEqual(GenericStatusConstant.DELETED);
+                  });
+                });
             });
-          });
+        });
       });
-    });
 
   });
 
@@ -271,7 +278,6 @@ describe('Membership-management-controller ', () => {
                       .getCustomRepository(AddressRepository)
                       .findOne({ id: membershipInfo.addressId })
                       .then(address => {
-                        console.log(address);
                         expect(address).toBeDefined();
                         expect(address.country.code).toEqual(payload.address.countryCode);
                         expect(address.name).toEqual(payload.address.address);

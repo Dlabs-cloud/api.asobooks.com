@@ -48,7 +48,7 @@ describe('Service fees set up test ', () => {
       return getAssociationUser(GenericStatusConstant.ACTIVE, null, association, PortalAccountTypeConstant.MEMBER_ACCOUNT);
     });
 
-    let usersIds = (await Promise.all(awaitAssoUsers)).map(assoUser => assoUser.user.membership.portalUser.id);
+    let membershipIdentifiers = (await Promise.all(awaitAssoUsers)).map(assoUser => assoUser.user.membership.membershipInfo.identifier);
 
 
     let requestPayload: ServiceFeeRequestDto = {
@@ -58,7 +58,7 @@ describe('Service fees set up test ', () => {
       billingStartDate: moment(faker.date.future()).format('DD/MM/YYYY'),
       name: faker.random.words(2),
       type: faker.random.arrayElement(Object.values(ServiceTypeConstant)),
-      recipients: usersIds,
+      recipients: membershipIdentifiers,
     };
 
     let response = await request(applicationContext.getHttpServer())
@@ -129,7 +129,7 @@ describe('Service fees set up test ', () => {
       serviceFee.association = association;
       return serviceFee;
     }).create();
-    
+
     const subscriptions = await factory().upset(Subscription)
       .use(subscription => {
         subscription.serviceFee = serviceFee;

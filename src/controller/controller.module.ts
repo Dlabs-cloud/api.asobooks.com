@@ -23,6 +23,7 @@ import { DashboardController } from './dashboard.controller';
 import { ActivitiesController } from './activities.controller';
 import { SubscriptionHandler } from './handlers/subscriptionHandler';
 import { PaymentTransactionController } from './payment-transaction.controller';
+import { MembershipInfoHandler } from './handlers/membership-info.handler';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { PaymentTransactionController } from './payment-transaction.controller';
     LoggedInUserInfoHandler,
     PaymentTransactionHandler,
     SubscriptionHandler,
+    MembershipInfoHandler,
     {
 
       provide: APP_INTERCEPTOR,

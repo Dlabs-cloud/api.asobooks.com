@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ServiceSubscriptionSearchQueryDto {
 
@@ -6,11 +6,11 @@ export class ServiceSubscriptionSearchQueryDto {
   startDate?: string;
   @IsOptional()
   endDate?: string;
-  @IsString()
   @IsOptional()
+  @IsNumber()
   limit: number;
-  @IsString()
   @IsOptional()
+  @IsNumber()
   offset: number;
 
 

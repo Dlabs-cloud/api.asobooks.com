@@ -46,6 +46,6 @@ export class ServiceFeeRequestDto {
 
   @IsOptional()
   @IsArray()
-  recipients?: number[];
+  recipients?: string[];
 
 }

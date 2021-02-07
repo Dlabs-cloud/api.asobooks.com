@@ -58,14 +58,14 @@ describe('group-service-impl-fee-controller', () => {
     let users = [0, 1, 2, 3].map(number => {
       return getAssociationUser(GenericStatusConstant.ACTIVE, null, association, PortalAccountTypeConstant.MEMBER_ACCOUNT);
     });
-    let recipients = (await Promise.all(users))
-      .map(user => user.user.membership.portalUser.id);
+    let memberIdentifiers = (await Promise.all(users))
+      .map(user => user.user.membership.membershipInfo.identifier);
 
     let groupServiceFee = await mockGroupServiceFee(association);
 
     await request(applicationContext.getHttpServer())
       .patch(`/service-fees/${groupServiceFee.serviceFee.code}/members`)
-      .send({ recipients })
+      .send({ memberIdentifiers: memberIdentifiers })
       .set('Authorization', adminUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', adminUser.association.code)
       .expect(200);
@@ -105,14 +105,14 @@ describe('group-service-impl-fee-controller', () => {
       });
     });
 
-    let mockedUsersInServiceFee = groupMemberships.map(groupMembership => groupMembership.membership.portalUser.id);
+    let mockedUsersInServiceFee = groupMemberships.map(groupMembership => groupMembership.membership.membershipInfo.identifier);
     let queries = mockedUsersInServiceFee.map(id => {
-      return `userId=${id}`;
+      return `memberIdentifier=${id}`;
     }).join('&');
 
-    const payload = `/service-fees/${groupServiceFee.serviceFee.code}/members?${queries}`;
+    const url = `/service-fees/${groupServiceFee.serviceFee.code}/members?${queries}`;
     await request(applicationContext.getHttpServer())
-      .delete(payload)
+      .delete(url)
       .send({ recipients: mockedUsersInServiceFee })
       .set('Authorization', adminUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', adminUser.association.code)

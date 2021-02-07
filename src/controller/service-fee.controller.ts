@@ -17,6 +17,7 @@ import { ServiceFee } from '../domain/entity/service.fee.entity';
 import * as moment from 'moment';
 import { SubscriptionHandler } from './handlers/subscriptionHandler';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
+import { isEmpty } from '@nestjs/common/utils/shared.utils';
 
 @Controller('service-fees')
 @AssociationContext()
@@ -36,7 +37,7 @@ export class ServiceFeeController {
     let members: Membership[] = null;
     if (recipients) {
       members = await this.connection.getCustomRepository(MembershipRepository)
-        .findByAssociationAndAccountTypeAndStatusAndUserIds(requestPrincipal.association,
+        .findByAssociationAndAccountTypeAndStatusAndIdentifiers(requestPrincipal.association,
           PortalAccountTypeConstant.MEMBER_ACCOUNT, GenericStatusConstant.ACTIVE,
           ...recipients);
 
@@ -63,10 +64,8 @@ export class ServiceFeeController {
   public getSubscriptions(@Param('code') code: string,
                           @Query() query: ServiceSubscriptionSearchQueryDto,
                           @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
-    query.offset = query.offset ?? 0;
-    query.offset = query.offset < 0 ? 0 : query.offset;
-    query.limit = query.limit ?? 20;
-    query.limit = query.limit > 100 ? 20 : query.limit;
+    query.limit = !isEmpty(query.limit) && (query.limit < 100) ? query.limit : 100;
+    query.offset = !isEmpty(query.offset) && (query.offset < 0) ? query.offset : 0;
     return this.connection.getCustomRepository(ServiceFeeRepository)
       .findByCodeAndAssociation(code, requestPrincipal.association)
       .then(serviceFee => {

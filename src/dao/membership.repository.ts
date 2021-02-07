@@ -10,6 +10,7 @@ import { AccountType } from 'aws-sdk/clients/chime';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
 import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { Invoice } from '../domain/entity/invoice.entity';
+import { MembershipInfo } from '../domain/entity/association-member-info.entity';
 
 
 @EntityRepository(Membership)
@@ -85,6 +86,27 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .setParameter('status', status)
       .setParameter('users', users)
       .getMany();
+  }
+
+
+  public findByAssociationAndAccountTypeAndStatusAndIdentifiers(association: Association,
+                                                                accountType: PortalAccountTypeConstant,
+                                                                status = GenericStatusConstant.ACTIVE,
+                                                                ...identifiers: string[]) {
+    return this.createQueryBuilder('membership')
+      .select()
+      .innerJoin(MembershipInfo, 'membershipInfo', 'membership.membershipInfo =  membershipInfo.id')
+      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount = portalAccount.id')
+      .where('portalAccount.association = :association')
+      .andWhere('portalAccount.type = :type')
+      .andWhere('membership.status = :status')
+      .andWhere('membershipInfo.identifier IN (:...identifiers) ')
+      .setParameter('association', association.id)
+      .setParameter('type', accountType)
+      .setParameter('status', status)
+      .setParameter('identifiers', identifiers)
+      .getMany();
+
   }
 
   public countByAssociationAndAccountTypeAndStatus(association: Association, accountType: AccountType, status = GenericStatusConstant.ACTIVE) {

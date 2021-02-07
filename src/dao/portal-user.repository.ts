@@ -22,16 +22,6 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
       .getOne();
   }
 
-  public getByAssociationAndQuery(association: Association,
-                                  query?: PortalUserQueryDto,
-                                  status = GenericStatusConstant.ACTIVE) {
-
-    const builder = this.createQueryBuilderGetByAssociationAndQuery(association, query, status);
-    const count = builder.clone().getCount();
-    const result = builder.getMany();
-    return Promise.all([result, count]);
-  }
-
   public findByUserNameOrEmailOrPhoneNumberAndStatus(usernameOrEmailOrPhone: string, ...status: GenericStatusConstant[]) {
     const portalUserSelectQueryBuilder = this.getPortalUserNameOrEmailOrPhoneNumberSelectQueryBuilder(usernameOrEmailOrPhone);
     return portalUserSelectQueryBuilder
@@ -49,15 +39,6 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
       .where('membership.id IN (:...membership)')
       .setParameter('membership', membershipIds)
       .getMany();
-  }
-
-
-  public countByAssociationAndAccountType(association: Association,
-                                          portalAccountType?: PortalAccountTypeConstant,
-                                          status = GenericStatusConstant.ACTIVE) {
-    const query = { type: portalAccountType } as PortalUserQueryDto;
-    const builder = this.createQueryBuilderGetByAssociationAndQuery(association, query, status);
-    return builder.getCount();
   }
 
 
@@ -118,37 +99,6 @@ export class PortalUserRepository extends BaseRepository<PortalUser> {
       .andWhere('portalUser.status = :status', { status })
       .andWhere('portalUser.id =:id', { id })
       .getOne();
-  }
-
-
-  private createQueryBuilderGetByAssociationAndQuery(association: Association,
-                                                     query: PortalUserQueryDto,
-                                                     status = GenericStatusConstant.ACTIVE) {
-    const builder = this
-      .createQueryBuilder('portalUser')
-      .select()
-      .distinct()
-      .innerJoin(Membership, 'membership', 'membership.portalUser = portalUser.id')
-      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount = portalAccount.id')
-      .where('portalUser.status = :status')
-      .andWhere('portalAccount.association = :association')
-      .limit(query.limit)
-      .offset(query.offset)
-      .setParameter('status', status)
-      .setParameter('association', association.id);
-
-    if (query.type) {
-      builder.andWhere('portalAccount.type = :portalAccountType', { portalAccountType: query.type });
-    }
-
-    if (query.query) {
-      builder.andWhere(new Brackets(qb => {
-        qb.where('CONCAT(portalUser.firstName,\'-\',portalUser.lastName) like :path', { path: `%${query.query}%` })
-          .orWhere('portalUser.email like :path', { path: `%${query.query}%` })
-          .orWhere('portalUser.username like :username', { username: `%${query.query}%` });
-      }));
-    }
-    return builder;
   }
 
 

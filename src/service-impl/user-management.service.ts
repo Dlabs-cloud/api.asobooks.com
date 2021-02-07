@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { Connection, EntityManager } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
@@ -182,10 +182,12 @@ export class UserManagementService {
   }
 
 
-  public deActivateUser(portalUser: PortalUser, association: Association) {
+  public deActivateUser(membershipInfo: MembershipInfo, association: Association) {
     return this.connection.transaction(async entityManager => {
+      membershipInfo.status = GenericStatusConstant.DELETED;
+      const portalUser = membershipInfo.portalUser;
       portalUser.status = GenericStatusConstant.DELETED;
-      await entityManager.save(portalUser);
+      await entityManager.save(portalUser).then(() => entityManager.save(membershipInfo));
       return this.membershipService
         .deactivateUserMemberships(entityManager, portalUser, association);
     });

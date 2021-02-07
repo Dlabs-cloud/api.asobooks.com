@@ -50,7 +50,7 @@ export class FakerService implements OnApplicationBootstrap {
               return this.getTestUser(GenericStatusConstant.ACTIVE, portalUser, null, PortalAccountTypeConstant.EXECUTIVE_ACCOUNT)
                 .then(testUser => {
                   return this.createMembers(testUser.association).then(members => {
-                    const paymentTransactions = members.slice(1, 15).map(member => {
+                    const paymentTransactions = members.map(member => {
                       return this.createPaymentTransactions(member, testUser.association);
                     });
                     return Promise.all(paymentTransactions);
