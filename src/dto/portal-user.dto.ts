@@ -14,6 +14,6 @@ export class PortalUserDto {
   createdBy?: PortalUser;
   identifier?: string;
   dateCreated?: Date;
-  accounts: PortalAccountTypeConstant[];
+  accounts?: PortalAccountTypeConstant[];
   address?: AddressDto;
 }

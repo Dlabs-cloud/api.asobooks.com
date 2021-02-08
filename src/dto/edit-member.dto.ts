@@ -1,9 +1,7 @@
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { ArrayMinSize, IsArray, IsEnum, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { AddressDto } from './address.dto';
 import { AddressUpdateDto } from './address.update.dto';
 import { Type } from 'class-transformer';
-import { AssociationAddressRequestDto } from './association/association-address-request.dto';
 
 export class EditMemberDto {
   @IsOptional()

@@ -3,14 +3,12 @@ import { BaseRepository } from '../common/BaseRepository';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Association } from '../domain/entity/association.entity';
-import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { Membership } from '../domain/entity/membership.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { ServiceFee } from '../domain/entity/service.fee.entity';
 import { GroupMembership } from '../domain/entity/group-membership.entity';
 import { GroupServiceFee } from '../domain/entity/group-sevice-fee.entity';
 import { Group } from '../domain/entity/group.entity';
-import { PortalUserQueryDto } from '../dto/portal-user-query.dto';
 
 @EntityRepository(PortalUser)
 export class PortalUserRepository extends BaseRepository<PortalUser> {

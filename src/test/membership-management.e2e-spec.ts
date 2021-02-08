@@ -172,8 +172,8 @@ describe('Membership-management-controller ', () => {
         return membership;
       }).create();
     });
-    await Promise.all(membershipsPromise);
-    const url = `/membership-management?type=${PortalAccountTypeConstant.MEMBER_ACCOUNT}&offset=0&limit=20`;
+    const memberships = await Promise.all(membershipsPromise);
+    const url = `/membership-management?type=${PortalAccountTypeConstant.MEMBER_ACCOUNT}&offset=0&limit=20&query=${memberships[0].portalUser.firstName.toLowerCase().substr(0, 3)}`;
     let response = await request(applicationContext.getHttpServer())
       .get(url)
       .set('Authorization', associationUser.token)
@@ -190,8 +190,8 @@ describe('Membership-management-controller ', () => {
     expect(item.id).toBeDefined();
     expect(item.identifier).toBeDefined();
     expect(item.dateCreated).toBeDefined();
-    expect(responseData.total).toEqual(4 + existingCount);
-    expect(responseData.total).toBeGreaterThan(1);
+    expect(responseData.total).toEqual(1);
+    expect(responseData.total).toEqual(1);
   });
 
 

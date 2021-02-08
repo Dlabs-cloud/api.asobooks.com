@@ -1,7 +1,7 @@
-import {Injectable} from '@nestjs/common';
-import {Connection, EntityManager} from 'typeorm';
-import {SequenceGeneratorImpl} from '../../common/sequence/SequenceGeneratorImpl';
-import {zeroFills} from '../../common/useful-Utils';
+import { Injectable } from '@nestjs/common';
+import { Connection } from 'typeorm';
+import { SequenceGeneratorImpl } from '../../common/sequence/SequenceGeneratorImpl';
+import { zeroFills } from '../../common/useful-Utils';
 
 @Injectable()
 export class PortalAccountSequence extends SequenceGeneratorImpl {

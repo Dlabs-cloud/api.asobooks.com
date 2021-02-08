@@ -24,7 +24,6 @@ import { AssociationRepository } from '../dao/association.repository';
 import { WalletRepository } from '../dao/wallet.repository';
 import { GroupRepository } from '../dao/group.repository';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
-import { MembershipRepository } from '../dao/membership.repository';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
 
 async function generateAssociationRequestToken() {

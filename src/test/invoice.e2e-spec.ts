@@ -8,7 +8,6 @@ import { factory } from './factory';
 import { Bill } from '../domain/entity/bill.entity';
 import { InvoiceRequestDto } from '../dto/invoice.request.dto';
 import * as request from 'supertest';
-import { Membership } from '../domain/entity/membership.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import * as faker from 'faker';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';

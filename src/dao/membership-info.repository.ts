@@ -43,7 +43,7 @@ export class MembershipInfoRepository extends BaseRepository<MembershipInfo> {
 
     if (query.query) {
       builder.andWhere(new Brackets(qb => {
-        qb.where('CONCAT(portalUser.firstName,\'-\',portalUser.lastName) like :path', { path: `%${query.query}%` })
+        qb.orWhere('portalUser.firstName || \' \' || portalUser.lastName ILIKE :path', { path: `%${query.query}%` })
           .orWhere('portalUser.email like :path', { path: `%${query.query}%` })
           .orWhere('portalUser.username like :username', { username: `%${query.query}%` })
           .orWhere('membershipInfo.identifier like :identifier', { identifier: `%${query.query}%` });

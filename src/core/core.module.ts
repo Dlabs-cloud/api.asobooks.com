@@ -19,6 +19,7 @@ import { ServiceUnavailableExceptionFilter } from './exception-filters/service-u
 import { NotFoundExceptionFilter } from './exception-filters/not-found-exception.filter';
 import { PaymentTransactionSequence } from './sequenceGenerators/payment-transaction.sequence';
 import { CommonModule } from '../common/common.module';
+
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
   useClass: IllegalArgumentExceptionFilter,

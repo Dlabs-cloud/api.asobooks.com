@@ -1,17 +1,15 @@
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
 import { TestingModule } from '@nestjs/testing';
-import { baseTestingModule, generateToken, getAssociationUser, getTestUser } from './test-utils';
+import { baseTestingModule, generateToken, getTestUser } from './test-utils';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { getConnection } from 'typeorm';
 import { factory } from './factory';
-import { Membership } from '../domain/entity/membership.entity';
 import { Bill } from '../domain/entity/bill.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import * as request from 'supertest';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
-import { testForBuffer } from 'class-transformer/TransformOperationExecutor';
 
 describe('membership-bills controller', () => {
 
