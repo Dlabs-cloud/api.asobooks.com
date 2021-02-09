@@ -41,7 +41,11 @@ export class ServiceFeeService {
         .startOf('day')
         .toDate();
       if (ServiceTypeConstant.ONE_TIME === serviceFee.type) {
-        serviceFee.dueDate = serviceFeeRequestDto.dueDate;
+        if (serviceFeeRequestDto.dueDate) {
+          serviceFee.dueDate = moment(serviceFeeRequestDto.dueDate, 'DD/MM/YYYY')
+            .endOf('day')
+            .toDate();
+        }
         serviceFee.cycle = BillingCycleConstant.ONE_OFF;
       } else {
         serviceFee.nextBillingStartDate = serviceFee.billingStartDate;

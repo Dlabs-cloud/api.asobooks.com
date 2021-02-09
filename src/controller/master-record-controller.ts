@@ -21,7 +21,7 @@ export class MasterRecordController extends BaseController {
     let banks = await this
       .connection
       .getCustomRepository(BankRepository)
-      .find({ status: GenericStatusConstant.ACTIVE });
+      .getAll();
     let banksReponse = banks.map(bank => {
       return {
         code: bank.code,
@@ -37,7 +37,7 @@ export class MasterRecordController extends BaseController {
     let countries = await this
       .connection
       .getCustomRepository(CountryRepository)
-      .find({ status: GenericStatusConstant.ACTIVE });
+      .getAll();
 
     let countriesReponse = countries.map(country => {
       return {

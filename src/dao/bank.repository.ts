@@ -10,4 +10,11 @@ export class BankRepository extends BaseRepository<Bank> {
   findByCode(code: string, status: GenericStatusConstant = GenericStatusConstant.ACTIVE) {
     return this.findOneItemByStatus({ code }, status);
   }
+
+  getAll() {
+    return this.createQueryBuilder('bank')
+      .where('status = :status', { status: GenericStatusConstant.ACTIVE })
+      .addOrderBy('name', 'ASC')
+      .getMany();
+  }
 }

@@ -50,12 +50,10 @@ export class BillRepository extends BaseRepository<Bill> {
   }
 
   findMembershipBillByQuery(membership: Membership, billSearchQuery: BillSearchQueryDto) {
-    let limit = billSearchQuery.limit || 20;
-    let offSet = billSearchQuery.offSet || 0;
     let billSelectQueryBuilder = this.createQueryBuilder('bill');
     billSelectQueryBuilder
       .where('bill.membership = :membership')
-      .limit(limit).offset(offSet);
+      .limit(billSearchQuery.limit).offset(billSearchQuery.offset);
     if (billSearchQuery.minAmount) {
       billSelectQueryBuilder.andWhere('bill.payableAmountInMinorUnit >= :minAmount', { minAmount: billSearchQuery.minAmount });
     }

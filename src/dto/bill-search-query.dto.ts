@@ -6,6 +6,6 @@ export class BillSearchQueryDto {
   maxAmount?: number;
   paymentStatus: PaymentStatus;
   limit?: number;
-  offSet?: number;
+  offset?: number;
   serviceType: ServiceTypeConstant;
 }

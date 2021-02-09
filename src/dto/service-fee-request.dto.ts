@@ -1,6 +1,16 @@
 import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 import { BillingCycleConstant } from '../domain/enums/billing-cycle.constant';
-import { IsArray, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min, ValidateIf } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+  ValidateIf,
+} from 'class-validator';
 import { IsValidDate } from '../common/class-validators/date.validator';
 
 export class ServiceFeeRequestDto {
@@ -36,13 +46,14 @@ export class ServiceFeeRequestDto {
   })
   billingStartDate?: string;
 
+  @IsOptional()
   @IsValidDate({
     isBefore: false,
     format: 'DD/MM/YYYY',
   }, {
-    message: 'Due date can only be in the future',
+    message: 'Due can only be in future or today',
   })
-  dueDate?: Date;
+  dueDate?: string;
 
   @IsOptional()
   @IsArray()

@@ -6,6 +6,7 @@ import { Bank } from '../domain/entity/bank.entity';
 import * as request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
+import { response } from 'express';
 
 
 describe('Master Record controller ', () => {

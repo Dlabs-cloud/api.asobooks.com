@@ -10,6 +10,7 @@ import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { ApiResponseDto } from '../dto/api-response.dto';
 import { SubscriptionRepository } from '../dao/subscription.repository';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { isEmpty } from '@nestjs/common/utils/shared.utils';
 
 @Controller('/member-bills')
 @AssociationContext()
@@ -19,12 +20,15 @@ export class MembershipBillsController {
   }
 
   @Get()
-  getBills(@RequestPrincipalContext() requestPrincipal: RequestPrincipal, @Query()billSearchQuery: BillSearchQueryDto) {
+  getBills(@RequestPrincipalContext() requestPrincipal: RequestPrincipal, @Query()query: BillSearchQueryDto) {
+
+    query.limit = !isEmpty(query.limit) && (query.limit < 100) ? query.limit : 100;
+    query.offset = !isEmpty(query.offset) && (query.offset < 0) ? query.offset : 0;
 
     return this.connection.getCustomRepository(MembershipRepository)
       .findByAssociationAndUserAndAccountType(requestPrincipal.association, requestPrincipal.portalUser, PortalAccountTypeConstant.MEMBER_ACCOUNT)
       .then(membership => {
-        return this.connection.getCustomRepository(BillRepository).findMembershipBillByQuery(membership, billSearchQuery);
+        return this.connection.getCustomRepository(BillRepository).findMembershipBillByQuery(membership, query);
       }).then(result => {
         let bills = result[0];
         if (bills) {
@@ -43,8 +47,8 @@ export class MembershipBillsController {
       }).then(result => {
         const paginatedResponse: PaginatedResponseDto<any> = {
           items: result[0],
-          itemsPerPage: billSearchQuery.limit,
-          offset: billSearchQuery.offSet,
+          itemsPerPage: query.limit,
+          offset: query.offset,
           total: result[1],
         };
         return new ApiResponseDto(paginatedResponse, 200);

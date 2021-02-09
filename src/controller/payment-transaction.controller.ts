@@ -9,6 +9,7 @@ import { RequestPrincipal } from '../dlabs-nest-starter/security/request-princip
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { PaymentTransactionHandler } from './handlers/payment-transaction.handler';
 import { PaymentTransactionsDto } from '../dto/payment-transactions.dto';
+import { isEmpty } from '@nestjs/common/utils/shared.utils';
 
 @Controller('payment-transactions')
 @AssociationContext()
@@ -19,8 +20,8 @@ export class PaymentTransactionController {
 
   @Get()
   get(@RequestPrincipalContext()requestPrincipal: RequestPrincipal, @Query() query: PaymentTransactionSearchQueryDto) {
-    query.limit = query.limit > 20 || !query.limit ? 20 : query.limit;
-    query.offset = query.offset < 0 || !query.offset ? 0 : query.offset;
+    query.limit = !isEmpty(query.limit) && (query.limit < 100) ? query.limit : 100;
+    query.offset = !isEmpty(query.offset) && (query.offset < 0) ? query.offset : 0;
 
     return this.connection.getCustomRepository(PaymentTransactionRepository)
       .findByAssociationAndQuery(requestPrincipal.association, query)
