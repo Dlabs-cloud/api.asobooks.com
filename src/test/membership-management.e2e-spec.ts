@@ -67,7 +67,7 @@ describe('Membership-management-controller ', () => {
       lastName: faker.name.lastName(),
       phoneNumber: faker.phone.phoneNumber(),
       identifier: faker.random.alphaNumeric() + faker.random.uuid(),
-      types: [PortalAccountTypeConstant.EXECUTIVE_ACCOUNT, PortalAccountTypeConstant.MEMBER_ACCOUNT],
+      types: [PortalAccountTypeConstant.EXECUTIVE_ACCOUNT],
     };
     return request(applicationContext.getHttpServer())
       .post(`/membership-management/create`)

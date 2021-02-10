@@ -102,7 +102,7 @@ export class AuthenticationService {
   }
 
 
-  public async loginUser(loginDto: LoginDto): Promise<string> {
+  public async loginUser(loginDto: LoginDto) {
 
     return this.connection.getCustomRepository(PortalUserRepository)
       .findByUserNameOrEmailOrPhoneNumberAndStatus(loginDto.username.toLowerCase(), GenericStatusConstant.ACTIVE, GenericStatusConstant.PENDING_ACTIVATION)
@@ -117,8 +117,8 @@ export class AuthenticationService {
             const payload: TokenPayloadDto = {
               portalUser: portalUser,
             };
-            const token = this.bearerTokenService.generateBearerToken(payload, TokenTypeConstant.LOGIN);
-            return Promise.resolve(token);
+            const token = await this.bearerTokenService.generateBearerToken(payload, TokenTypeConstant.LOGIN);
+            return Promise.resolve({ token, portalUser });
           }
         }
 

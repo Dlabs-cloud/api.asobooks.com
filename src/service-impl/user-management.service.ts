@@ -146,7 +146,7 @@ export class UserManagementService {
 
       let portalAccounts = await entityManager
         .getCustomRepository(PortalAccountRepository)
-        .findByAssociationAndStatusAndTypes(association, GenericStatusConstant.ACTIVE, ...membershipSignUp.types);
+        .findByStatusAndAssociation(GenericStatusConstant.ACTIVE, association);
 
       if (portalAccounts.length < 2) {
         throw new IllegalArgumentException('An executive account and member account should have been created for association');

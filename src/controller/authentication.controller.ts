@@ -65,10 +65,16 @@ export class AuthenticationController {
   @Public()
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    const token = await this.authenticationService.loginUser(loginDto);
-    const loginResponseDto = new LoginResponseDto();
-    loginResponseDto.token = token;
-    return new ApiResponseDto(loginResponseDto, 200);
+    return this.authenticationService.loginUser(loginDto)
+      .then(userInfo => {
+        return this.loggedInUserInfoHandler.transform(userInfo.portalUser)
+          .then(transformedObject => {
+            const loginResponseDto = new LoginResponseDto();
+            loginResponseDto.token = userInfo.token;
+            loginResponseDto.userInfo = transformedObject;
+            return Promise.resolve(new ApiResponseDto(loginResponseDto, 200));
+          });
+      });
   }
 
 

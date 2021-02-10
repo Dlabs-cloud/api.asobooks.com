@@ -1,3 +1,4 @@
 export class LoginResponseDto {
-    token: string;
+  token: string;
+  userInfo: any;
 }

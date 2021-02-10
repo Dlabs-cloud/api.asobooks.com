@@ -42,7 +42,7 @@ export class ServiceFeeRequestDto {
     isBefore: false,
     format: 'DD/MM/YYYY',
   }, {
-    message: 'startDate can only be in future or today',
+    message: 'startDate can only be in future or today with date format DD/MM/YYYY',
   })
   billingStartDate?: string;
 
@@ -51,7 +51,7 @@ export class ServiceFeeRequestDto {
     isBefore: false,
     format: 'DD/MM/YYYY',
   }, {
-    message: 'Due can only be in future or today',
+    message: 'Due can only be in future or today with date format DD/MM/YYYY',
   })
   dueDate?: string;
 
