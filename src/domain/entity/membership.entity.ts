@@ -4,6 +4,7 @@ import { PortalAccount } from './portal-account.entity';
 import { PortalUser } from './portal-user.entity';
 import { Address } from './address.entity';
 import { MembershipInfo } from './association-member-info.entity';
+import { Role } from './role.entity';
 
 @Entity()
 export class Membership extends BaseEntity {
@@ -28,5 +29,8 @@ export class Membership extends BaseEntity {
 
   @Column({ nullable: true })
   membershipInfoId?: number;
+
+  @ManyToOne(() => Role, { nullable: true })
+  role: Role;
 
 }

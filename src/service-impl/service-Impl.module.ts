@@ -28,6 +28,7 @@ import { BankService } from './bank.service';
 import { FakerService } from './faker.service';
 import { MembershipInfoService } from './membership-info.service';
 import { AddressService } from './address.service';
+import { RoleService } from './role.service';
 
 
 @Module({
@@ -61,8 +62,9 @@ import { AddressService } from './address.service';
     AssociationServiceImpl,
     WalletService,
     BankService,
+    RoleService,
     PaymentTransactionService,
-    AddressService
+    AddressService,
   ],
   providers: [
     AuthenticationService,
@@ -85,6 +87,7 @@ import { AddressService } from './address.service';
     PaymentTransactionService,
     BankService,
     WalletService,
+    RoleService,
     BillService,
     FakerService,
     MembershipInfoService,
