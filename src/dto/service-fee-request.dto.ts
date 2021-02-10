@@ -12,6 +12,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { IsValidDate } from '../common/class-validators/date.validator';
+import { isEmpty } from '@nestjs/common/utils/shared.utils';
 
 export class ServiceFeeRequestDto {
 

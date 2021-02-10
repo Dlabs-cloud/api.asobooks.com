@@ -20,6 +20,7 @@ import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-c
 import { Subscription } from '../domain/entity/subcription.entity';
 import { Bill } from '../domain/entity/bill.entity';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
+import { now } from 'moment';
 
 describe('Service fees set up test ', () => {
   let applicationContext: INestApplication;
@@ -55,7 +56,7 @@ describe('Service fees set up test ', () => {
       amountInMinorUnit: 10_000_00,
       cycle: BillingCycleConstant.MONTHLY,
       description: faker.random.words(10),
-      billingStartDate: moment(faker.date.future()).format('DD/MM/YYYY'),
+      billingStartDate: moment(now()).format('DD/MM/YYYY'),
       name: faker.random.words(2),
       type: faker.random.arrayElement(Object.values(ServiceTypeConstant)),
       recipients: membershipIdentifiers,

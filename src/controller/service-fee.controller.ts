@@ -18,6 +18,8 @@ import * as moment from 'moment';
 import { SubscriptionHandler } from './handlers/subscriptionHandler';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { isEmpty } from '@nestjs/common/utils/shared.utils';
+import { ServiceFeeQueryDto } from '../dto/service-fee-query.dto';
+import { ServiceFeeResponseDto } from '../dto/service-fee.response.dto';
 
 @Controller('service-fees')
 @AssociationContext()
@@ -49,6 +51,30 @@ export class ServiceFeeController {
   }
 
 
+  @Get()
+  public all(@Query()query: ServiceFeeQueryDto,
+             @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
+    query.limit = !isEmpty(query.limit) && (query.limit < 100) ? query.limit : 100;
+    query.offset = !isEmpty(query.offset) && (query.offset < 0) ? query.offset : 0;
+
+    return this.connection.getCustomRepository(ServiceFeeRepository)
+      .findByQueryANdAssociation(query, requestPrincipal.association)
+      .then(serviceFeesAndCount => {
+        const serviceFees = serviceFeesAndCount[0];
+        const transformedServiceFee = serviceFees.map(serviceFee => {
+          return ServiceFeeController.transformFees(serviceFee);
+        });
+        const response: PaginatedResponseDto<ServiceFeeResponseDto> = {
+          items: transformedServiceFee,
+          itemsPerPage: query.limit,
+          offset: query.offset,
+          total: serviceFeesAndCount[1],
+        };
+        return Promise.resolve(response);
+      });
+  }
+
+
   @Get('/:code')
   public async getServiceByCode(@Param('code')code: string, @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
     let serviceFee = await this.connection
@@ -57,7 +83,7 @@ export class ServiceFeeController {
     if (!serviceFee) {
       throw  new NotFoundException(`service fee with code ${code} cannot be found`);
     }
-    return new ApiResponseDto(serviceFee);
+    return new ApiResponseDto(ServiceFeeController.transformFees(serviceFee));
   }
 
   @Get('/:code/subscriptions')
@@ -102,5 +128,20 @@ export class ServiceFeeController {
 
       });
 
+  }
+
+  private static transformFees(serviceFee: ServiceFee) {
+    return {
+      amountInMinorUnit: serviceFee.amountInMinorUnit,
+      billingStartDate: serviceFee.billingStartDate,
+      code: serviceFee.code,
+      cycle: serviceFee.cycle,
+      description: serviceFee.description,
+      dueDate: serviceFee.dueDate,
+      name: serviceFee.name,
+      nextBillingEndDate: serviceFee.nextBillingEndDate,
+      nextBillingStartDate: serviceFee.nextBillingStartDate,
+      type: serviceFee.type,
+    };
   }
 }

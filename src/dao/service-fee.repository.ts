@@ -5,6 +5,8 @@ import { Association } from '../domain/entity/association.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Subscription } from '../domain/entity/subcription.entity';
 import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
+import { ServiceFeeQueryDto } from '../dto/service-fee-query.dto';
+import * as moment from 'moment';
 
 @EntityRepository(ServiceFee)
 export class ServiceFeeRepository extends BaseRepository<ServiceFee> {
@@ -20,6 +22,35 @@ export class ServiceFeeRepository extends BaseRepository<ServiceFee> {
       .setParameter('association', association.id)
       .setParameter('status', status)
       .getOne();
+  }
+
+
+  findByQueryANdAssociation(query: ServiceFeeQueryDto, association: Association) {
+    const builder = this.createQueryBuilder('serviceFee')
+      .where('serviceFee.association = :association', { association: association.id })
+      .limit(query.limit)
+      .offset(query.offset);
+    if (query.frequency) {
+      builder.andWhere('serviceFee.cycle = :cycle', { cycle: query.frequency });
+    }
+    if (query.dateCreatedBefore) {
+      const date = moment(query.dateCreatedBefore, 'DD/MM/YYYY').startOf('day').toDate();
+      builder.andWhere('serviceFee.createdAt <= :date', { date });
+    }
+    if (query.dateCreatedAfter) {
+      const date = moment(query.dateCreatedAfter, 'DD/MM/YYYY').startOf('day').toDate();
+      builder.andWhere('serviceFee.createdAt >= :date', { date });
+    }
+    if (query.startDateBefore) {
+      const date = moment(query.startDateBefore, 'DD/MM/YYYY').startOf('day').toDate();
+      builder.andWhere('serviceFee.billingStartDate <= :date', { date });
+    }
+    if (query.startDateAfter) {
+      const date = moment(query.startDateBefore, 'DD/MM/YYYY').startOf('day').toDate();
+      builder.andWhere('serviceFee.billingStartDate >= :date', { date });
+    }
+    return builder.getManyAndCount();
+
   }
 
   public findForAllGeneratedSubscriptionsByStateDateAndEndDateAndStatusType(startDate: Date,

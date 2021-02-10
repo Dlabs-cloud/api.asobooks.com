@@ -17,12 +17,12 @@ export function IsValidDate(param: DateValidator, options?: ValidationOptions) {
           if (!value) {
             return Promise.resolve(true);
           }
-          let momentDate = moment(value, param.format);
+          let momentDate = moment(value, param.format).startOf('day');
+          const date = moment().startOf('day');
           if (param.isBefore) {
-            let todayDate = moment().format(param.format);
-            return momentDate.isValid() && momentDate.isBefore(todayDate);
+            return momentDate.isValid() && date.isSameOrAfter(momentDate);
           }
-          return momentDate.isValid() && momentDate.isSameOrAfter();
+          return momentDate.isValid() && date.isSameOrBefore(momentDate);
         },
       },
     });
