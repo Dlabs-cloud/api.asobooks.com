@@ -53,18 +53,6 @@ export class ServiceFeeService {
       }
 
       serviceFee = await entityManager.save(serviceFee);
-      if (!recipients) {
-        let groups = await entityManager
-          .getCustomRepository(GroupRepository)
-          .findByAssociation(association, GroupTypeConstant.GENERAL);
-        let group = groups[0];
-
-        if (!group) {
-          throw new IllegalArgumentException('Default group has not been created for association');
-        }
-        await this.groupServiceFeeService.createGroupForService(entityManager, group, serviceFee);
-        return serviceFee;
-      }
 
       let group = await this.groupService.createGroup(entityManager, {
         association: association,
@@ -72,13 +60,16 @@ export class ServiceFeeService {
         type: GroupTypeConstant.SERVICE_FEE,
       });
 
-      return this.groupService
-        .addMember(entityManager, group, ...recipients)
-        .then(result => {
-          return this.groupServiceFeeService
-            .createGroupForService(entityManager, group, serviceFee);
-        }).then(result => {
-          return Promise.resolve(serviceFee);
+      return this.groupServiceFeeService
+        .createGroupForService(entityManager, group, serviceFee)
+        .then(_ => {
+          if (!recipients || !recipients.length) {
+            return Promise.resolve(serviceFee);
+          }
+          return this.groupService.addMember(entityManager, group, ...recipients)
+            .then(_ => {
+              return Promise.resolve(serviceFee);
+            });
         });
     });
 

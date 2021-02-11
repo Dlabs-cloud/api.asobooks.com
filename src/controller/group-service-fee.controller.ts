@@ -92,7 +92,7 @@ export class GroupServiceFeeController {
     paginatedResponseDto.total = membershipInfos[1];
     paginatedResponseDto.itemsPerPage = query.limit;
     paginatedResponseDto.offset = query.offset;
-    return paginatedResponseDto;
+    return new ApiResponseDto(paginatedResponseDto, 200);
   }
 
   @Delete('/:serviceCode/members')

@@ -44,6 +44,7 @@ export class ServiceFeeController {
           ...recipients);
 
     }
+
     let serviceFee = await this.serviceFeeService
       .createService(serviceFeeRequestDto, requestPrincipal.association, members);
     let response = { code: serviceFee.code };
@@ -58,7 +59,7 @@ export class ServiceFeeController {
     query.offset = !isEmpty(query.offset) && (query.offset < 0) ? query.offset : 0;
 
     return this.connection.getCustomRepository(ServiceFeeRepository)
-      .findByQueryANdAssociation(query, requestPrincipal.association)
+      .findByQueryAndAssociation(query, requestPrincipal.association)
       .then(serviceFeesAndCount => {
         const serviceFees = serviceFeesAndCount[0];
         const transformedServiceFee = serviceFees.map(serviceFee => {
@@ -70,7 +71,7 @@ export class ServiceFeeController {
           offset: query.offset,
           total: serviceFeesAndCount[1],
         };
-        return Promise.resolve(response);
+        return Promise.resolve(new ApiResponseDto(response, 200));
       });
   }
 
@@ -122,7 +123,7 @@ export class ServiceFeeController {
               offset: query.offset,
               total: total,
             };
-            return Promise.resolve(paginatedResponse);
+            return Promise.resolve(new ApiResponseDto(paginatedResponse, 200));
           });
         });
 

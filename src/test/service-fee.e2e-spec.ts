@@ -21,6 +21,7 @@ import { Subscription } from '../domain/entity/subcription.entity';
 import { Bill } from '../domain/entity/bill.entity';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { now } from 'moment';
+import { ServiceFeeQueryDto } from '../dto/service-fee-query.dto';
 
 describe('Service fees set up test ', () => {
   let applicationContext: INestApplication;
@@ -115,7 +116,6 @@ describe('Service fees set up test ', () => {
       .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code);
     expect(response.status).toEqual(200);
     let data = response.body.data;
-    expect(data.status).toEqual(GenericStatusConstant.ACTIVE);
     expect(data.name).toEqual(serviceFee.name);
     expect(data.code).toEqual(serviceFee.code);
     expect(data.amountInMinorUnit).toStrictEqual(serviceFee.amountInMinorUnit.toString());
@@ -154,13 +154,51 @@ describe('Service fees set up test ', () => {
       .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
       .expect(200)
       .then(response => {
-        const data = response.body;
+        const data = response.body.data;
         expect(data.total).toEqual(3);
         expect(data.offset).toEqual(0);
         expect(parseInt(data.itemsPerPage.toString())).toEqual(2);
         expect(data.items.length).toEqual(2);
       });
+  });
 
+  it('Test that user can search for services by query', () => {
+    return getAssociationUser().then(testUser => {
+      return factory().upset(ServiceFee).use(fee => {
+        fee.association = testUser.association;
+        fee.billingStartDate = new Date();
+        return fee;
+      }).create().then((fee) => {
+        const createdAtDate = moment(fee.createdAt).format('DD/MM/YYYY');
+        const billingStartDate = moment(fee.billingStartDate).format('DD/MM/YYYY');
+        const queryParam: ServiceFeeQueryDto = {
+          dateCreatedAfter: createdAtDate,
+          dateCreatedBefore: createdAtDate,
+          frequency: fee.cycle,
+          limit: 1,
+          offset: 0,
+          startDateAfter: billingStartDate,
+          startDateBefore: billingStartDate,
+        };
+        const queryParams = Object.keys(queryParam).map(key => {
+          return `${key}=${queryParam[key]}`;
+        });
+        const query = queryParams.join('&');
+        const url = `/service-fees?${query}`;
+        return request(applicationContext.getHttpServer())
+          .get(url)
+          .set('Authorization', testUser.token)
+          .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+          .expect(200)
+          .then(response => {
+            const data = response.body.data;
+            expect(data.total).toEqual(1);
+            expect(data.offset).toEqual(0);
+            expect(+data.itemsPerPage).toEqual(1);
+            expect(data.items[0]).toBeDefined();
+          });
+      });
+    });
   });
 
   afterAll(async () => {

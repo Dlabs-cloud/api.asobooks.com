@@ -25,7 +25,7 @@ export class ServiceFeeRepository extends BaseRepository<ServiceFee> {
   }
 
 
-  findByQueryANdAssociation(query: ServiceFeeQueryDto, association: Association) {
+  findByQueryAndAssociation(query: ServiceFeeQueryDto, association: Association) {
     const builder = this.createQueryBuilder('serviceFee')
       .where('serviceFee.association = :association', { association: association.id })
       .limit(query.limit)
@@ -34,20 +34,20 @@ export class ServiceFeeRepository extends BaseRepository<ServiceFee> {
       builder.andWhere('serviceFee.cycle = :cycle', { cycle: query.frequency });
     }
     if (query.dateCreatedBefore) {
-      const date = moment(query.dateCreatedBefore, 'DD/MM/YYYY').startOf('day').toDate();
-      builder.andWhere('serviceFee.createdAt <= :date', { date });
+      const date = moment(query.dateCreatedBefore, 'DD/MM/YYYY').endOf('day').toDate();
+      builder.andWhere('serviceFee.createdAt <= :createdBefore', { createdBefore: date });
     }
     if (query.dateCreatedAfter) {
       const date = moment(query.dateCreatedAfter, 'DD/MM/YYYY').startOf('day').toDate();
-      builder.andWhere('serviceFee.createdAt >= :date', { date });
+      builder.andWhere('serviceFee.createdAt >= :createdAfter', { createdAfter: date });
     }
     if (query.startDateBefore) {
-      const date = moment(query.startDateBefore, 'DD/MM/YYYY').startOf('day').toDate();
-      builder.andWhere('serviceFee.billingStartDate <= :date', { date });
+      const date = moment(query.startDateBefore, 'DD/MM/YYYY').endOf('day').toDate();
+      builder.andWhere('serviceFee.billingStartDate <= :startDateBefore', { startDateBefore: date });
     }
     if (query.startDateAfter) {
-      const date = moment(query.startDateBefore, 'DD/MM/YYYY').startOf('day').toDate();
-      builder.andWhere('serviceFee.billingStartDate >= :date', { date });
+      const date = moment(query.startDateAfter, 'DD/MM/YYYY').startOf('day').toDate();
+      builder.andWhere('serviceFee.billingStartDate >= :startDateAfter', { startDateAfter: date });
     }
     return builder.getManyAndCount();
 

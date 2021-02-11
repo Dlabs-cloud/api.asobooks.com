@@ -42,7 +42,7 @@ describe('Payment Transactions', () => {
       .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
       .expect(200).then(respnse => {
         const body = respnse.body;
-        expect(parseInt(body.itemsPerPage.toString())).toEqual(20);
+        expect(parseInt(body.itemsPerPage.toString())).toEqual(100);
         expect(parseInt(body.total.toString())).toEqual(10);
       });
 
