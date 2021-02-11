@@ -5,27 +5,27 @@ import { IsDateFormat } from '../common/class-validators/date-format.validator';
 export class ServiceFeeQueryDto {
   @IsOptional()
   @IsNumber()
-  limit: number;
+  limit?: number;
   @IsOptional()
   @IsNumber()
-  offset: number;
+  offset?: number;
   @IsOptional()
   @IsEnum(BillingCycleConstant)
-  frequency: BillingCycleConstant;
+  frequency?: BillingCycleConstant;
   @IsOptional()
   @IsString()
   @IsDateFormat('DD/MM/YYYY', { message: 'Date must be in the format DD/MM/YYYY' })
-  dateCreatedAfter: string;
+  dateCreatedAfter?: string;
   @IsOptional()
   @IsString()
   @IsDateFormat('DD/MM/YYYY', { message: 'Date must be in the format DD/MM/YYYY' })
-  dateCreatedBefore: string;
+  dateCreatedBefore?: string;
   @IsOptional()
   @IsString()
   @IsDateFormat('DD/MM/YYYY', { message: 'Date must be in the format DD/MM/YYYY' })
-  startDateBefore: string;
+  startDateBefore?: string;
   @IsOptional()
   @IsString()
   @IsDateFormat('DD/MM/YYYY', { message: 'Date must be in the format DD/MM/YYYY' })
-  startDateAfter: string;
+  startDateAfter?: string;
 }
