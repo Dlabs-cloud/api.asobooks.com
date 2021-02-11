@@ -19,11 +19,18 @@ import { ActivityLog } from '../domain/entity/activity-log.entity';
 import { MembershipInfo } from '../domain/entity/association-member-info.entity';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { Invoice } from '../domain/entity/invoice.entity';
+import { ServiceFeeService } from './service-fee.service';
+import { ServiceFeeRequestDto } from '../dto/service-fee-request.dto';
+import { BillingCycleConstant } from '../domain/enums/billing-cycle.constant';
+import * as moment from 'moment';
+import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
+import * as faker from 'faker';
 
 @Injectable()
 export class FakerService implements OnApplicationBootstrap {
 
   constructor(private readonly connection: Connection,
+              private readonly feeService: ServiceFeeService,
               private readonly authenticationUtils: AuthenticationUtils) {
   }
 
@@ -58,6 +65,8 @@ export class FakerService implements OnApplicationBootstrap {
                     return this.createWallet(testUser.association);
                   }).then(() => {
                     return this.seedActivityLog(testUser.association);
+                  }).then(_ => {
+                    return this.seedServiceFee(testUser.association);
                   });
                 });
 
@@ -175,5 +184,20 @@ export class FakerService implements OnApplicationBootstrap {
     return { membership, association };
   };
 
+
+  public async seedServiceFee(association: Association) {
+    let requestPayload: ServiceFeeRequestDto = {
+      amountInMinorUnit: 1000000,
+      cycle: BillingCycleConstant.MONTHLY,
+      description: faker.random.words(10),
+      billingStartDate: moment(faker.date.future()).format('DD/MM/YYYY'),
+      name: faker.random.words(2),
+      type: faker.random.arrayElement(Object.values(ServiceTypeConstant)),
+    };
+
+    for (let i = 0; i <= 50; i++) {
+      await this.feeService.createService(requestPayload, association);
+    }
+  }
 
 }
