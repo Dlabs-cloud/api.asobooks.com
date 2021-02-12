@@ -49,6 +49,14 @@ export class ServiceFeeRepository extends BaseRepository<ServiceFee> {
       const date = moment(query.startDateAfter, 'DD/MM/YYYY').startOf('day').toDate();
       builder.andWhere('serviceFee.billingStartDate >= :startDateAfter', { startDateAfter: date });
     }
+    if (query.type) {
+      builder.andWhere('serviceFee.type = :type', { type: query.type });
+    }
+
+    if (query.status) {
+      builder.andWhere('serviceFee.status = :status', { status: query.status });
+    }
+
     return builder.getManyAndCount();
 
   }

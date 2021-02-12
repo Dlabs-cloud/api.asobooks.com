@@ -1,6 +1,8 @@
 import { BillingCycleConstant } from '../domain/enums/billing-cycle.constant';
 import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { IsDateFormat } from '../common/class-validators/date-format.validator';
+import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
+import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 
 export class ServiceFeeQueryDto {
   @IsOptional()
@@ -12,6 +14,12 @@ export class ServiceFeeQueryDto {
   @IsOptional()
   @IsEnum(BillingCycleConstant)
   frequency?: BillingCycleConstant;
+  @IsOptional()
+  @IsEnum(ServiceTypeConstant)
+  type?: ServiceTypeConstant;
+  @IsOptional()
+  @IsEnum(GenericStatusConstant)
+  status?: GenericStatusConstant;
   @IsOptional()
   @IsString()
   @IsDateFormat('DD/MM/YYYY', { message: 'Date must be in the format DD/MM/YYYY' })

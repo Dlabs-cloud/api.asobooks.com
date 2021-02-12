@@ -8,6 +8,7 @@ import { ServiceFeeRequestDto } from '../dto/service-fee-request.dto';
 import { BillingCycleConstant } from '../domain/enums/billing-cycle.constant';
 import * as faker from 'faker';
 import * as moment from 'moment';
+import { now } from 'moment';
 import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 import * as request from 'supertest';
 import { factory } from './factory';
@@ -20,7 +21,6 @@ import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-c
 import { Subscription } from '../domain/entity/subcription.entity';
 import { Bill } from '../domain/entity/bill.entity';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
-import { now } from 'moment';
 import { ServiceFeeQueryDto } from '../dto/service-fee-query.dto';
 
 describe('Service fees set up test ', () => {
@@ -179,6 +179,8 @@ describe('Service fees set up test ', () => {
           offset: 0,
           startDateAfter: billingStartDate,
           startDateBefore: billingStartDate,
+          type: fee.type,
+          status: GenericStatusConstant.ACTIVE,
         };
         const queryParams = Object.keys(queryParam).map(key => {
           return `${key}=${queryParam[key]}`;
