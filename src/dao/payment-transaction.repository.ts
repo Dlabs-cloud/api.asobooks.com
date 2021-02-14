@@ -1,18 +1,43 @@
 import { BaseRepository } from '../common/BaseRepository';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
-import { EntityRepository } from 'typeorm';
+import { EntityRepository, In } from 'typeorm';
 import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { Association } from '../domain/entity/association.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PaymentTransactionSearchQueryDto } from '../dto/payment-transaction-search.query.dto';
 import * as moment from 'moment';
+import { Bill } from '../domain/entity/bill.entity';
+import { Invoice } from '../domain/entity/invoice.entity';
+import { BillInvoice } from '../domain/entity/bill-invoice.entity';
 
 @EntityRepository(PaymentTransaction)
 export class PaymentTransactionRepository extends BaseRepository<PaymentTransaction> {
 
+  findByBills(bills: Bill[], status = GenericStatusConstant.ACTIVE) {
+    if (!bills || !bills.length) {
+      return Promise.resolve(undefined);
+    }
+    const billIds = bills.map(bill => bill.id);
+    this.createQueryBuilder('paymentTransaction')
+      .innerJoin(PaymentRequest, 'paymentRequest', 'paymentTransaction.paymentRequest = paymentRequest.id')
+      .innerJoin(Invoice, 'invoice', 'invoice.id = paymentRequest.invoice')
+      .innerJoin(BillInvoice, 'billInvoice', 'billInvoice.invoice = invoice.id')
+      .where('billInvoice.bill IN (:...billIds)', billIds)
+      .andWhere('bill.status = :status', { status })
+      .getMany();
+  }
+
   findByPaymentRequest(paymentRequest: PaymentRequest) {
     return this.findOne({
       paymentRequest: paymentRequest,
+    });
+  }
+
+  findByPaymentRequests(paymentRequests: PaymentRequest[]) {
+    return this.find({
+      where: {
+        paymentRequest: In(paymentRequests),
+      },
     });
   }
 

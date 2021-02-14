@@ -10,11 +10,11 @@ import { EventBus } from '@nestjs/cqrs';
 import { BillingCycleConstant } from '../domain/enums/billing-cycle.constant';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { GroupService } from './group.service';
-import { GroupRepository } from '../dao/group.repository';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { GroupServiceFeeService } from './group-service-fee.service';
 import { Membership } from '../domain/entity/membership.entity';
 import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
+import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 
 @Injectable()
 export class ServiceFeeService {
@@ -75,6 +75,10 @@ export class ServiceFeeService {
 
   }
 
+  public removeServiceFee(serviceFee: ServiceFee) {
+    serviceFee.status = GenericStatusConstant.IN_ACTIVE;
+    return serviceFee.save();
+  }
 
   public calculateNextBillingDate(date: Date, cycle: BillingCycleConstant) {
     switch (cycle) {

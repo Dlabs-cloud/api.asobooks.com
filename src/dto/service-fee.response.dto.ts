@@ -3,6 +3,7 @@ import { Column, ManyToOne } from 'typeorm';
 import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 import { Association } from '../domain/entity/association.entity';
 import { BillingCycleConstant } from '../domain/enums/billing-cycle.constant';
+import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 
 export class ServiceFeeResponseDto {
   name: string;
@@ -15,4 +16,5 @@ export class ServiceFeeResponseDto {
   nextBillingStartDate?: Date;
   nextBillingEndDate?: Date;
   dueDate?: Date;
+  status: GenericStatusConstant;
 }

@@ -12,6 +12,9 @@ export class Bill extends BaseEntity {
   code: string;
   @ManyToOne(() => Membership)
   membership: Membership;
+  @Column({ nullable: true })
+  membershipId: number;
+
   @Column()
   currentAmountInMinorUnit: number;
   @Column()

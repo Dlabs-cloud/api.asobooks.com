@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
 import { ServiceFeeRequestDto } from '../dto/service-fee-request.dto';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
@@ -75,6 +75,23 @@ export class ServiceFeeController {
       });
   }
 
+  @Delete('/:code')
+  deActivateFee(@Param('code') code: string,
+                @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
+    return this.connection
+      .getCustomRepository(ServiceFeeRepository)
+      .findByCodeAndAssociation(code, requestPrincipal.association)
+      .then(serviceFee => {
+        if (!serviceFee) {
+          throw  new NotFoundException(`service fee with code ${code} cannot be found`);
+        }
+        return this.serviceFeeService
+          .removeServiceFee(serviceFee)
+          .then(() => {
+            return new ApiResponseDto(null, 204);
+          });
+      });
+  }
 
   @Get('/:code')
   public async getServiceByCode(@Param('code')code: string, @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
@@ -118,7 +135,7 @@ export class ServiceFeeController {
           const subscriptions = manyAndCount[0];
           return this.subscriptionHandler.transform(serviceFee, subscriptions).then(subscriptionSummaries => {
             const paginatedResponse: PaginatedResponseDto<any> = {
-              items: subscriptionSummaries,
+              items: subscriptionSummaries ?? [],
               itemsPerPage: query.limit,
               offset: query.offset,
               total: total,
@@ -140,6 +157,7 @@ export class ServiceFeeController {
       description: serviceFee.description,
       dueDate: serviceFee.dueDate,
       name: serviceFee.name,
+      status: serviceFee.status,
       nextBillingEndDate: serviceFee.nextBillingEndDate,
       nextBillingStartDate: serviceFee.nextBillingStartDate,
       type: serviceFee.type,

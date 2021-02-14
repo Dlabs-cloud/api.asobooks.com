@@ -16,7 +16,6 @@ import { IllegalArgumentException } from '../exception/illegal-argument.exceptio
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { PortalUserQueryDto } from '../dto/portal-user-query.dto';
 import { MembershipInfoHandler } from './handlers/membership-info.handler';
-import { MembershipInfo } from '../domain/entity/association-member-info.entity';
 import { MembershipInfoRepository } from '../dao/membership-info.repository';
 
 @Controller('service-fees')

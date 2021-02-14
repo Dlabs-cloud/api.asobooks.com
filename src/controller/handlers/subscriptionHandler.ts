@@ -15,7 +15,9 @@ export class SubscriptionHandler {
 
 
   transform(serviceFee: ServiceFee, subscriptions: Subscription[]) {
-
+    if (!subscriptions || !subscriptions.length) {
+      return Promise.resolve(null);
+    }
     const responses = subscriptions.map(subscription => {
       const response: SubscriptionSummaryResponseDto = new SubscriptionSummaryResponseDto();
       response.endDate = subscription.endDate;

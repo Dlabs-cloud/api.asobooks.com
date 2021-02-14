@@ -181,6 +181,9 @@ describe('Service fees set up test ', () => {
           startDateBefore: billingStartDate,
           type: fee.type,
           status: GenericStatusConstant.ACTIVE,
+          name: fee.name,
+          minAmount: fee.amountInMinorUnit,
+          maxAmount: fee.amountInMinorUnit,
         };
         const queryParams = Object.keys(queryParam).map(key => {
           return `${key}=${queryParam[key]}`;
@@ -198,6 +201,28 @@ describe('Service fees set up test ', () => {
             expect(data.offset).toEqual(0);
             expect(+data.itemsPerPage).toEqual(1);
             expect(data.items[0]).toBeDefined();
+          });
+      });
+    });
+  });
+
+  it('Test that service fee can be removed', () => {
+    return getAssociationUser().then(testUser => {
+      return factory().upset(ServiceFee).use(serviceFee => {
+        serviceFee.association = testUser.association;
+        return serviceFee;
+      }).create().then((serviceFee) => {
+        const url = `/service-fees/${serviceFee.code}`;
+        return request(applicationContext.getHttpServer())
+          .delete(url)
+          .set('Authorization', testUser.token)
+          .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+          .expect(204)
+          .then(() => {
+            return connection.getCustomRepository(ServiceFeeRepository)
+              .findOne({ code: serviceFee.code }).then(serviceFee => {
+                expect(serviceFee).toBeDefined();
+              });
           });
       });
     });

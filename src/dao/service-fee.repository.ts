@@ -57,6 +57,17 @@ export class ServiceFeeRepository extends BaseRepository<ServiceFee> {
       builder.andWhere('serviceFee.status = :status', { status: query.status });
     }
 
+    if (query.minAmount) {
+      builder.andWhere('serviceFee.amountInMinorUnit >= :minAmount', { minAmount: query.minAmount });
+    }
+
+    if (query.maxAmount) {
+      builder.andWhere('serviceFee.amountInMinorUnit <= :maxAmount', { maxAmount: query.maxAmount });
+    }
+
+    if (query.name) {
+      builder.andWhere('serviceFee.name like :name', { name: `%${query.name}%` });
+    }
     return builder.getManyAndCount();
 
   }

@@ -28,10 +28,13 @@ export class MembershipBillsController {
     return this.connection.getCustomRepository(MembershipRepository)
       .findByAssociationAndUserAndAccountType(requestPrincipal.association, requestPrincipal.portalUser, PortalAccountTypeConstant.MEMBER_ACCOUNT)
       .then(membership => {
+        if (!membership) {
+          return Promise.resolve([null, null]);
+        }
         return this.connection.getCustomRepository(BillRepository).findMembershipBillByQuery(membership, query);
       }).then(result => {
         let bills = result[0];
-        if (bills) {
+        if (bills.length) {
           return this.connection.getCustomRepository(SubscriptionRepository)
             .findByBills(...bills).then(subscriptions => {
               return bills.map(bill => {
@@ -46,10 +49,10 @@ export class MembershipBillsController {
         return Promise.resolve(result);
       }).then(result => {
         const paginatedResponse: PaginatedResponseDto<any> = {
-          items: result[0],
+          items: result[0] ?? [],
           itemsPerPage: query.limit,
           offset: query.offset,
-          total: result[1],
+          total: result[1] ?? 0,
         };
         return new ApiResponseDto(paginatedResponse, 200);
       });

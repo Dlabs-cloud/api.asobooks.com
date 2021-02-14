@@ -11,6 +11,8 @@ import { PaymentTransaction } from '../domain/entity/payment-transaction.entity'
 import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { Invoice } from '../domain/entity/invoice.entity';
 import { MembershipInfo } from '../domain/entity/association-member-info.entity';
+import { ServiceFee } from '../domain/entity/service.fee.entity';
+import { Bill } from '../domain/entity/bill.entity';
 
 
 @EntityRepository(Membership)
@@ -133,6 +135,15 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .where('paymentTransaction IN (:...paymentTransactions)')
       .setParameter('paymentTransactions', paymentTransactionIds)
       .getMany();
+  }
+
+  findByBills(bills: Bill[]) {
+    if (!bills || bills.length) {
+      return Promise.resolve(undefined);
+    }
+    const membershipIds = bills.map(bill => bill.membershipId);
+    return this.findByIds(membershipIds);
+
   }
 
 

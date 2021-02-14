@@ -11,10 +11,10 @@ export class ServiceSubscriptionSearchQueryDto {
   endDate?: string;
   @IsOptional()
   @IsNumber()
-  limit: number;
+  limit?: number;
   @IsOptional()
   @IsNumber()
-  offset: number;
+  offset?: number;
 
 
 }

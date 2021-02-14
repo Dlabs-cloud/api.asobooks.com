@@ -1,6 +1,6 @@
 import { BaseRepository } from '../common/BaseRepository';
 import { Bill } from '../domain/entity/bill.entity';
-import { EntityRepository } from 'typeorm';
+import { Brackets, EntityRepository } from 'typeorm';
 import { Subscription } from '../domain/entity/subcription.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Membership } from '../domain/entity/membership.entity';
@@ -8,6 +8,8 @@ import { BillSearchQueryDto } from '../dto/bill-search-query.dto';
 import { Association } from '../domain/entity/association.entity';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
+import { PortalUser } from '../domain/entity/portal-user.entity';
+import * as moment from 'moment';
 
 @EntityRepository(Bill)
 export class BillRepository extends BaseRepository<Bill> {
@@ -58,7 +60,7 @@ export class BillRepository extends BaseRepository<Bill> {
       billSelectQueryBuilder.andWhere('bill.payableAmountInMinorUnit >= :minAmount', { minAmount: billSearchQuery.minAmount });
     }
     if (billSearchQuery.maxAmount) {
-      billSelectQueryBuilder.andWhere('bill.payableAmountInMinorUnit <= :maxAmount', { minAmount: billSearchQuery.maxAmount });
+      billSelectQueryBuilder.andWhere('bill.payableAmountInMinorUnit <= :maxAmount', { maxAmount: billSearchQuery.maxAmount });
     }
     if (billSearchQuery.paymentStatus) {
       billSelectQueryBuilder.andWhere('bill.paymentStatus = :paymentStatus', { paymentStatus: billSearchQuery.paymentStatus });
@@ -88,5 +90,43 @@ export class BillRepository extends BaseRepository<Bill> {
       .andWhere('portalAccount.association = :association', { association: association.id })
       .select('SUM(bill.totalAmountPaidInMinorUnit)')
       .getRawOne();
+  }
+
+  findBySubscriptionAndQuery(subscription: Subscription, query: BillSearchQueryDto, status = GenericStatusConstant.ACTIVE) {
+    const builder = this.createQueryBuilder('bill')
+      .innerJoin(Membership, 'membership', 'membership.id = bill.membership')
+      .innerJoin(PortalUser, 'portalUser', 'portalUser.id = membership.portalUser')
+      .where('bill.status = :status', { status: GenericStatusConstant.ACTIVE })
+      .andWhere('bill.subscription = :subscription', { subscription: subscription.id })
+      .limit(query.limit)
+      .offset(query.offset);
+    if (query.paymentStatus) {
+      builder.andWhere('bill.paymentStatus = :paymentStatus', { paymentStatus: query.paymentStatus });
+    }
+    if (query.minAmount) {
+      builder.andWhere('bill.payableAmountInMinorUnit >= :minAmount', { minAmount: query.minAmount });
+    }
+    if (query.maxAmount) {
+      builder.andWhere('bill.payableAmountInMinorUnit <= :maxAmount', { maxAmount: query.maxAmount });
+    }
+    if (query.startDateBefore) {
+      const date = moment(query.startDateBefore, 'DD/MM/YYYY').endOf('day').toDate();
+      builder.andWhere('bill.billingStartDate <= :startDateBefore', { startDateBefore: date });
+    }
+    if (query.dateStartAfter) {
+      const date = moment(query.dateStartAfter, 'DD/MM/YYYY').startOf('day').toDate();
+      builder.andWhere('bill.billingStartDate >= :startDateAfter', { startDateAfter: date });
+    }
+    if (query.phonenumber) {
+      builder.andWhere('portalUser.phoneNumber >= :phonenumber', { phonenumber: query.phonenumber });
+    }
+    if (query.name) {
+      builder.andWhere(new Brackets(qb => {
+        qb.orWhere('portalUser.firstName || \' \' || portalUser.lastName ILIKE :path', { path: `%${query.name}%` })
+          .orWhere('portalUser.email like :path', { path: `%${query.name}%` })
+          .orWhere('portalUser.username like :username', { username: `%${query.name}%` });
+      }));
+    }
+    return builder.getManyAndCount();
   }
 }

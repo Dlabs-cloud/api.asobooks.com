@@ -186,16 +186,26 @@ export class FakerService implements OnApplicationBootstrap {
 
 
   public async seedServiceFee(association: Association) {
-    let requestPayload: ServiceFeeRequestDto = {
-      amountInMinorUnit: 1000000,
-      cycle: BillingCycleConstant.MONTHLY,
-      description: faker.random.words(10),
-      billingStartDate: moment(faker.date.future()).format('DD/MM/YYYY'),
-      name: faker.random.words(2),
-      type: faker.random.arrayElement(Object.values(ServiceTypeConstant)),
-    };
-
     for (let i = 0; i <= 50; i++) {
+      let requestPayload: ServiceFeeRequestDto = {
+        amountInMinorUnit: 1000000,
+        cycle: BillingCycleConstant.WEEKLY,
+        description: faker.random.words(10),
+        billingStartDate: moment(faker.date.future()).format('DD/MM/YYYY'),
+        name: faker.random.words(2),
+        type: ServiceTypeConstant.RE_OCCURRING,
+      };
+      await this.feeService.createService(requestPayload, association);
+    }
+    for (let i = 0; i <= 50; i++) {
+      let requestPayload: ServiceFeeRequestDto = {
+        amountInMinorUnit: 1000000,
+        cycle: BillingCycleConstant.ONE_OFF,
+        description: faker.random.words(10),
+        billingStartDate: moment(faker.date.future()).format('DD/MM/YYYY'),
+        name: faker.random.words(2),
+        type:ServiceTypeConstant.ONE_TIME,
+      };
       await this.feeService.createService(requestPayload, association);
     }
   }
