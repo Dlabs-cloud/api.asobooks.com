@@ -10,6 +10,7 @@ import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import * as moment from 'moment';
+import { ServiceFee } from '../domain/entity/service.fee.entity';
 
 @EntityRepository(Bill)
 export class BillRepository extends BaseRepository<Bill> {
@@ -78,6 +79,14 @@ export class BillRepository extends BaseRepository<Bill> {
       .addSelect('bill.subscription')
       .groupBy('bill.subscription')
       .getRawMany();
+  }
+
+  countByServiceFeeAndPaymentStatus(serviceFee: ServiceFee, paymentStatus: PaymentStatus) {
+    return this.createQueryBuilder('bill')
+      .innerJoin(Subscription, 'subscription', 'bill.subscription = subscription.id')
+      .where('subscription.serviceFee = :serviceFee', { serviceFee: serviceFee.id })
+      .andWhere('bill.paymentStatus = :paymentStatus', { paymentStatus })
+      .getCount();
   }
 
   sumTotalBillByMonthRange(association: Association, startDate: Date, endDate: Date, status = GenericStatusConstant.ACTIVE) {

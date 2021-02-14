@@ -15,11 +15,12 @@ import { ServiceSubscriptionSearchQueryDto } from '../dto/service-subscription-s
 import { SubscriptionRepository } from '../dao/subscription.repository';
 import { ServiceFee } from '../domain/entity/service.fee.entity';
 import * as moment from 'moment';
-import { SubscriptionHandler } from './handlers/subscriptionHandler';
+import { SubscriptionHandler } from './handlers/subscription.handler';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { isEmpty } from '@nestjs/common/utils/shared.utils';
 import { ServiceFeeQueryDto } from '../dto/service-fee-query.dto';
 import { ServiceFeeResponseDto } from '../dto/service-fee.response.dto';
+import { ServiceFeeHandler } from './handlers/service-fee.handler';
 
 @Controller('service-fees')
 @AssociationContext()
@@ -27,6 +28,7 @@ export class ServiceFeeController {
 
   constructor(private readonly serviceFeeService: ServiceFeeService,
               private readonly subscriptionHandler: SubscriptionHandler,
+              private readonly serviceFeeHandler: ServiceFeeHandler,
               private readonly connection: Connection) {
   }
 
@@ -62,9 +64,7 @@ export class ServiceFeeController {
       .findByQueryAndAssociation(query, requestPrincipal.association)
       .then(serviceFeesAndCount => {
         const serviceFees = serviceFeesAndCount[0];
-        const transformedServiceFee = serviceFees.map(serviceFee => {
-          return ServiceFeeController.transformFees(serviceFee);
-        });
+        const transformedServiceFee = this.serviceFeeHandler.transform(serviceFees);
         const response: PaginatedResponseDto<ServiceFeeResponseDto> = {
           items: transformedServiceFee,
           itemsPerPage: query.limit,
@@ -101,7 +101,10 @@ export class ServiceFeeController {
     if (!serviceFee) {
       throw  new NotFoundException(`service fee with code ${code} cannot be found`);
     }
-    return new ApiResponseDto(ServiceFeeController.transformFees(serviceFee));
+    return this.serviceFeeHandler.transformSingle(serviceFee).then(transformed => {
+      return new ApiResponseDto(transformed);
+    });
+
   }
 
   @Get('/:code/subscriptions')
@@ -148,19 +151,5 @@ export class ServiceFeeController {
 
   }
 
-  private static transformFees(serviceFee: ServiceFee) {
-    return {
-      amountInMinorUnit: serviceFee.amountInMinorUnit,
-      billingStartDate: serviceFee.billingStartDate,
-      code: serviceFee.code,
-      cycle: serviceFee.cycle,
-      description: serviceFee.description,
-      dueDate: serviceFee.dueDate,
-      name: serviceFee.name,
-      status: serviceFee.status,
-      nextBillingEndDate: serviceFee.nextBillingEndDate,
-      nextBillingStartDate: serviceFee.nextBillingStartDate,
-      type: serviceFee.type,
-    };
-  }
+
 }

@@ -9,12 +9,9 @@ export class ServiceFeeResponseDto {
   name: string;
   code: string;
   amountInMinorUnit: number;
-  description: string;
   type: ServiceTypeConstant;
   cycle: BillingCycleConstant;
-  billingStartDate: Date;
-  nextBillingStartDate?: Date;
-  nextBillingEndDate?: Date;
-  dueDate?: Date;
+  description: string;
   status: GenericStatusConstant;
+
 }

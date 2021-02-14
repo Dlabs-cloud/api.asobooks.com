@@ -108,7 +108,21 @@ describe('Service fees set up test ', () => {
     let serviceFee = await factory().upset(ServiceFee).use((serviceFee) => {
       serviceFee.association = association;
       return serviceFee;
-    }).create();
+    }).create().then(serviceFee => {
+      return factory().upset(Subscription).use(subscription => {
+        subscription.serviceFee = serviceFee;
+        return subscription;
+      }).create().then(subscription => {
+        return factory().upset(Bill).use(bill => {
+          bill.paymentStatus = PaymentStatus.PAID;
+          bill.subscription = subscription;
+          return bill;
+        }).create().then(() => {
+          return serviceFee;
+        });
+      });
+    });
+
 
     let response = await request(applicationContext.getHttpServer())
       .get(`/service-fees/${serviceFee.code}`)
@@ -121,6 +135,7 @@ describe('Service fees set up test ', () => {
     expect(data.amountInMinorUnit).toStrictEqual(serviceFee.amountInMinorUnit.toString());
     expect(data.description).toEqual(serviceFee.description);
     expect(data.billingStartDate).toBeDefined();
+    expect(data.amountRaisedInMinorUnit).toEqual(+serviceFee.amountInMinorUnit);
   });
 
 
