@@ -43,6 +43,8 @@ import { ActivityLogModelFactory } from './factory/activity-log-model.factory';
 import { ActivityLog } from '../domain/entity/activity-log.entity';
 import { MembershipInfo } from '../domain/entity/association-member-info.entity';
 import { MembershipInfoFactory } from './factory/membership-info.factory';
+import { BillInvoice } from '../domain/entity/bill-invoice.entity';
+import { BillInvoiceFactory } from './factory/bill-invoice.factory';
 
 export class ModelFactoryRoster {
   static register(modelFactory: ModelFactory) {
@@ -68,5 +70,6 @@ export class ModelFactoryRoster {
     modelFactory.register(PaymentTransaction, PaymentTransactionModelFactory);
     modelFactory.register(ActivityLog, ActivityLogModelFactory);
     modelFactory.register(MembershipInfo, MembershipInfoFactory);
+    modelFactory.register(BillInvoice, BillInvoiceFactory);
   }
 }

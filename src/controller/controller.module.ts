@@ -25,6 +25,8 @@ import { SubscriptionHandler } from './handlers/subscription.handler';
 import { PaymentTransactionController } from './payment-transaction.controller';
 import { MembershipInfoHandler } from './handlers/membership-info.handler';
 import { ServiceFeeHandler } from './handlers/service-fee.handler';
+import { SubscriptionBillHandler } from './handlers/subscription-bill.handler';
+import { SubscriptionController } from './subscription.controller';
 
 @Module({
   imports: [
@@ -47,6 +49,7 @@ import { ServiceFeeHandler } from './handlers/service-fee.handler';
     PaymentRequestController,
     DashboardController,
     ActivitiesController,
+    SubscriptionController,
     PaymentTransactionController,
   ],
   providers: [
@@ -56,6 +59,7 @@ import { ServiceFeeHandler } from './handlers/service-fee.handler';
     SubscriptionHandler,
     MembershipInfoHandler,
     ServiceFeeHandler,
+    SubscriptionBillHandler,
     {
 
       provide: APP_INTERCEPTOR,

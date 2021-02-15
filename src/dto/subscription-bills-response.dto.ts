@@ -5,6 +5,7 @@ export class SubscriptionBillsResponseDto {
   lastName: string;
   phoneNumber: string;
   paymentStatus: PaymentStatus;
-  paymentDate: string;
+  paymentDate: Date;
   transactionReference: string;
+  email: string;
 }

@@ -137,7 +137,7 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .getMany();
   }
 
-  findByBills(bills: Bill[]) {
+  findByBills(bills: Bill[]): Promise<Membership[]> {
     if (!bills || bills.length) {
       return Promise.resolve(undefined);
     }

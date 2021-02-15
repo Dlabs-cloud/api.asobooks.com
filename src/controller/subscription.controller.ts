@@ -5,24 +5,24 @@ import { RequestPrincipal } from '../dlabs-nest-starter/security/request-princip
 import { Connection } from 'typeorm/connection/Connection';
 import { SubscriptionRepository } from '../dao/subscription.repository';
 import { BillRepository } from '../dao/bill.repository';
-import { MembershipRepository } from '../dao/membership.repository';
 import { BillSearchQueryDto } from '../dto/bill-search-query.dto';
-import { PortalUserRepository } from '../dao/portal-user.repository';
-import { PaymentRequestRepository } from '../dao/payment-request.repository';
-import { PaymentTransactionRepository } from '../dao/payment-transaction.repository';
-import { mockPaymentTransactions } from '../test/test-utils';
-import { BillInvoiceRepository } from '../dao/bill-invoice.repository';
+import { SubscriptionBillsResponseDto } from '../dto/subscription-bills-response.dto';
+import { SubscriptionBillHandler } from './handlers/subscription-bill.handler';
+import { PaginatedResponseDto } from '../dto/paginated-response.dto';
+import { ApiResponseDto } from '../dto/api-response.dto';
+import { SubscriptionBillQueryDto } from '../dto/subscription-bill-query.dto';
 
-@Controller('subscription')
+@Controller('subscriptions')
 @AssociationContext()
 export class SubscriptionController {
 
-  constructor(private readonly connection: Connection) {
+  constructor(private readonly connection: Connection,
+              private readonly subscriptionHandler: SubscriptionBillHandler) {
   }
 
   @Get(':code')
   get(@Param('code')code: string,
-      @Query()query: BillSearchQueryDto,
+      @Query()query: SubscriptionBillQueryDto,
       @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
     return this.connection
       .getCustomRepository(SubscriptionRepository)
@@ -34,34 +34,15 @@ export class SubscriptionController {
           .findBySubscriptionAndQuery(subscription, query)
           .then(billsAndCount => {
             const bills = billsAndCount[0];
-            return this.connection
-              .getCustomRepository(MembershipRepository)
-              .findByBills(bills)
-              .then(memberships => {
-                return this.connection.getCustomRepository(PortalUserRepository)
-                  .findByMemberships(memberships)
-                  .then(portalUsers => {
-                    memberships.forEach(membership => {
-                      membership.portalUser = portalUsers.find(portalUser => portalUser.id === membership.portalUserId);
-                    });
-                    return Promise.resolve(memberships);
-                  }).then(memberships => {
-                    return this.connection
-                      .getCustomRepository(BillInvoiceRepository)
-                      .findByBills(bills)
-                      .then(billInvoices => {
-                        const invoices = billInvoices.map(billInvoice => billInvoice.invoice);
-                        this.connection.getCustomRepository(PaymentRequestRepository)
-                          .findByInvoices(invoices)
-                          .then(paymentRequests => {
-                            this.connection.getCustomRepository(PaymentTransactionRepository)
-                              .findByPaymentRequests(paymentRequests)
-                          })
-                      })
-
-                  });
-              }).then(memberships => {
-              });
+            return this.subscriptionHandler.transform(bills).then(subBills => {
+              const response: PaginatedResponseDto<SubscriptionBillsResponseDto> = {
+                items: subBills,
+                itemsPerPage: query.limit,
+                offset: query.offset,
+                total: billsAndCount[1],
+              };
+              return Promise.resolve(new ApiResponseDto(response));
+            });
           });
       });
   }
