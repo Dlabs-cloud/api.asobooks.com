@@ -16,6 +16,9 @@ export class SubscriptionBillHandler {
     let paymentTransactionIds = Array.from(billTransactions.values());
     paymentTransactionIds = paymentTransactionIds.filter(paymentTransactionId => !!paymentTransactionId);
     const bills = Array.from(billTransactions.keys());
+    if (!bills || !bills.length) {
+      return Promise.resolve(undefined);
+    }
 
     const membershipIds = bills.map(bill => bill.membershipId);
     return this.connection

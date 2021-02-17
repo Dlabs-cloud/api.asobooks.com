@@ -5,10 +5,10 @@ import { PaymentStatus } from '../domain/enums/payment-status.enum';
 export class SubscriptionBillQueryDto {
   @IsOptional()
   @IsDateFormat('DD/MM/YYYY', { message: 'Start date can only be in the format DD/MM/YYYY' })
-  startDateAfter?: string;
+  createdDateAfter?: string;
   @IsOptional()
   @IsDateFormat('DD/MM/YYYY', { message: 'End date can only be in the format DD/MM/YYYY' })
-  startDateBefore?: string;
+  createdDateBefore?: string;
   @IsOptional()
   @IsString()
   name?: string;

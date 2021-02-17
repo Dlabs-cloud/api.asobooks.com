@@ -63,8 +63,8 @@ describe('Test subscription controller', () => {
                   paymentStatus: bill.paymentStatus,
                   phoneNumber: bill.membership.portalUser.phoneNumber,
                   receiptNumber: paymentTransaction.reference,
-                  startDateAfter: date,
-                  startDateBefore: date,
+                  createdDateAfter: date,
+                  createdDateBefore: date,
                   timeOfPaymentAfter: date,
                   timeOfPaymentBefore: date,
                 };
@@ -100,6 +100,52 @@ describe('Test subscription controller', () => {
           });
         });
       });
+  });
+
+  it('Test that a subscription bill can be gotten without a transaction', () => {
+    return getTestUser(GenericStatusConstant.ACTIVE, null, null, PortalAccountTypeConstant.MEMBER_ACCOUNT)
+      .then(testUser => {
+        return factory().upset(Bill).use(bill => {
+          bill.membership = testUser.membership;
+          bill.paymentStatus = PaymentStatus.NOT_PAID;
+          return bill;
+        }).create().then(bill => {
+          const date = moment(bill.createdAt).format('DD/MM/YYYY');
+          const queryParam: SubscriptionBillQueryDto = {
+            limit: 1,
+            name: bill.membership.portalUser.firstName,
+            offset: 0,
+            paymentStatus: bill.paymentStatus,
+            phoneNumber: bill.membership.portalUser.phoneNumber,
+            createdDateAfter: date,
+            createdDateBefore: date,
+          };
+          const queryParams = Object.keys(queryParam).map(key => {
+            return `${key}=${queryParam[key]}`;
+          });
+          const query = queryParams.join('&');
+          const url = `/subscriptions/${bill.subscription.code}?${query}`;
+          return generateToken(testUser.membership).then(token => {
+            return request(applicationContext.getHttpServer())
+              .get(url)
+              .set('Authorization', token)
+              .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+              .expect(200).then(respnse => {
+                const body = respnse.body.data;
+                const item = body.items[0];
+                const portalUser = bill.membership.portalUser;
+                expect(item.email).toEqual(portalUser.email);
+                expect(item.firstName).toEqual(portalUser.firstName);
+                expect(item.lastName).toEqual(portalUser.lastName);
+                expect(item.paymentStatus).toEqual(bill.paymentStatus);
+                expect(item.phoneNumber).toEqual(portalUser.phoneNumber);
+                expect(body.itemsPerPage).toEqual(1);
+                expect(body.total).toEqual(1);
+              });
+          });
+        });
+      });
+
   });
 
   afterAll(async () => {

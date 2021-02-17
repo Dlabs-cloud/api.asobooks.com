@@ -34,10 +34,11 @@ export class SubscriptionController {
           .findBySubscriptionAndQuery(subscription, query)
           .then(billsAndCount => {
             const billPaymentTransactionIds = (billsAndCount[0]) as Map<Bill, number>;
+            console.log(billPaymentTransactionIds);
             return this.subscriptionHandler.transform(billPaymentTransactionIds)
               .then(transformed => {
                 const paginationRes: PaginatedResponseDto<SubscriptionBillsResponseDto> = {
-                  items: transformed,
+                  items: transformed ?? [],
                   itemsPerPage: +query.limit,
                   offset: +query.offset,
                   total: billsAndCount[1] as number,

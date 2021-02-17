@@ -111,24 +111,24 @@ export class BillRepository extends BaseRepository<Bill> {
       .select(['bill.id', 'paymentTransaction.id'])
       .innerJoin(Membership, 'membership', 'membership.id = bill.membership')
       .innerJoin(PortalUser, 'portalUser', 'portalUser.id = membership.portalUser')
-      .innerJoin(BillInvoice, 'billInvoice', 'billInvoice.bill = bill.id')
-      .innerJoin(Invoice, 'invoice', 'billInvoice.invoice = invoice.id')
-      .innerJoin(PaymentRequest, 'paymentRequest', 'paymentRequest.invoice = invoice.id')
-      .innerJoin(PaymentTransaction, 'paymentTransaction', 'paymentTransaction.paymentRequest = paymentRequest.id')
+      .leftJoin(BillInvoice, 'billInvoice', 'billInvoice.bill = bill.id')
+      .leftJoin(Invoice, 'invoice', 'billInvoice.invoice = invoice.id')
+      .leftJoin(PaymentRequest, 'paymentRequest', 'paymentRequest.invoice = invoice.id')
+      .leftJoin(PaymentTransaction, 'paymentTransaction', 'paymentTransaction.paymentRequest = paymentRequest.id')
       .where('bill.status = :status', { status: GenericStatusConstant.ACTIVE })
       .andWhere('bill.subscription = :subscription', { subscription: subscription.id })
-      .andWhere('bill.status =:status', {status})
+      .andWhere('bill.status =:status', { status })
       .limit(query.limit)
       .offset(query.offset);
     if (query.paymentStatus) {
       builder.andWhere('bill.paymentStatus = :paymentStatus', { paymentStatus: query.paymentStatus });
     }
-    if (query.startDateBefore) {
-      const date = moment(query.startDateAfter, 'DD/MM/YYYY').endOf('day').toDate();
+    if (query.createdDateBefore) {
+      const date = moment(query.createdDateBefore, 'DD/MM/YYYY').endOf('day').toDate();
       builder.andWhere('bill.createdAt <= :startDateBefore', { startDateBefore: date });
     }
-    if (query.startDateAfter) {
-      const date = moment(query.startDateAfter, 'DD/MM/YYYY').startOf('day').toDate();
+    if (query.createdDateAfter) {
+      const date = moment(query.createdDateAfter, 'DD/MM/YYYY').startOf('day').toDate();
       builder.andWhere('bill.createdAt >= :startDateAfter', { startDateAfter: date });
     }
     if (query.phoneNumber) {
