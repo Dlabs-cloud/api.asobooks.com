@@ -5,12 +5,12 @@ import { RequestPrincipal } from '../dlabs-nest-starter/security/request-princip
 import { Connection } from 'typeorm/connection/Connection';
 import { SubscriptionRepository } from '../dao/subscription.repository';
 import { BillRepository } from '../dao/bill.repository';
-import { BillSearchQueryDto } from '../dto/bill-search-query.dto';
 import { SubscriptionBillsResponseDto } from '../dto/subscription-bills-response.dto';
 import { SubscriptionBillHandler } from './handlers/subscription-bill.handler';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { ApiResponseDto } from '../dto/api-response.dto';
 import { SubscriptionBillQueryDto } from '../dto/subscription-bill-query.dto';
+import { Bill } from '../domain/entity/bill.entity';
 
 @Controller('subscriptions')
 @AssociationContext()
@@ -33,17 +33,22 @@ export class SubscriptionController {
         return this.connection.getCustomRepository(BillRepository)
           .findBySubscriptionAndQuery(subscription, query)
           .then(billsAndCount => {
-            const bills = billsAndCount[0];
-            return this.subscriptionHandler.transform(bills).then(subBills => {
-              const response: PaginatedResponseDto<SubscriptionBillsResponseDto> = {
-                items: subBills,
-                itemsPerPage: query.limit,
-                offset: query.offset,
-                total: billsAndCount[1],
-              };
-              return Promise.resolve(new ApiResponseDto(response));
-            });
+            const billPaymentTransactionIds = (billsAndCount[0]) as Map<Bill, number>;
+            return this.subscriptionHandler.transform(billPaymentTransactionIds)
+              .then(transformed => {
+                const paginationRes: PaginatedResponseDto<SubscriptionBillsResponseDto> = {
+                  items: transformed,
+                  itemsPerPage: +query.limit,
+                  offset: +query.offset,
+                  total: billsAndCount[1] as number,
+                };
+                return new ApiResponseDto(paginationRes);
+              });
+
           });
       });
+
+
   }
+
 }

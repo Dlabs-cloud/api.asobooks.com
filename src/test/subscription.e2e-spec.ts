@@ -1,9 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
 import { TestingModule } from '@nestjs/testing';
-import { baseTestingModule, getTestUser } from './test-utils';
+import { baseTestingModule, generateToken, getTestUser } from './test-utils';
 import { getConnection } from 'typeorm';
-import { BillSearchQueryDto } from '../dto/bill-search-query.dto';
 import { factory } from './factory';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
@@ -12,9 +11,9 @@ import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { BillInvoice } from '../domain/entity/bill-invoice.entity';
 import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
-import { SubscriptionBillsResponseDto } from '../dto/subscription-bills-response.dto';
 import * as moment from 'moment';
 import { SubscriptionBillQueryDto } from '../dto/subscription-bill-query.dto';
+import * as request from 'supertest';
 
 describe('Test subscription controller', () => {
   let applicationContext: INestApplication;
@@ -73,8 +72,29 @@ describe('Test subscription controller', () => {
                   return `${key}=${queryParam[key]}`;
                 });
                 const query = queryParams.join('&');
-                const url = `/subscriptions?${query}`;
-                console.log(url);
+                const url = `/subscriptions/${bill.subscription.code}?${query}`;
+                return generateToken(testUser.membership).then(token => {
+
+                  return request(applicationContext.getHttpServer())
+                    .get(url)
+                    .set('Authorization', token)
+                    .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+                    .expect(200).then(respnse => {
+                      const body = respnse.body.data;
+                      const item = body.items[0];
+                      const portalUser = bill.membership.portalUser;
+                      expect(item.email).toEqual(portalUser.email);
+                      expect(item.firstName).toEqual(portalUser.firstName);
+                      expect(item.lastName).toEqual(portalUser.lastName);
+                      expect(new Date(item.paymentDate)).toEqual(new Date(paymentTransaction.confirmedPaymentDate));
+                      expect(item.paymentStatus).toEqual(bill.paymentStatus);
+                      expect(item.phoneNumber).toEqual(portalUser.phoneNumber);
+                      expect(item.transactionReference).toEqual(paymentTransaction.reference);
+                      expect(body.itemsPerPage).toEqual(1);
+                      expect(body.total).toEqual(1);
+                    });
+                });
+
               });
             });
           });

@@ -107,16 +107,17 @@ export class BillRepository extends BaseRepository<Bill> {
   }
 
   findBySubscriptionAndQuery(subscription: Subscription, query: SubscriptionBillQueryDto, status = GenericStatusConstant.ACTIVE) {
-    const builder = this.createQueryBuilder('bill')
-      .addSelect(['bill', 'paymentTransaction'])
+    const builder = this.createQueryBuilder().from(Bill, 'bill')
+      .select(['bill.id', 'paymentTransaction.id'])
       .innerJoin(Membership, 'membership', 'membership.id = bill.membership')
       .innerJoin(PortalUser, 'portalUser', 'portalUser.id = membership.portalUser')
-      .leftJoin(BillInvoice, 'billInvoice', 'billInvoice.bill = bill')
-      .innerJoin(Invoice, 'invoice', 'billInvoice.invoice = invoice')
-      .innerJoin(PaymentRequest, 'paymentRequest', 'paymentRequest.invoice = invoice')
-      .innerJoin(PaymentTransaction, 'paymentTransaction', 'paymentTransaction.paymentRequest = paymentRequest')
+      .innerJoin(BillInvoice, 'billInvoice', 'billInvoice.bill = bill.id')
+      .innerJoin(Invoice, 'invoice', 'billInvoice.invoice = invoice.id')
+      .innerJoin(PaymentRequest, 'paymentRequest', 'paymentRequest.invoice = invoice.id')
+      .innerJoin(PaymentTransaction, 'paymentTransaction', 'paymentTransaction.paymentRequest = paymentRequest.id')
       .where('bill.status = :status', { status: GenericStatusConstant.ACTIVE })
       .andWhere('bill.subscription = :subscription', { subscription: subscription.id })
+      .andWhere('bill.status =:status', {status})
       .limit(query.limit)
       .offset(query.offset);
     if (query.paymentStatus) {
@@ -124,25 +125,25 @@ export class BillRepository extends BaseRepository<Bill> {
     }
     if (query.startDateBefore) {
       const date = moment(query.startDateAfter, 'DD/MM/YYYY').endOf('day').toDate();
-      builder.andWhere('bill.billingStartDate <= :startDateBefore', { startDateBefore: date });
+      builder.andWhere('bill.createdAt <= :startDateBefore', { startDateBefore: date });
     }
     if (query.startDateAfter) {
       const date = moment(query.startDateAfter, 'DD/MM/YYYY').startOf('day').toDate();
-      builder.andWhere('bill.billingStartDate >= :startDateAfter', { startDateAfter: date });
+      builder.andWhere('bill.createdAt >= :startDateAfter', { startDateAfter: date });
     }
     if (query.phoneNumber) {
       builder.andWhere('portalUser.phoneNumber >= :phonenumber', { phonenumber: query.phoneNumber });
     }
     if (query.name) {
       builder.andWhere(new Brackets(qb => {
-        qb.orWhere('portalUser.firstName || \' \' || portalUser.lastName ILIKE :path', { path: `%${query.name}%` })
+        qb.orWhere('portalUser.firstName || \' \' || portalUser.lastName ILIKE :name', { name: `%${query.name}%` })
           .orWhere('portalUser.email like :path', { path: `%${query.name}%` })
           .orWhere('portalUser.username like :username', { username: `%${query.name}%` });
       }));
     }
     if (query.receiptNumber) {
       const reference = query.receiptNumber;
-      builder.andWhere('paymentTransaction.reference + :reference', { reference });
+      builder.andWhere('paymentTransaction.reference = :reference', { reference });
     }
     if (query.timeOfPaymentBefore) {
       const date = moment(query.timeOfPaymentBefore, 'DD/MM/YYYY').endOf('day').toDate();
@@ -152,6 +153,22 @@ export class BillRepository extends BaseRepository<Bill> {
       const date = moment(query.timeOfPaymentAfter, 'DD/MM/YYYY').startOf('day').toDate();
       builder.andWhere('paymentTransaction.confirmedPaymentDate >= :timeOfPaymentAfter', { timeOfPaymentAfter: date });
     }
-    return builder.getManyAndCount();
+
+    const builderClone = builder.clone();
+    const billPaymentTransactionId: Map<Bill, number> = new Map<Bill, number>();
+    return builder.getRawMany().then(billTransactions => {
+      const billIds = billTransactions.map(billTransaction => billTransaction.bill_id);
+      return this.findByIds(billIds).then(bills => {
+        bills.forEach(bill => {
+          const billTransaction = billTransactions.find(billTransaction => billTransaction.bill_id === bill.id);
+          billPaymentTransactionId.set(bill, billTransaction.paymentTransaction_id);
+        });
+      });
+    }).then(() => {
+      return builderClone.getCount().then(count => {
+        return Promise.resolve([billPaymentTransactionId, count]);
+      });
+    });
+
   }
 }
