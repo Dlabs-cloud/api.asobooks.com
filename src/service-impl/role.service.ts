@@ -8,6 +8,9 @@ import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { Role } from '../domain/entity/role.entity';
 import { RolePermission } from '../domain/entity/role-permission.entity';
+import { Membership } from '../domain/entity/membership.entity';
+import { MembershipRole } from '../domain/entity/membership-role.entity';
+import { MembershipRoleRepository } from '../dao/membership-role.repository';
 
 @Injectable()
 export class RoleService {
@@ -27,6 +30,7 @@ export class RoleService {
             const role = new Role();
             role.name = roleRequest.name;
             role.code = code;
+            role.association = association;
             return entityManager.save(role);
           }).then(role => {
             const rolePermissionPromise = permissions.map(permission => {
@@ -43,5 +47,38 @@ export class RoleService {
 
         });
     });
+  }
+
+
+  assignMemberships(role: Role, memberships: Membership[]) {
+    return this.connection.transaction(em => {
+      const membershipRoles = memberships.map(membership => {
+        const membershipRole = new MembershipRole();
+        membershipRole.membership = membership;
+        membershipRole.role = role;
+        return em.save(membershipRole);
+      });
+      return Promise.all(membershipRoles);
+    });
+  }
+
+  removeMember(role: Role, membership: Membership) {
+    return this.connection
+      .getCustomRepository(MembershipRoleRepository)
+      .findOne({
+        role, membership, status: GenericStatusConstant.ACTIVE,
+      }).then(membershipRole => {
+        if (!membershipRole) {
+          return Promise.resolve();
+        }
+        membershipRole.status = GenericStatusConstant.DELETED;
+        return membershipRole.save().then(() => Promise.resolve());
+      });
+  }
+
+  deleteRole(role: Role) {
+    role.status = GenericStatusConstant.IN_ACTIVE;
+    return role.save().then(() => Promise.resolve());
+
   }
 }

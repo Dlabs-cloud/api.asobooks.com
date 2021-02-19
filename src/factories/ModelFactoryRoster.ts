@@ -43,6 +43,14 @@ import { ActivityLogModelFactory } from './factory/activity-log-model.factory';
 import { ActivityLog } from '../domain/entity/activity-log.entity';
 import { MembershipInfo } from '../domain/entity/association-member-info.entity';
 import { MembershipInfoFactory } from './factory/membership-info.factory';
+import { Role } from '../domain/entity/role.entity';
+import { RoleFactory } from './factory/role.factory';
+import { Permission } from '../domain/entity/permission.entity';
+import { PermissionFactory } from './factory/permission.factory';
+import { RolePermission } from '../domain/entity/role-permission.entity';
+import { RolePermissionFactory } from './factory/role-permission.factory';
+import { MembershipRoleFactory } from './factory/membership-role.factory';
+import { MembershipRole } from '../domain/entity/membership-role.entity';
 
 export class ModelFactoryRoster {
   static register(modelFactory: ModelFactory) {
@@ -68,5 +76,9 @@ export class ModelFactoryRoster {
     modelFactory.register(PaymentTransaction, PaymentTransactionModelFactory);
     modelFactory.register(ActivityLog, ActivityLogModelFactory);
     modelFactory.register(MembershipInfo, MembershipInfoFactory);
+    modelFactory.register(Role, RoleFactory);
+    modelFactory.register(Permission, PermissionFactory);
+    modelFactory.register(RolePermission, RolePermissionFactory);
+    modelFactory.register(MembershipRole, MembershipRoleFactory);
   }
 }

@@ -24,6 +24,9 @@ import { ActivitiesController } from './activities.controller';
 import { SubscriptionHandler } from './handlers/subscriptionHandler';
 import { PaymentTransactionController } from './payment-transaction.controller';
 import { MembershipInfoHandler } from './handlers/membership-info.handler';
+import { RoleMembershipController } from './role-membership.controller';
+import { RoleController } from './role.controller';
+import { RoleHandler } from './handlers/role.handler';
 
 @Module({
   imports: [
@@ -47,6 +50,8 @@ import { MembershipInfoHandler } from './handlers/membership-info.handler';
     DashboardController,
     ActivitiesController,
     PaymentTransactionController,
+    RoleMembershipController,
+    RoleController,
   ],
   providers: [
     ResponseTransformInterceptor,
@@ -54,6 +59,7 @@ import { MembershipInfoHandler } from './handlers/membership-info.handler';
     PaymentTransactionHandler,
     SubscriptionHandler,
     MembershipInfoHandler,
+    RoleHandler,
     {
 
       provide: APP_INTERCEPTOR,

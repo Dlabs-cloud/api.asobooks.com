@@ -33,7 +33,11 @@ describe('Payment Transactions', () => {
 
 
   it('Test that payment transaction can be gotten', async () => {
+
     jest.setTimeout(12000);
+    await connection.getCustomRepository(PaymentTransactionRepository).delete({
+      id: MoreThanOrEqual(1),
+    });
     await mockPaymentTransactions(association);
     const url = `/payment-transactions`;
     return request(applicationContext.getHttpServer())
@@ -42,7 +46,7 @@ describe('Payment Transactions', () => {
       .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
       .expect(200).then(respnse => {
         const body = respnse.body;
-        expect(parseInt(body.itemsPerPage.toString())).toEqual(20);
+        expect(parseInt(body.itemsPerPage.toString())).toEqual(100);
         expect(parseInt(body.total.toString())).toEqual(10);
       });
 

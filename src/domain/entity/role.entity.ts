@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
+import { Association } from './association.entity';
 
 @Entity()
 export class Role extends BaseEntity {
@@ -7,5 +8,8 @@ export class Role extends BaseEntity {
   name: string;
   @Column()
   code: string;
+
+  @ManyToOne(() => Association)
+  association: Association;
 
 }

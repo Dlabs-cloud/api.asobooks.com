@@ -135,5 +135,22 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .getMany();
   }
 
+  public findByAssociationAndPortalAccountTypeReferences(association: Association,
+                                                         portalAccountType: PortalAccountTypeConstant,
+                                                         status = GenericStatusConstant.ACTIVE,
+                                                         ...identifiers: string[]) {
+    return this.createQueryBuilder('membership')
+      .select()
+      .innerJoin(MembershipInfo, 'membershipInfo', 'membership.membershipInfo = membershipInfo.id')
+      .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.id = membership.portalAccount')
+      .where('membershipInfo.identifier IN (:...identifiers)', { identifiers })
+      .andWhere('portalAccount.type = :portalAccountType', { portalAccountType })
+      .andWhere('portalAccount.association = :association', { association: association.id })
+      .andWhere('membership.status = :status', { status })
+      .getMany();
+
+
+  }
+
 
 }
