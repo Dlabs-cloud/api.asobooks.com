@@ -19,6 +19,7 @@ import { ServiceUnavailableExceptionFilter } from './exception-filters/service-u
 import { NotFoundExceptionFilter } from './exception-filters/not-found-exception.filter';
 import { PaymentTransactionSequence } from './sequenceGenerators/payment-transaction.sequence';
 import { CommonModule } from '../common/common.module';
+import { RoleCodeSequence } from './sequenceGenerators/role-code.sequence';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -62,6 +63,7 @@ const serviceUnAvailableException = {
     PortalAccountSequence,
     AssociationCodeSequence,
     BankUploadStartup,
+    RoleCodeSequence,
     ServiceFeeCodeSequence,
     MembershipCodeSequence,
     BillCodeSequence,
@@ -82,6 +84,7 @@ const serviceUnAvailableException = {
     SubscriptionCodeSequence,
     InvoiceCodeSequence,
     PaymentTransactionSequence,
+    RoleCodeSequence,
     // CronStartup,
     MembershipCodeSequence,
     illegalArgumentExceptionFilter,

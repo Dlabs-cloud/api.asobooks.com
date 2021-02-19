@@ -33,7 +33,11 @@ describe('Payment Transactions', () => {
 
 
   it('Test that payment transaction can be gotten', async () => {
+
     jest.setTimeout(12000);
+    await connection.getCustomRepository(PaymentTransactionRepository).delete({
+      id: MoreThanOrEqual(1),
+    });
     await mockPaymentTransactions(association);
     const url = `/payment-transactions`;
     return request(applicationContext.getHttpServer())

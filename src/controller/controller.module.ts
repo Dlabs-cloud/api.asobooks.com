@@ -24,6 +24,9 @@ import { ActivitiesController } from './activities.controller';
 import { SubscriptionHandler } from './handlers/subscription.handler';
 import { PaymentTransactionController } from './payment-transaction.controller';
 import { MembershipInfoHandler } from './handlers/membership-info.handler';
+import { RoleMembershipController } from './role-membership.controller';
+import { RoleController } from './role.controller';
+import { RoleHandler } from './handlers/role.handler';
 import { ServiceFeeHandler } from './handlers/service-fee.handler';
 import { SubscriptionBillHandler } from './handlers/subscription-bill.handler';
 import { SubscriptionController } from './subscription.controller';
@@ -51,6 +54,8 @@ import { SubscriptionController } from './subscription.controller';
     ActivitiesController,
     SubscriptionController,
     PaymentTransactionController,
+    RoleMembershipController,
+    RoleController,
   ],
   providers: [
     ResponseTransformInterceptor,
@@ -58,6 +63,7 @@ import { SubscriptionController } from './subscription.controller';
     PaymentTransactionHandler,
     SubscriptionHandler,
     MembershipInfoHandler,
+    RoleHandler,
     ServiceFeeHandler,
     SubscriptionBillHandler,
     {
