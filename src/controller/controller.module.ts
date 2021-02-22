@@ -28,7 +28,7 @@ import { RoleMembershipController } from './role-membership.controller';
 import { RoleController } from './role.controller';
 import { RoleHandler } from './handlers/role.handler';
 import { ServiceFeeHandler } from './handlers/service-fee.handler';
-import { SubscriptionBillHandler } from './handlers/subscription-bill.handler';
+import { BillTransactionsHandler } from './handlers/bill-transactions-handler.service';
 import { SubscriptionController } from './subscription.controller';
 
 @Module({
@@ -65,7 +65,7 @@ import { SubscriptionController } from './subscription.controller';
     MembershipInfoHandler,
     RoleHandler,
     ServiceFeeHandler,
-    SubscriptionBillHandler,
+    BillTransactionsHandler,
     {
 
       provide: APP_INTERCEPTOR,

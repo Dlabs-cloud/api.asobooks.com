@@ -1,8 +1,10 @@
 import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { IsDateFormat } from '../common/class-validators/date-format.validator';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
+import { ServiceFee } from '../domain/entity/service.fee.entity';
+import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 
-export class SubscriptionBillQueryDto {
+export class BillQueryDto {
   @IsOptional()
   @IsDateFormat('DD/MM/YYYY', { message: 'Start date can only be in the format DD/MM/YYYY' })
   createdDateAfter?: string;
@@ -33,6 +35,9 @@ export class SubscriptionBillQueryDto {
   @IsOptional()
   @IsEnum(PaymentStatus)
   paymentStatus?: PaymentStatus;
+  @IsOptional()
+  @IsEnum(ServiceTypeConstant)
+  feeType?: ServiceTypeConstant;
 
 
 }

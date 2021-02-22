@@ -143,6 +143,8 @@ export class MembershipRepository extends BaseRepository<Membership> {
     }
     const membershipIds = bills.map(bill => bill.membershipId);
     return this.findByIds(membershipIds);
+  }
+
   public findByAssociationAndPortalAccountTypeReferences(association: Association,
                                                          portalAccountType: PortalAccountTypeConstant,
                                                          status = GenericStatusConstant.ACTIVE,
@@ -160,8 +162,5 @@ export class MembershipRepository extends BaseRepository<Membership> {
   }
 
 
-
-  }
-
-
 }
+

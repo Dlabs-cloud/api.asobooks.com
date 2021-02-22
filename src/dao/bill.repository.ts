@@ -1,6 +1,6 @@
 import { BaseRepository } from '../common/BaseRepository';
 import { Bill } from '../domain/entity/bill.entity';
-import { Brackets, EntityRepository } from 'typeorm';
+import { Brackets, EntityRepository, SelectQueryBuilder } from 'typeorm';
 import { Subscription } from '../domain/entity/subcription.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Membership } from '../domain/entity/membership.entity';
@@ -11,7 +11,7 @@ import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import * as moment from 'moment';
 import { ServiceFee } from '../domain/entity/service.fee.entity';
-import { SubscriptionBillQueryDto } from '../dto/subscription-bill-query.dto';
+import { BillQueryDto } from '../dto/bill-query.dto';
 import { BillInvoice } from '../domain/entity/bill-invoice.entity';
 import { Invoice } from '../domain/entity/invoice.entity';
 import { PaymentRequest } from '../domain/entity/payment-request.entity';
@@ -106,7 +106,37 @@ export class BillRepository extends BaseRepository<Bill> {
       .getRawOne();
   }
 
-  findBySubscriptionAndQuery(subscription: Subscription, query: SubscriptionBillQueryDto, status = GenericStatusConstant.ACTIVE) {
+
+  findByServiceFeeAndQuery(serviceFee: ServiceFee, query: BillQueryDto, status = GenericStatusConstant.ACTIVE) {
+    const billSelectQueryBuilder = this.createQueryBuilder('bill')
+      .select(['bill.id', 'paymentTransaction.id'])
+      .innerJoin(Membership, 'membership', 'membership.id = bill.membership')
+      .innerJoin(PortalUser, 'portalUser', 'portalUser.id = membership.portalUser')
+      .innerJoin(Subscription, 'subscription', 'bill.subscription = subscription.id')
+      .innerJoin(ServiceFee, 'serviceFee', 'subscription.serviceFee = serviceFee.id')
+      .leftJoin(BillInvoice, 'billInvoice', 'billInvoice.bill = bill.id')
+      .leftJoin(Invoice, 'invoice', 'billInvoice.invoice = invoice.id')
+      .leftJoin(PaymentRequest, 'paymentRequest', 'paymentRequest.invoice = invoice.id')
+      .leftJoin(PaymentTransaction, 'paymentTransaction', 'paymentTransaction.paymentRequest = paymentRequest.id')
+      .where('bill.status = :status', { status: GenericStatusConstant.ACTIVE })
+      .andWhere('subscription.serviceFee = :serviceFee', { serviceFee: serviceFee.id })
+      .andWhere('bill.status =:status', { status })
+      .limit(query.limit)
+      .offset(query.offset);
+
+    if (query.feeType) {
+      billSelectQueryBuilder.andWhere('serviceFee.type = :type', { type: query.feeType });
+    }
+
+    this.billSearchQuery(query, billSelectQueryBuilder);
+    const builderClone = billSelectQueryBuilder.clone();
+    return this.extractBillPaymentTransaction(billSelectQueryBuilder, builderClone);
+
+
+  }
+
+
+  findBySubscriptionAndQuery(subscription: Subscription, query: BillQueryDto, status = GenericStatusConstant.ACTIVE) {
     const builder = this.createQueryBuilder().from(Bill, 'bill')
       .select(['bill.id', 'paymentTransaction.id'])
       .innerJoin(Membership, 'membership', 'membership.id = bill.membership')
@@ -120,6 +150,16 @@ export class BillRepository extends BaseRepository<Bill> {
       .andWhere('bill.status =:status', { status })
       .limit(query.limit)
       .offset(query.offset);
+    this.billSearchQuery(query, builder);
+
+    const builderClone = builder.clone();
+    return this.extractBillPaymentTransaction(builder, builderClone);
+
+  }
+
+
+  private billSearchQuery(query: BillQueryDto, builder: SelectQueryBuilder<Bill>) {
+
     if (query.paymentStatus) {
       builder.andWhere('bill.paymentStatus = :paymentStatus', { paymentStatus: query.paymentStatus });
     }
@@ -153,10 +193,11 @@ export class BillRepository extends BaseRepository<Bill> {
       const date = moment(query.timeOfPaymentAfter, 'DD/MM/YYYY').startOf('day').toDate();
       builder.andWhere('paymentTransaction.confirmedPaymentDate >= :timeOfPaymentAfter', { timeOfPaymentAfter: date });
     }
+  }
 
-    const builderClone = builder.clone();
+  private extractBillPaymentTransaction(billSelectQueryBuilder: SelectQueryBuilder<Bill>, builderClone: SelectQueryBuilder<Bill>) {
     const billPaymentTransactionId: Map<Bill, number> = new Map<Bill, number>();
-    return builder.getRawMany().then(billTransactions => {
+    return billSelectQueryBuilder.getRawMany().then(billTransactions => {
       const billIds = billTransactions.map(billTransaction => billTransaction.bill_id);
       return this.findByIds(billIds).then(bills => {
         bills.forEach(bill => {
@@ -169,6 +210,5 @@ export class BillRepository extends BaseRepository<Bill> {
         return Promise.resolve([billPaymentTransactionId, count]);
       });
     });
-
   }
 }

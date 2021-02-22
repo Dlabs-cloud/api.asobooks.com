@@ -21,6 +21,12 @@ import { isEmpty } from '@nestjs/common/utils/shared.utils';
 import { ServiceFeeQueryDto } from '../dto/service-fee-query.dto';
 import { ServiceFeeResponseDto } from '../dto/service-fee.response.dto';
 import { ServiceFeeHandler } from './handlers/service-fee.handler';
+import { BillRepository } from '../dao/bill.repository';
+import { BillSearchQueryDto } from '../dto/bill-search-query.dto';
+import { Bill } from '../domain/entity/bill.entity';
+import { SubscriptionBillsResponseDto } from '../dto/subscription-bills-response.dto';
+import { BillTransactionsHandler } from './handlers/bill-transactions-handler.service';
+import { BillQueryDto } from '../dto/bill-query.dto';
 
 @Controller('service-fees')
 @AssociationContext()
@@ -29,6 +35,7 @@ export class ServiceFeeController {
   constructor(private readonly serviceFeeService: ServiceFeeService,
               private readonly subscriptionHandler: SubscriptionHandler,
               private readonly serviceFeeHandler: ServiceFeeHandler,
+              private readonly billTransactionHandler: BillTransactionsHandler,
               private readonly connection: Connection) {
   }
 
@@ -149,6 +156,36 @@ export class ServiceFeeController {
 
       });
 
+  }
+
+  @Get('/:code/bills')
+  public getBills(@Param('code') code: string,
+                  @Query() query: BillQueryDto,
+                  @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
+    query.limit = !isEmpty(query.limit) && (query.limit < 100) ? query.limit : 100;
+    query.offset = !isEmpty(query.offset) && (query.offset < 0) ? query.offset : 0;
+    return this.connection.getCustomRepository(ServiceFeeRepository)
+      .findByCodeAndAssociation(code, requestPrincipal.association)
+      .then(serviceFee => {
+        if (!serviceFee) {
+          throw new NotFoundException(`Service fee with code ${code} cannot be found`);
+        }
+        return this.connection.getCustomRepository(BillRepository).findByServiceFeeAndQuery(serviceFee, query)
+          .then(billsTransactionsAndCount => {
+            const billPaymentTransactionIds = (billsTransactionsAndCount[0]) as Map<Bill, number>;
+            return this.billTransactionHandler.transform(billPaymentTransactionIds)
+              .then(transformed => {
+                const paginationRes: PaginatedResponseDto<SubscriptionBillsResponseDto> = {
+                  items: transformed ?? [],
+                  itemsPerPage: +query.limit,
+                  offset: +query.offset,
+                  total: billsTransactionsAndCount[1] as number,
+                };
+                return new ApiResponseDto(paginationRes);
+              });
+
+          });
+      });
   }
 
 

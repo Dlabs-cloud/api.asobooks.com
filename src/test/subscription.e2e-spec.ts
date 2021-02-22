@@ -12,7 +12,7 @@ import { BillInvoice } from '../domain/entity/bill-invoice.entity';
 import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
 import * as moment from 'moment';
-import { SubscriptionBillQueryDto } from '../dto/subscription-bill-query.dto';
+import { BillQueryDto } from '../dto/bill-query.dto';
 import * as request from 'supertest';
 
 describe('Test subscription controller', () => {
@@ -56,7 +56,7 @@ describe('Test subscription controller', () => {
                 return paymentTransaction;
               }).create().then(paymentTransaction => {
                 const date = moment(bill.createdAt).format('DD/MM/YYYY');
-                const queryParam: SubscriptionBillQueryDto = {
+                const queryParam: BillQueryDto = {
                   limit: 1,
                   name: bill.membership.portalUser.firstName,
                   offset: 0,
@@ -111,7 +111,7 @@ describe('Test subscription controller', () => {
           return bill;
         }).create().then(bill => {
           const date = moment(bill.createdAt).format('DD/MM/YYYY');
-          const queryParam: SubscriptionBillQueryDto = {
+          const queryParam: BillQueryDto = {
             limit: 1,
             name: bill.membership.portalUser.firstName,
             offset: 0,

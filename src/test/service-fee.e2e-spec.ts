@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
 import { TestingModule } from '@nestjs/testing';
-import { baseTestingModule, getAssociationUser } from './test-utils';
+import { baseTestingModule, generateToken, getAssociationUser, getTestUser } from './test-utils';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
 import { getConnection } from 'typeorm';
 import { ServiceFeeRequestDto } from '../dto/service-fee-request.dto';
@@ -22,6 +22,10 @@ import { Subscription } from '../domain/entity/subcription.entity';
 import { Bill } from '../domain/entity/bill.entity';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { ServiceFeeQueryDto } from '../dto/service-fee-query.dto';
+import { BillInvoice } from '../domain/entity/bill-invoice.entity';
+import { PaymentRequest } from '../domain/entity/payment-request.entity';
+import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
+import { BillQueryDto } from '../dto/bill-query.dto';
 
 describe('Service fees set up test ', () => {
   let applicationContext: INestApplication;
@@ -139,7 +143,7 @@ describe('Service fees set up test ', () => {
   });
 
 
-  it('test that a a services subscriptions summary can be gotten by code', async () => {
+  it('test that a services subscriptions summary can be gotten by code', async () => {
     jest.setTimeout(9000);
     let serviceFee = await factory().upset(ServiceFee).use((serviceFee) => {
       serviceFee.association = association;
@@ -241,6 +245,93 @@ describe('Service fees set up test ', () => {
           });
       });
     });
+  });
+
+  it('Test that bills of a service Fee can be gotten by query', () => {
+    return getTestUser(GenericStatusConstant.ACTIVE, null, null, PortalAccountTypeConstant.MEMBER_ACCOUNT)
+      .then(testUser => {
+        return factory().upset(ServiceFee).use(serviceFee => {
+          serviceFee.type = ServiceTypeConstant.ONE_TIME;
+          serviceFee.association = testUser.association;
+          return serviceFee;
+        }).create().then(serviceFee => {
+          return factory().upset(Subscription).use(subscription => {
+            subscription.serviceFee = serviceFee;
+            return subscription;
+          }).create().then(_ => {
+            return factory().upset(Bill).use(bill => {
+              bill.membership = testUser.membership;
+              bill.paymentStatus = PaymentStatus.PAID;
+              bill.subscription = _;
+              return bill;
+            }).create().then(bill => {
+              return factory().upset(BillInvoice).use(billInvoice => {
+                billInvoice.bill = bill;
+                return billInvoice;
+              }).create().then(billInvoice => {
+                const invoice = billInvoice.invoice;
+                invoice.paymentStatus = PaymentStatus.PAID;
+                invoice.association = testUser.association;
+                return invoice.save();
+              }).then(invoice => {
+                return factory().upset(PaymentRequest).use(paymentRequest => {
+                  paymentRequest.invoice = invoice;
+                  paymentRequest.association = testUser.association;
+                  return paymentRequest;
+                }).create().then(paymentRequest => {
+                  return factory().upset(PaymentTransaction).use(paymentTransaction => {
+                    paymentTransaction.paymentRequest = paymentRequest;
+                    paymentTransaction.confirmedPaymentDate = new Date();
+                    return paymentTransaction;
+                  }).create().then(paymentTransaction => {
+                    const date = moment(bill.createdAt).format('DD/MM/YYYY');
+                    const queryParam: BillQueryDto = {
+                      limit: 1,
+                      name: bill.membership.portalUser.firstName,
+                      offset: 0,
+                      feeType: serviceFee.type,
+                      paymentStatus: bill.paymentStatus,
+                      phoneNumber: bill.membership.portalUser.phoneNumber,
+                      receiptNumber: paymentTransaction.reference,
+                      createdDateAfter: date,
+                      createdDateBefore: date,
+                      timeOfPaymentAfter: date,
+                      timeOfPaymentBefore: date,
+                    };
+                    const queryParams = Object.keys(queryParam).map(key => {
+                      return `${key}=${queryParam[key]}`;
+                    });
+                    const query = queryParams.join('&');
+                    const url = `/service-fees/${serviceFee.code}/bills?${query}`;
+                    return generateToken(testUser.membership).then(token => {
+
+                      return request(applicationContext.getHttpServer())
+                        .get(url)
+                        .set('Authorization', token)
+                        .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+                        .expect(200).then(respnse => {
+                          const body = respnse.body.data;
+                          const item = body.items[0];
+                          const portalUser = bill.membership.portalUser;
+                          expect(item.email).toEqual(portalUser.email);
+                          expect(item.firstName).toEqual(portalUser.firstName);
+                          expect(item.lastName).toEqual(portalUser.lastName);
+                          expect(new Date(item.paymentDate)).toEqual(new Date(paymentTransaction.confirmedPaymentDate));
+                          expect(item.paymentStatus).toEqual(bill.paymentStatus);
+                          expect(item.phoneNumber).toEqual(portalUser.phoneNumber);
+                          expect(item.transactionReference).toEqual(paymentTransaction.reference);
+                          expect(body.itemsPerPage).toEqual(1);
+                          expect(body.total).toEqual(1);
+                        });
+                    });
+
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
   });
 
   afterAll(async () => {

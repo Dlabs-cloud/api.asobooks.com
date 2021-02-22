@@ -6,24 +6,27 @@ import { Connection } from 'typeorm/connection/Connection';
 import { SubscriptionRepository } from '../dao/subscription.repository';
 import { BillRepository } from '../dao/bill.repository';
 import { SubscriptionBillsResponseDto } from '../dto/subscription-bills-response.dto';
-import { SubscriptionBillHandler } from './handlers/subscription-bill.handler';
+import { BillTransactionsHandler } from './handlers/bill-transactions-handler.service';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { ApiResponseDto } from '../dto/api-response.dto';
-import { SubscriptionBillQueryDto } from '../dto/subscription-bill-query.dto';
+import { BillQueryDto } from '../dto/bill-query.dto';
 import { Bill } from '../domain/entity/bill.entity';
+import { isEmpty } from '@nestjs/common/utils/shared.utils';
 
 @Controller('subscriptions')
 @AssociationContext()
 export class SubscriptionController {
 
   constructor(private readonly connection: Connection,
-              private readonly subscriptionHandler: SubscriptionBillHandler) {
+              private readonly subscriptionHandler: BillTransactionsHandler) {
   }
 
-  @Get(':code')
+  @Get('/:code')
   get(@Param('code')code: string,
-      @Query()query: SubscriptionBillQueryDto,
+      @Query()query: BillQueryDto,
       @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
+    query.limit = !isEmpty(query.limit) && (query.limit < 100) ? query.limit : 100;
+    query.offset = !isEmpty(query.offset) && (query.offset < 0) ? query.offset : 0;
     return this.connection
       .getCustomRepository(SubscriptionRepository)
       .findOne({ code: code }).then(subscription => {
@@ -34,7 +37,6 @@ export class SubscriptionController {
           .findBySubscriptionAndQuery(subscription, query)
           .then(billsAndCount => {
             const billPaymentTransactionIds = (billsAndCount[0]) as Map<Bill, number>;
-            console.log(billPaymentTransactionIds);
             return this.subscriptionHandler.transform(billPaymentTransactionIds)
               .then(transformed => {
                 const paginationRes: PaginatedResponseDto<SubscriptionBillsResponseDto> = {

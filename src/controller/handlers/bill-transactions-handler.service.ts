@@ -7,7 +7,7 @@ import { Connection } from 'typeorm/connection/Connection';
 import { PortalUserRepository } from '../../dao/portal-user.repository';
 
 @Injectable()
-export class SubscriptionBillHandler {
+export class BillTransactionsHandler {
 
   constructor(private readonly connection: Connection) {
   }
