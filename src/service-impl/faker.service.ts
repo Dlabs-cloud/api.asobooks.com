@@ -25,12 +25,20 @@ import { BillingCycleConstant } from '../domain/enums/billing-cycle.constant';
 import * as moment from 'moment';
 import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 import * as faker from 'faker';
+import { ServiceFee } from '../domain/entity/service.fee.entity';
+import { SubscriptionService } from './subscription.service';
+import { SubscriptionRequestDto } from '../dto/subscription.request.dto';
+import { Subscription } from '../domain/entity/subcription.entity';
+import { MembershipRepository } from '../dao/membership.repository';
+import { BillService } from './bill.service';
 
 @Injectable()
 export class FakerService implements OnApplicationBootstrap {
 
   constructor(private readonly connection: Connection,
               private readonly feeService: ServiceFeeService,
+              private readonly subscriptionService: SubscriptionService,
+              private readonly billsService: BillService,
               private readonly authenticationUtils: AuthenticationUtils) {
   }
 
@@ -41,7 +49,7 @@ export class FakerService implements OnApplicationBootstrap {
   }
 
   seed() {
-    const email = 'seeders@asobooks.com';
+    const email = 'seeders@asbook.com';
     return this.connection.getCustomRepository(PortalUserRepository)
       .findByUserNameOrEmailOrPhoneNumberAndNotDeleted(email).then(poralUser => {
         if (!poralUser) {
@@ -49,7 +57,7 @@ export class FakerService implements OnApplicationBootstrap {
             .hashPassword('asobooks')
             .then(hash => {
               return factory().upset(PortalUser).use(pUser => {
-                pUser.email = 'seeders@asobooks.com';
+                pUser.email = email;
                 pUser.password = hash;
                 return pUser;
               }).create();
@@ -195,8 +203,10 @@ export class FakerService implements OnApplicationBootstrap {
         name: faker.random.words(2),
         type: ServiceTypeConstant.RE_OCCURRING,
       };
-      await this.feeService.createService(requestPayload, association);
+      await this.feeService.createService(requestPayload, association)
+        .then(serviceFee => this.seedSubscription(serviceFee, association));
     }
+
     for (let i = 0; i <= 50; i++) {
       let requestPayload: ServiceFeeRequestDto = {
         amountInMinorUnit: 1000000,
@@ -204,10 +214,51 @@ export class FakerService implements OnApplicationBootstrap {
         description: faker.random.words(10),
         billingStartDate: moment(faker.date.future()).format('DD/MM/YYYY'),
         name: faker.random.words(2),
-        type:ServiceTypeConstant.ONE_TIME,
+        type: ServiceTypeConstant.ONE_TIME,
       };
-      await this.feeService.createService(requestPayload, association);
+
+      await this.feeService.createService(requestPayload, association).then(serviceFee => {
+        const entityManager = this.connection.createEntityManager();
+        const sub: SubscriptionRequestDto = {
+          description: faker.random.word(),
+        };
+        return this.subscriptionService
+          .createSubscription(entityManager, serviceFee, sub)
+          .then(sub => {
+            return this.createBills(sub, association);
+          });
+      });
     }
   }
+
+  public async seedSubscription(serviceFee: ServiceFee, asss: Association) {
+    for (let i = 0; i < 50; i++) {
+      const entityManager = this.connection.createEntityManager();
+      const sub: SubscriptionRequestDto = {
+        description: faker.random.word(),
+      };
+      await this.subscriptionService.createSubscription(entityManager, serviceFee, sub)
+        .then(subscription => {
+          return this.createBills(subscription, asss);
+        });
+    }
+  }
+
+
+  createBills(subscription: Subscription, association: Association) {
+
+    return this.connection
+      .getCustomRepository(MembershipRepository).findByAssociationAndQuery(association, {
+        limit: 50,
+        offset: 0,
+        accountType: PortalAccountTypeConstant.MEMBER_ACCOUNT,
+      }).then(members => {
+        const memberPromise = members.map(member => {
+          return this.billsService.createSubscriptionBill(subscription, member);
+        });
+        return Promise.all(memberPromise);
+      });
+  }
+
 
 }

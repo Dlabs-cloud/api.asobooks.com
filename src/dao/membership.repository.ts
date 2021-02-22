@@ -13,6 +13,7 @@ import { Invoice } from '../domain/entity/invoice.entity';
 import { MembershipInfo } from '../domain/entity/association-member-info.entity';
 import { ServiceFee } from '../domain/entity/service.fee.entity';
 import { Bill } from '../domain/entity/bill.entity';
+import { AssociationMemberQueryDto } from '../dto/association-member-query.dto';
 
 
 @EntityRepository(Membership)
@@ -30,6 +31,21 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .setParameter('portalUserId', portalUser.id)
       .setParameter('portalAccountId', portalAccount.id)
       .getOne();
+  }
+
+  public findByAssociationAndQuery(association: Association, query: AssociationMemberQueryDto, status = GenericStatusConstant.ACTIVE) {
+    const queryBuilder = this.createQueryBuilder('membership')
+      .select()
+      .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.id = membership.portalAccountId')
+      .innerJoin(Association, 'association', 'association.id = portalAccount.associationId')
+      .where('membership.status = :status', { status: status })
+      .andWhere('association.id = :association', { association: association.id })
+      .limit(query.limit)
+      .offset(query.offset);
+    if (query.accountType) {
+      queryBuilder.andWhere('portalAccount.type =:type ', { type: query.accountType });
+    }
+    return queryBuilder.getMany();
   }
 
 
