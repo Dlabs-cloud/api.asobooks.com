@@ -48,10 +48,10 @@ export class SubscriptionHandler {
               return Promise.resolve(null);
             }
             responses.forEach(subscription => {
-              subscription.countNumberOfPaid = countSubscriptionIds
+              subscription.countNumberOfPending = countSubscriptionIds
                 .find(countSubscriptionId => countSubscriptionId.subscriptionId === subscription.id)
                 .count;
-              subscription.amountReceivedInMinorUnit = serviceFee.amountInMinorUnit * subscription.countNumberOfPaid;
+              subscription.amountPendingInMinorUnit = serviceFee.amountInMinorUnit * subscription.countNumberOfPending;
             });
             return Promise.resolve(null);
           }).then(() => {

@@ -49,7 +49,7 @@ export class FakerService implements OnApplicationBootstrap {
   }
 
   seed() {
-    const email = 'seeders@asbook.com';
+    const email = 'seeders@asobooks.com';
     return this.connection.getCustomRepository(PortalUserRepository)
       .findByUserNameOrEmailOrPhoneNumberAndNotDeleted(email).then(poralUser => {
         if (!poralUser) {
