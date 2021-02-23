@@ -126,33 +126,21 @@ export class ServiceFeeController {
         if (!serviceFee) {
           throw new NotFoundException(`ServiceFee with code ${code} cannot be found`);
         }
-        const queryBuilder = this.connection.getCustomRepository(SubscriptionRepository)
-          .createQueryBuilder('subscription')
-          .select()
-          .innerJoin(ServiceFee, 'serviceFee', 'subscription.serviceFee = serviceFee.id')
-          .where('subscription.serviceFee = :serviceFee', { serviceFee: serviceFee.id })
-          .limit(query.limit)
-          .offset(query.offset);
-
-        if (query.startDate) {
-          queryBuilder.andWhere('subscription.startDate >= :date', { date: moment(query.startDate, 'DD/MM/YYYY') });
-        }
-        if (query.endDate) {
-          queryBuilder.andWhere('subscription.endDate <= :date', { date: moment(query.endDate, 'DD/MM/YYYY') });
-        }
-        return queryBuilder.getManyAndCount().then(manyAndCount => {
-          const total = manyAndCount[1];
-          const subscriptions = manyAndCount[0];
-          return this.subscriptionHandler.transform(serviceFee, subscriptions).then(subscriptionSummaries => {
-            const paginatedResponse: PaginatedResponseDto<any> = {
-              items: subscriptionSummaries ?? [],
-              itemsPerPage: query.limit,
-              offset: query.offset,
-              total: total,
-            };
-            return Promise.resolve(new ApiResponseDto(paginatedResponse, 200));
+        return this.connection.getCustomRepository(SubscriptionRepository)
+          .findByAndServiceFeeQuery(serviceFee, query)
+          .then(manyAndCount => {
+            const total = manyAndCount[1];
+            const subscriptions = manyAndCount[0];
+            return this.subscriptionHandler.transform(serviceFee, subscriptions).then(subscriptionSummaries => {
+              const paginatedResponse: PaginatedResponseDto<any> = {
+                items: subscriptionSummaries ?? [],
+                itemsPerPage: query.limit,
+                offset: query.offset,
+                total: total,
+              };
+              return Promise.resolve(new ApiResponseDto(paginatedResponse, 200));
+            });
           });
-        });
 
       });
 

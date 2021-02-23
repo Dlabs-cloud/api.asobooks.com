@@ -1,6 +1,6 @@
 import { BaseRepository } from '../common/BaseRepository';
 import { Bill } from '../domain/entity/bill.entity';
-import { Brackets, EntityRepository, SelectQueryBuilder } from 'typeorm';
+import { Brackets, EntityRepository, In, SelectQueryBuilder } from 'typeorm';
 import { Subscription } from '../domain/entity/subcription.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Membership } from '../domain/entity/membership.entity';
@@ -23,7 +23,15 @@ export class BillRepository extends BaseRepository<Bill> {
   findBySubscriptionAndStatus(subscription: Subscription, status = GenericStatusConstant.ACTIVE) {
     return this.findItem({
       subscription: subscription,
-    }, GenericStatusConstant.ACTIVE);
+    }, status);
+  }
+
+  findBySubscriptions(subscriptions: Subscription[], status = GenericStatusConstant.ACTIVE) {
+    const subscriptionIds = subscriptions.map(subscription => subscription.id);
+    return this.createQueryBuilder('bill')
+      .where('bill.subscription IN (:...subscription)', { subscription: subscriptionIds })
+      .andWhere('bill.status = :status', { status })
+      .getMany();
   }
 
   sumTotalAmountByAssociationAndPaymentStatus(association: Association, paymentStatus?: PaymentStatus, status = GenericStatusConstant.ACTIVE) {
@@ -75,16 +83,6 @@ export class BillRepository extends BaseRepository<Bill> {
     return billSelectQueryBuilder.getManyAndCount();
   }
 
-  countBySubscriptionsAndPaymentStatus(subscriptions: Subscription[], paymentStatus: PaymentStatus) {
-    const subscriptionIds = subscriptions.map(subscription => subscription.id);
-    return this.createQueryBuilder('bill')
-      .where('bill.subscription IN (:...ids)', { ids: subscriptionIds })
-      .andWhere('bill.paymentStatus = :paymentStatus', { paymentStatus })
-      .select('COUNT(bill.id)')
-      .addSelect('bill.subscription')
-      .groupBy('bill.subscription')
-      .getRawMany();
-  }
 
   countByServiceFeeAndPaymentStatus(serviceFee: ServiceFee, paymentStatus: PaymentStatus) {
     return this.createQueryBuilder('bill')

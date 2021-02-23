@@ -11,6 +11,7 @@ import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { BillInvoice } from '../domain/entity/bill-invoice.entity';
 import { BillInvoiceRepository } from '../dao/bill-invoice.repository';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { SubscriptionRepository } from '../dao/subscription.repository';
 
 @Injectable()
 export class BillService {
@@ -27,37 +28,52 @@ export class BillService {
           .findByIds(billInvoices.map(billInvoice => billInvoice.billId))
           .then(bills => {
             const amountPaidPerBill = paymentInvoice.amountPaidInMinorUnit / bills.length;
-            const billsPromise: Promise<Bill>[] = bills.map(bill => {
+            const promise = bills.map(bill => {
               bill.paymentStatus = paymentInvoice.paymentStatus;
               bill.datePaid = paymentInvoice.datePaid;
-              bill.totalAmountPaidInMinorUnit = amountPaidPerBill;
-              return entityManager.save(bill);
+              bill.totalAmountPaidInMinorUnit = +amountPaidPerBill;
+              return entityManager.save(bill).then(bill => {
+                return this.connection.getCustomRepository(SubscriptionRepository)
+                  .findOne({
+                    id: bill.subscriptionId,
+                  }).then(subscription => {
+                    subscription.totalAmountPaid += +bill.totalAmountPaidInMinorUnit;
+                    subscription.totalPayableAmount -= +bill.totalAmountPaidInMinorUnit;
+                    return entityManager.save(subscription);
+                  });
+              });
             });
-            return Promise.all(billsPromise);
+            return Promise.all(promise);
           });
       });
   }
 
   createSubscriptionBill(subscription: Subscription, membership: Membership) {
-    return this.billCodeSequence
-      .next()
-      .then(sq => {
-        let bill = new Bill();
-        if (subscription.serviceType === ServiceTypeConstant.ONE_TIME) {
-          bill.description = `Bill for ${subscription.serviceFee.name}`;
-        } else {
-          bill.description = `Bill for ${subscription.serviceFee.name} (${subscription.startDate} - ${subscription.endDate}`;
-        }
-        bill.disCountInPercentage = 0;
-        bill.vatInPercentage = 0;
-        bill.currentAmountInMinorUnit = subscription.serviceFee.amountInMinorUnit;
-        bill.payableAmountInMinorUnit = BillService.calculateAmountToBePaid(bill);
-        bill.totalAmountPaidInMinorUnit = 0;
-        bill.code = sq;
-        bill.subscription = subscription;
-        bill.membership = membership;
-        return this.connection.getCustomRepository(BillRepository).save(bill);
-      });
+    return this.connection.transaction(em => {
+      return this.billCodeSequence
+        .next()
+        .then(sq => {
+          let bill = new Bill();
+          if (subscription.serviceType === ServiceTypeConstant.ONE_TIME) {
+            bill.description = `Bill for ${subscription.serviceFee.name}`;
+          } else {
+            bill.description = `Bill for ${subscription.serviceFee.name} (${subscription.startDate} - ${subscription.endDate}`;
+          }
+          bill.disCountInPercentage = 0;
+          bill.vatInPercentage = 0;
+          bill.currentAmountInMinorUnit = subscription.serviceFee.amountInMinorUnit;
+          bill.payableAmountInMinorUnit = BillService.calculateAmountToBePaid(bill);
+          bill.totalAmountPaidInMinorUnit = 0;
+          bill.code = sq;
+          bill.subscription = subscription;
+          bill.membership = membership;
+          return em.save(bill).then((bill) => {
+            subscription.totalPayableAmount += +bill.payableAmountInMinorUnit;
+            return em.save(subscription).then(_ => bill);
+          });
+        });
+    });
+
   }
 
   private static calculateAmountToBePaid(bill: Bill) {

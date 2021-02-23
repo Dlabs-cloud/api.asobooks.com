@@ -36,7 +36,6 @@ export class Subscription extends BaseEntity {
   })
   serviceType: ServiceTypeConstant;
 
-
   @ManyToOne(() => ServiceFee)
   serviceFee: ServiceFee;
 
@@ -44,5 +43,11 @@ export class Subscription extends BaseEntity {
     nullable: true,
   })
   serviceFeeId;
+
+  @Column({ default: 0, type: 'bigint' })
+  totalAmountPaid: number;
+
+  @Column({ default: 0 , type: 'bigint'})
+  totalPayableAmount: number;
 
 }

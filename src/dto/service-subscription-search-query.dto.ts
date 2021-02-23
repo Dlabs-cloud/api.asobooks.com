@@ -15,6 +15,19 @@ export class ServiceSubscriptionSearchQueryDto {
   @IsOptional()
   @IsNumber()
   offset?: number;
+  @IsOptional()
+  @IsNumber()
+  amountReceivedInMinorUnitGreater?: number;
+  @IsOptional()
+  @IsNumber()
+  amountReceivedInMinorUnitLess?: number;
+
+  @IsOptional()
+  @IsNumber()
+  amountPendingInMinorUnitLess?: number;
+  @IsOptional()
+  @IsNumber()
+  amountPendingInMinorUnitGreater?: number;
 
 
 }

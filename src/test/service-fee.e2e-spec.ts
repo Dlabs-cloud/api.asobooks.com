@@ -26,6 +26,8 @@ import { BillInvoice } from '../domain/entity/bill-invoice.entity';
 import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
 import { BillQueryDto } from '../dto/bill-query.dto';
+import { SubscriptionSummaryResponseDto } from '../dto/subscription-summary-response.dto';
+import { ServiceSubscriptionSearchQueryDto } from '../dto/service-subscription-search-query.dto';
 
 describe('Service fees set up test ', () => {
   let applicationContext: INestApplication;
@@ -153,6 +155,8 @@ describe('Service fees set up test ', () => {
     const subscriptions = await factory().upset(Subscription)
       .use(subscription => {
         subscription.serviceFee = serviceFee;
+        subscription.totalPayableAmount = 3_000_000;
+        subscription.totalAmountPaid = 2_000_000;
         return subscription;
       }).createMany(3);
 
@@ -167,8 +171,23 @@ describe('Service fees set up test ', () => {
     });
     await Promise.all(billsPromise);
 
+    const queryParam: ServiceSubscriptionSearchQueryDto = {
+      limit: 2,
+      offset: 0,
+      amountPendingInMinorUnitGreater: 3_000_000,
+      amountPendingInMinorUnitLess: 3_000_000,
+      amountReceivedInMinorUnitLess: 2_000_000,
+      amountReceivedInMinorUnitGreater: 2_000_000,
+    };
+
+    const queryParams = Object.keys(queryParam).map(key => {
+      return `${key}=${queryParam[key]}`;
+    });
+    const query = queryParams.join('&');
+    const url = `/service-fees/${serviceFee.code}/subscriptions?${query}`;
+
     return request(applicationContext.getHttpServer())
-      .get(`/service-fees/${serviceFee.code}/subscriptions?limit=2`)
+      .get(url)
       .set('Authorization', assoUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
       .expect(200)
@@ -177,6 +196,11 @@ describe('Service fees set up test ', () => {
         expect(data.total).toEqual(3);
         expect(data.offset).toEqual(0);
         expect(parseInt(data.itemsPerPage.toString())).toEqual(2);
+        const result = data.items[0] as SubscriptionSummaryResponseDto;
+        expect(result.amountReceivedInMinorUnit).toEqual(serviceFee.amountInMinorUnit * 2);
+        expect(result.countNumberOfPaid).toEqual(2);
+        expect(result.amountPendingInMinorUnit).toEqual(0);
+        expect(result.countNumberOfPending).toEqual(0);
         expect(data.items.length).toEqual(2);
       });
   });

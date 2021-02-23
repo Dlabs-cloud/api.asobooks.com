@@ -191,7 +191,6 @@ describe('Membership-management-controller ', () => {
     expect(item.identifier).toBeDefined();
     expect(item.dateCreated).toBeDefined();
     expect(responseData.total).toEqual(1);
-    expect(responseData.total).toEqual(1);
   });
 
 

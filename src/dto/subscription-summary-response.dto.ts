@@ -7,4 +7,5 @@ export class SubscriptionSummaryResponseDto {
   endDate: Date;
   code: string;
   id: number;
+  name: string;
 }
