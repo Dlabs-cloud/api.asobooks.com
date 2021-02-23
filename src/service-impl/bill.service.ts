@@ -7,10 +7,7 @@ import { BillCodeSequence } from '../core/sequenceGenerators/bill-code.sequence'
 import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 import { BillRepository } from '../dao/bill.repository';
 import { Invoice } from '../domain/entity/invoice.entity';
-import { PaymentStatus } from '../domain/enums/payment-status.enum';
-import { BillInvoice } from '../domain/entity/bill-invoice.entity';
 import { BillInvoiceRepository } from '../dao/bill-invoice.repository';
-import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { SubscriptionRepository } from '../dao/subscription.repository';
 
 @Injectable()
@@ -37,8 +34,8 @@ export class BillService {
                   .findOne({
                     id: bill.subscriptionId,
                   }).then(subscription => {
-                    subscription.totalAmountPaid += +bill.totalAmountPaidInMinorUnit;
-                    subscription.totalPayableAmount -= +bill.totalAmountPaidInMinorUnit;
+                    subscription.totalAmountPaid = Number(subscription.totalAmountPaid) + Number(bill.totalAmountPaidInMinorUnit);
+                    subscription.totalPayableAmount = Number(subscription.totalPayableAmount) - Number(bill.totalAmountPaidInMinorUnit);
                     return entityManager.save(subscription);
                   });
               });
@@ -48,7 +45,7 @@ export class BillService {
       });
   }
 
-  createSubscriptionBill(subscription: Subscription, membership: Membership) {
+  createSubscriptionBill(subscription: Subscription, membership: Membership): Promise<Bill> {
     return this.connection.transaction(em => {
       return this.billCodeSequence
         .next()
@@ -68,7 +65,7 @@ export class BillService {
           bill.subscription = subscription;
           bill.membership = membership;
           return em.save(bill).then((bill) => {
-            subscription.totalPayableAmount += +bill.payableAmountInMinorUnit;
+            subscription.totalPayableAmount = Number(subscription.totalPayableAmount) + Number(bill.payableAmountInMinorUnit);
             return em.save(subscription).then(_ => bill);
           });
         });

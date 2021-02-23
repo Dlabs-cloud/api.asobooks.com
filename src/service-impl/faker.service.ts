@@ -31,6 +31,7 @@ import { SubscriptionRequestDto } from '../dto/subscription.request.dto';
 import { Subscription } from '../domain/entity/subcription.entity';
 import { MembershipRepository } from '../dao/membership.repository';
 import { BillService } from './bill.service';
+import { getManager } from 'typeorm';
 
 @Injectable()
 export class FakerService implements OnApplicationBootstrap {
@@ -44,7 +45,9 @@ export class FakerService implements OnApplicationBootstrap {
 
 
   onApplicationBootstrap(): any {
-    return this.seed();
+    return this.seed().catch(err => {
+      console.log(err);
+    });
 
   }
 
@@ -233,11 +236,10 @@ export class FakerService implements OnApplicationBootstrap {
 
   public async seedSubscription(serviceFee: ServiceFee, asss: Association) {
     for (let i = 0; i < 50; i++) {
-      const entityManager = this.connection.createEntityManager();
       const sub: SubscriptionRequestDto = {
         description: faker.random.word(),
       };
-      await this.subscriptionService.createSubscription(entityManager, serviceFee, sub)
+      await this.subscriptionService.createSubscription(getManager(), serviceFee, sub)
         .then(subscription => {
           return this.createBills(subscription, asss);
         });
@@ -246,17 +248,15 @@ export class FakerService implements OnApplicationBootstrap {
 
 
   createBills(subscription: Subscription, association: Association) {
-
     return this.connection
       .getCustomRepository(MembershipRepository).findByAssociationAndQuery(association, {
         limit: 50,
         offset: 0,
         accountType: PortalAccountTypeConstant.MEMBER_ACCOUNT,
-      }).then(members => {
-        const memberPromise = members.map(member => {
-          return this.billsService.createSubscriptionBill(subscription, member);
-        });
-        return Promise.all(memberPromise);
+      }).then(async members => {
+        for (let i = 0; i < members.length; i++) {
+          await this.billsService.createSubscriptionBill(subscription, members[i]);
+        }
       });
   }
 
