@@ -29,7 +29,8 @@ export class SubscriptionController {
     query.offset = !isEmpty(query.offset) && (query.offset < 0) ? query.offset : 0;
     return this.connection
       .getCustomRepository(SubscriptionRepository)
-      .findOne({ code: code }).then(subscription => {
+      .findOne({ code: code })
+      .then(subscription => {
         if (!subscription) {
           throw new NotFoundException(`Subscription with code ${code} cannot be found`);
         }

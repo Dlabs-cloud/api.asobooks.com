@@ -81,7 +81,7 @@ describe('invoice controller', () => {
             .expect(200).then(response => {
               const data = response.body.data;
               return getConnection().getCustomRepository(WalletRepository).findByAssociation(association).then(newWallet => {
-                const walletBalance = +wallet.availableBalanceInMinorUnits + verificationResponseDto.amountInMinorUnit;
+                const walletBalance = +wallet.availableBalanceInMinorUnits + +verificationResponseDto.amountInMinorUnit;
                 expect(parseInt(newWallet.availableBalanceInMinorUnits.toString())).toEqual(walletBalance);
                 return wallet;
               }).then(() => {

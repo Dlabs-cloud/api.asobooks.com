@@ -127,15 +127,14 @@ export class BillRepository extends BaseRepository<Bill> {
     }
 
     this.billSearchQuery(query, billSelectQueryBuilder);
-    const builderClone = billSelectQueryBuilder.clone();
-    return this.extractBillPaymentTransaction(billSelectQueryBuilder, builderClone);
+    return this.extractBillPaymentTransaction(billSelectQueryBuilder);
 
 
   }
 
 
   findBySubscriptionAndQuery(subscription: Subscription, query: BillQueryDto, status = GenericStatusConstant.ACTIVE) {
-    const builder = this.createQueryBuilder().from(Bill, 'bill')
+    const builder = this.createQueryBuilder('bill')
       .select(['bill.id', 'paymentTransaction.id'])
       .innerJoin(Membership, 'membership', 'membership.id = bill.membership')
       .innerJoin(PortalUser, 'portalUser', 'portalUser.id = membership.portalUser')
@@ -149,9 +148,7 @@ export class BillRepository extends BaseRepository<Bill> {
       .limit(query.limit)
       .offset(query.offset);
     this.billSearchQuery(query, builder);
-
-    const builderClone = builder.clone();
-    return this.extractBillPaymentTransaction(builder, builderClone);
+    return this.extractBillPaymentTransaction(builder);
 
   }
 
@@ -193,8 +190,9 @@ export class BillRepository extends BaseRepository<Bill> {
     }
   }
 
-  private extractBillPaymentTransaction(billSelectQueryBuilder: SelectQueryBuilder<Bill>, builderClone: SelectQueryBuilder<Bill>) {
+  private extractBillPaymentTransaction(billSelectQueryBuilder: SelectQueryBuilder<Bill>) {
     const billPaymentTransactionId: Map<Bill, number> = new Map<Bill, number>();
+    const builderClone = billSelectQueryBuilder.clone();
     return billSelectQueryBuilder.getRawMany().then(billTransactions => {
       const billIds = billTransactions.map(billTransaction => billTransaction.bill_id);
       return this.findByIds(billIds).then(bills => {

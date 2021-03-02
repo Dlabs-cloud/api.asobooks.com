@@ -1,7 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { Configuration } from './configuration';
 import { AxiosResponseException } from '@dlabs/payment/exception';
-import { IllegalArgumentException } from '../../../../src/exception/illegal-argument.exception';
 
 
 export class Httpclient {

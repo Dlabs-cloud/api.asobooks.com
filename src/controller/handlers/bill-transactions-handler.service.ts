@@ -19,7 +19,6 @@ export class BillTransactionsHandler {
     if (!bills || !bills.length) {
       return Promise.resolve(undefined);
     }
-
     const membershipIds = bills.map(bill => bill.membershipId);
     return this.connection
       .getCustomRepository(MembershipRepository)
@@ -32,26 +31,25 @@ export class BillTransactionsHandler {
               bill.membership.portalUser = portalUsers.find(portalUser => portalUser.id === bill.membership.portalUserId);
             });
             return Promise.resolve(bills);
-          }).then((bills) => {
-            return this.connection.getCustomRepository(PaymentTransactionRepository)
-              .findByIds(paymentTransactionIds).then(paymentTransactions => {
-                const response: SubscriptionBillsResponseDto[] = [];
-                billTransactions.forEach((value, bill) => {
-                  bill = bills.find(billValue => billValue.id === bill.id);
-                  const paymentTransaction = paymentTransactions.find(paymentTransaction => paymentTransaction.id === value);
-                  const res: SubscriptionBillsResponseDto = {
-                    email: bill.membership.portalUser.email,
-                    firstName: bill.membership.portalUser.firstName,
-                    lastName: bill.membership.portalUser.lastName,
-                    paymentDate: paymentTransaction?.confirmedPaymentDate,
-                    paymentStatus: bill.paymentStatus,
-                    phoneNumber: bill.membership.portalUser.phoneNumber,
-                    transactionReference: paymentTransaction?.reference,
-                  };
-                  response.push(res);
-                });
-                return Promise.resolve(response);
-              });
+          }).then(async (bills) => {
+            const paymentTransactions = await this.connection.getCustomRepository(PaymentTransactionRepository)
+              .findByIds(paymentTransactionIds);
+            const response: SubscriptionBillsResponseDto[] = [];
+            billTransactions.forEach((value, bill) => {
+              bill = bills.find(billValue => billValue.id === bill.id);
+              const paymentTransaction = paymentTransactions.find(paymentTransaction => paymentTransaction.id === value);
+              const res: SubscriptionBillsResponseDto = {
+                email: bill.membership.portalUser.email,
+                firstName: bill.membership.portalUser.firstName,
+                lastName: bill.membership.portalUser.lastName,
+                paymentDate: paymentTransaction?.confirmedPaymentDate,
+                paymentStatus: bill.paymentStatus,
+                phoneNumber: bill.membership.portalUser.phoneNumber,
+                transactionReference: paymentTransaction?.reference,
+              };
+              response.push(res);
+            });
+            return Promise.resolve(response);
           });
       });
 
