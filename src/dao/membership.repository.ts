@@ -33,6 +33,8 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .getOne();
   }
 
+  // findByAssociationAndAccountType(association: Association, accountTy)
+
   public findByAssociationAndQuery(association: Association, query: AssociationMemberQueryDto, status = GenericStatusConstant.ACTIVE) {
     const queryBuilder = this.createQueryBuilder('membership')
       .select()

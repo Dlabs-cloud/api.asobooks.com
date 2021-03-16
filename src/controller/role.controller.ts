@@ -56,7 +56,6 @@ export class RoleController {
           .transform(role).then(res => {
             return new ApiResponseDto(res);
           });
-
       });
   }
 

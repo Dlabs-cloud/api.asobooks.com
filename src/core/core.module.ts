@@ -20,6 +20,7 @@ import { NotFoundExceptionFilter } from './exception-filters/not-found-exception
 import { PaymentTransactionSequence } from './sequenceGenerators/payment-transaction.sequence';
 import { CommonModule } from '../common/common.module';
 import { RoleCodeSequence } from './sequenceGenerators/role-code.sequence';
+import { WalletWithdrawalSequence } from './sequenceGenerators/wallet-withdrawal.sequence';
 
 const illegalArgumentExceptionFilter = {
   provide: APP_FILTER,
@@ -72,6 +73,7 @@ const serviceUnAvailableException = {
     InvoiceCodeSequence,
     PaymentRequestReferenceSequence,
     PaymentTransactionSequence,
+    WalletWithdrawalSequence,
   ],
   providers: [
     PortalAccountSequence,
@@ -81,6 +83,7 @@ const serviceUnAvailableException = {
     BillCodeSequence,
     BankUploadStartup,
     WalletSequence,
+    WalletWithdrawalSequence,
     SubscriptionCodeSequence,
     InvoiceCodeSequence,
     PaymentTransactionSequence,

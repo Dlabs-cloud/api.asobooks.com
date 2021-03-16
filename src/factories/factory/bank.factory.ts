@@ -5,7 +5,7 @@ import { ModelFactory } from '../../common/test-starter/orm-faker/contracts/Mode
 export class BankFactory implements FactoryHelper<Bank> {
   apply(faker: Faker.FakerStatic, modelFactory: ModelFactory): Promise<Bank> {
     let bank = new Bank();
-    bank.name = faker.name.jobArea() + ' bank';
+    bank.name = faker.name.jobArea()+  ' ' + faker.random.alphaNumeric(10) + ' bank';
     bank.code = faker.finance.iban();
     bank.flutterWaveReference = faker.finance.iban();
     return Promise.resolve(bank);

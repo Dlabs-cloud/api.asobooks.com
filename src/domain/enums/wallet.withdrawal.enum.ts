@@ -1,0 +1,6 @@
+export enum WalletWithdrawalEnum {
+  INSUFFICIENT_FUNDS = 'INSUFFICIENT_FUNDS',
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  FAILED = 'FAILED'
+}

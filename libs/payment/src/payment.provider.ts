@@ -5,7 +5,7 @@ import {
 } from '@dlabs/payment/dto/payment-config.dto';
 import {
   FLUTTERWAVEBANKVERIFICATION,
-  FLUTTERWAVETRANSACTION,
+  FLUTTERWAVETRANSACTION, FLUTTERWAVEWITHDRAWAL,
   HTTP_CLIENT_PROVIDER,
   PAYMENT_CONFIG,
 } from '@dlabs/payment/constants';
@@ -14,6 +14,7 @@ import { FlutterWaveTransaction } from './core';
 import { Httpclient } from '@dlabs/payment/network';
 import { ConfigurationParameter } from '@dlabs/payment/network/configuration';
 import { FlutterWaveBankVerification } from '@dlabs/payment/core/flutter-wave-bank-verification';
+import { FlutterWaveWithdrawal } from '@dlabs/payment/core/flutter-wave-withdrawal';
 
 export function createPaymentProvider(config: PaymentConfig): Provider[] {
   return [
@@ -46,6 +47,18 @@ export const FlutterwaveTransactionProvider = {
   ],
 };
 
+
+export const FlutterwaveWithdrawalProvider = {
+  provide: FLUTTERWAVEWITHDRAWAL,
+  useFactory: (httpClient: Httpclient, options: PaymentConfig) => {
+    return new FlutterWaveWithdrawal(options, httpClient);
+  },
+  inject: [
+    HTTP_CLIENT_PROVIDER,
+    PAYMENT_CONFIG,
+  ],
+};
+
 export const FlutterwaveBankVerificationProvider = {
   provide: FLUTTERWAVEBANKVERIFICATION,
   useFactory: (httpClient: Httpclient, options: PaymentConfig) => {
@@ -55,7 +68,7 @@ export const FlutterwaveBankVerificationProvider = {
     HTTP_CLIENT_PROVIDER,
     PAYMENT_CONFIG,
   ],
-}
+};
 
 export function createPaymentConfigAsyncProviders(options: PaymentConfigAsyncOption) {
   if (options.useExisting || options.useFactory) {

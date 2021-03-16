@@ -1,7 +1,8 @@
 export enum Queues {
   SUBSCRIPTION = 'SUBSCRIPTION',
   BILL_GENERATION = 'BILL_GENERATION',
-  EMAIL = 'EMAIL'
+  EMAIL = 'EMAIL',
+  WALLET_WITHDRAWAL = 'WALLET_WITHDRAWAL'
 }
 
 export enum QueueNames {

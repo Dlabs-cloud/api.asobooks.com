@@ -3,6 +3,7 @@ import { BaseRepository } from '../common/BaseRepository';
 import { EntityRepository } from 'typeorm';
 import { Association } from '../domain/entity/association.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { Bank } from '../domain/entity/bank.entity';
 
 @EntityRepository(BankInfo)
 export class BankInfoRepository extends BaseRepository<BankInfo> {
@@ -15,6 +16,13 @@ export class BankInfoRepository extends BaseRepository<BankInfo> {
       .setParameter('association', association.id)
       .setParameter('status', status)
       .getCount();
+  }
+
+  findByBankAndAccountNumber(bank: Bank, accountNumber: string) {
+    return this.findOne({
+      bank: bank,
+      accountNumber,
+    });
   }
 }
 

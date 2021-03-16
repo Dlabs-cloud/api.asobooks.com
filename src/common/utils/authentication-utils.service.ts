@@ -8,7 +8,8 @@ import { JwtPayloadDto } from '../../dto/jwt-payload.dto';
 export class AuthenticationUtils {
 
   public hashPassword(password: string): Promise<string> {
-    return genSalt(Number(process.env.SALT_ROUNDS)).then((salt: string) => {
+    const value = process.env.SALT_ROUNDS;
+    return genSalt(Number(4)).then((salt: string) => {
       return hash(password, salt);
     });
   }

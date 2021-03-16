@@ -6,6 +6,8 @@ import { ConfModule } from '../conf/conf.module';
 import { EmailProcessor } from './processors/email.processor';
 import { SubscriptionGeneratorProcessor } from './processors/subscription-generator.processor';
 import { BillGeneratorProcessor } from './processors/bill-generator.processor';
+import { WalletWithdrawal } from '../domain/entity/wallet-withdrawal.entity';
+import { WalletWithdrawalProcessor } from './processors/wallet-withdrawal.processor';
 
 
 @Module({
@@ -19,6 +21,7 @@ import { BillGeneratorProcessor } from './processors/bill-generator.processor';
     EmailProcessor,
     SubscriptionGeneratorProcessor,
     BillGeneratorProcessor,
+    WalletWithdrawalProcessor,
   ],
 })
 export class WorkerModule {

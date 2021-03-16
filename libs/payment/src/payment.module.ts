@@ -3,7 +3,7 @@ import { PaymentConfig, PaymentConfigAsyncOption } from '@dlabs/payment/dto';
 import {
   createPaymentConfigAsyncProviders,
   createPaymentProvider, FlutterwaveBankVerificationProvider,
-  FlutterwaveTransactionProvider,
+  FlutterwaveTransactionProvider, FlutterwaveWithdrawalProvider,
   HttpClientProvider,
 } from './payment.provider';
 
@@ -20,6 +20,7 @@ export class PaymentModule {
       HttpClientProvider,
       FlutterwaveTransactionProvider,
       FlutterwaveBankVerificationProvider,
+      FlutterwaveWithdrawalProvider,
     ];
     return {
       module: PaymentModule,
@@ -27,6 +28,7 @@ export class PaymentModule {
       exports: [
         FlutterwaveTransactionProvider,
         FlutterwaveBankVerificationProvider,
+        FlutterwaveWithdrawalProvider,
       ],
     };
   }
@@ -37,6 +39,7 @@ export class PaymentModule {
       HttpClientProvider,
       FlutterwaveTransactionProvider,
       FlutterwaveBankVerificationProvider,
+      FlutterwaveWithdrawalProvider,
     ];
 
     return {
@@ -45,6 +48,7 @@ export class PaymentModule {
       imports: asyncConfig.imports,
       exports: [
         FlutterwaveTransactionProvider,
+        FlutterwaveWithdrawalProvider,
         FlutterwaveBankVerificationProvider,
       ],
     };

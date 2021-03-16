@@ -24,6 +24,8 @@ import { Association } from '../domain/entity/association.entity';
 import { Membership } from '../domain/entity/membership.entity';
 import { ServiceModule } from '../service/service.module';
 import { MembershipRepository } from '../dao/membership.repository';
+import { ProfileUpdateDto } from '../dto/profile-update.dto';
+import { CommonModule } from '../common/common.module';
 
 describe('AuthController', () => {
   let applicationContext: INestApplication;
@@ -43,6 +45,9 @@ describe('AuthController', () => {
     authenticationService = applicationContext
       .select(ServiceImplModule)
       .get(AuthenticationService, { strict: true });
+
+    applicationContext.select(CommonModule).get(AuthenticationUtils);
+
     emailValidationService = applicationContext.select(ServiceModule).get('EMAIL_VALIDATION_SERVICE', { strict: true });
     let testUser = await getTestUser(GenericStatusConstant.ACTIVE);
     signedUpUser = testUser.membership;
@@ -162,6 +167,45 @@ describe('AuthController', () => {
 
   });
 
+  it('Test that a user can can update information', async () => {
+    const existingPassword = faker.random.alphaNumeric(12);
+    const payload: ProfileUpdateDto = {
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName(),
+      password: existingPassword,
+      newPassword: faker.random.alphaNumeric(10),
+    };
+    const hashedPassword = await (new AuthenticationUtils()).hashPassword(existingPassword);
+    return factory().upset(PortalUser).use(portalUser => {
+      portalUser.password = hashedPassword;
+      return portalUser;
+    }).create().then(user => {
+      return getLoginUser(GenericStatusConstant.ACTIVE, user)
+        .then(loginUser => {
+          return request(applicationContext.getHttpServer())
+            .patch('/me')
+            .send(payload)
+            .set('Authorization', loginUser.token)
+            .expect(200)
+            .then(response => {
+              const data = response.body.data;
+              expect(data.firstName).toEqual(payload.firstName);
+              expect(data.lastName).toEqual(payload.lastName);
+              return connection
+                .getCustomRepository(PortalUserRepository)
+                .findOne({ id: user.id })
+                .then(u => {
+                  return (new AuthenticationUtils())
+                    .comparePassword(payload.newPassword, u.password)
+                    .then(same => {
+                      expect(same).toEqual(true);
+                    });
+                });
+            });
+        });
+    });
+
+  });
 
   it('test that when a user is logged in he can get me', async () => {
 

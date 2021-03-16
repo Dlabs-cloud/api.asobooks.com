@@ -4,7 +4,7 @@ import { IEmailValidationService } from '../contracts/i-email-validation-service
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { TestingModule } from '@nestjs/testing';
-import { baseTestingModule, generateToken } from './test-utils';
+import { baseTestingModule, generateToken, getAssociationUser } from './test-utils';
 import { getConnection } from 'typeorm';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
 import * as request from 'supertest';
@@ -25,6 +25,9 @@ import { WalletRepository } from '../dao/wallet.repository';
 import { GroupRepository } from '../dao/group.repository';
 import { GroupTypeConstant } from '../domain/enums/group-type.constant';
 import { PortalAccountRepository } from '../dao/portal-account.repository';
+import { UpdateAssociationDto } from '../dto/update-association.dto';
+import { Wallet } from '../domain/entity/wallet.entity';
+import { AddressRepository } from '../dao/address.repository';
 
 async function generateAssociationRequestToken() {
   const payload: AssociationRequestDto = {
@@ -118,58 +121,88 @@ describe('AssociationController', () => {
                   });
               });
           });
-
       });
-
-
   });
 
-  //
-  // it('Test that a created association can create its wallet', async () => {
-  //   const
-  //     let;
-  //   assoc = await associationUpdate(loginToken);
-  //   await associationService.createAssociation(assoc.payload, {
-  //     association: assoc.association, portalUser: assoc.portalUser,
-  //   });
-  //   loginToken = assoc.loginToken;
-  //   let payload = assoc.payload;
-  //   payload.activateAssociation = 'true';
-  //   let response = await request(applicationContext.getHttpServer())
-  //     .put('/associations/onboard')
-  //     .set('Authorization', loginToken);
-  //
-  //   const
-  //
-  //     console;
-  // .
-  //   log(response.body);
-  //   // .send(payload).expect(201);
-  //   await connection.getCustomRepository(WalletRepository).findByAssociation(assoc.association).then(wallet => {
-  //     expect(wallet.reference).toBeDefined();
-  //     expect(0).toEqual(Number(wallet.availableBalanceInMinorUnits));
-  //
-  //   });
-  // });
-  //
-  //
-  // it('Test that updating of association creates right records', async () => {
-  //   const __ret = await associationUpdate(loginToken);
-  //
-  //   await associationService.createAssociation(__ret.payload, {
-  //     association: __ret.association, portalUser: __ret.portalUser,
-  //   });
-  //   loginToken = __ret.loginToken;
-  //   let payload = __ret.payload;
-  //   payload.activateAssociation = 'false';
-  //   let response = await request(applicationContext.getHttpServer())
-  //     .put('/associations/onboard')
-  //     .set('Authorization', loginToken)
-  //     .send(payload).expect(201);
-  //
-  //   expect(response.body.data.address).toBeDefined();
-  //   expect(response.body.data.type).toBeDefined();
-  // });
+
+  it('Get Association detail', () => {
+    return factory().create(Association).then(association => {
+      return factory().upset(Wallet).use(wallet => {
+        wallet.association = association;
+        return wallet;
+      }).create().then(_ => {
+        return getAssociationUser(GenericStatusConstant.ACTIVE, null, association)
+          .then(testUser => {
+            return request(applicationContext.getHttpServer())
+              .get('/associations')
+              .set('Authorization', testUser.token)
+              .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+              .expect(200)
+              .then(response => {
+                const data = response.body.data;
+                expect(data.name).toBeDefined();
+                expect(data.type).toBeDefined();
+                expect(data.accountNumber).toBeDefined();
+                expect(data.bank).toBeDefined();
+                expect(data.address).toBeDefined()
+              });
+          });
+      });
+    });
+  });
+
+  it('Test that an association can be updated', async () => {
+    const countryCode = (await factory().create(Country)).code;
+    const code = (await factory().create(Bank)).code;
+    const payload: UpdateAssociationDto = {
+      name: faker.random.alphaNumeric(),
+      address: {
+        address: faker.address.secondaryAddress(),
+        countryCode: countryCode,
+      },
+      type: AssociationTypeConstant.HOUSING,
+      bankInfo: {
+        code: code,
+        accountNumber: faker.finance.account(),
+      },
+    };
+    return getAssociationUser().then(testUser => {
+      return factory().upset(Wallet).use(wallet => {
+        wallet.association = testUser.association;
+        return wallet;
+      }).create().then(_ => {
+        return request(applicationContext.getHttpServer())
+          .patch('/associations')
+          .set('Authorization', testUser.token)
+          .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+          .send(payload)
+          .then(response => {
+            return connection
+              .getCustomRepository(AssociationRepository)
+              .findOne({ id: testUser.association.id })
+              .then(association => {
+                expect(association.name).toEqual(payload.name);
+                expect(association.type).toEqual(payload.type);
+                return connection
+                  .getCustomRepository(AddressRepository)
+                  .findOne({ id: association.addressId })
+                  .then(address => {
+                    expect(address.name).toEqual(payload.address.address);
+                    expect(address.country.code).toEqual(payload.address.countryCode);
+                  }).then(bankInfo => {
+                    return connection
+                      .getCustomRepository(WalletRepository)
+                      .findOne({ association: association })
+                      .then(wallet => {
+                        expect(wallet.bank.accountNumber).toEqual(payload.bankInfo.accountNumber);
+                      });
+                  });
+              });
+          });
+      });
+
+    });
+  });
 
   afterAll(async () => {
     await connection.close();

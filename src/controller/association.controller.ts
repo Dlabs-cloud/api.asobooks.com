@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Patch, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { AssociationRequestDto } from '../dto/association/association-request.dto';
 import { AssociationServiceImpl } from '../service-impl/association.service-impl';
 import { ApiResponseDto } from '../dto/api-response.dto';
@@ -7,16 +7,17 @@ import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorato
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { BaseController } from './BaseController';
 import { FileTypeConstant } from '../domain/enums/file-type-constant';
-import { ASSOCIATION_SERVICE, AssociationService, CACHE_ASSOCIATION_SERVICE } from '../service/association-service';
-import { CacheService } from '../common/utils/cache.service';
+import { ASSOCIATION_SERVICE, AssociationService } from '../service/association-service';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { AssociationOnboardingDto } from '../dto/association-onboarding.dto';
-import { Public } from '../dlabs-nest-starter/security/annotations/public';
+import { UpdateAssociationDto } from '../dto/update-association.dto';
+import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
+import { AssociationHandler } from './handlers/association.handler';
 
 @Controller('associations')
 export class AssociationController extends BaseController {
   constructor(@Inject(ASSOCIATION_SERVICE) private readonly associationService: AssociationService,
-              private readonly cacheService: CacheService) {
+              private readonly associationHandler: AssociationHandler) {
     super();
   }
 
@@ -43,11 +44,42 @@ export class AssociationController extends BaseController {
     return new ApiResponseDto(association, 201);
   }
 
-  @Get('/onboard')
+  @Get()
+  @AssociationContext()
   public async getOnBoardingAssociation(@RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
-    const key = `onboarding:${requestPrincipal.portalUser.email}-association-onboarding`;
-    return this.cacheService.get(key).then(value => {
-      return Promise.resolve(new ApiResponseDto(value));
-    });
+
+
+    return this
+      .associationHandler
+      .transform(requestPrincipal.association).then(response => {
+        console.log(response);
+        return new ApiResponseDto(response);
+      });
+  }
+
+
+  @UseInterceptors(
+    ImageUploadInterceptor('logo'),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Update Association',
+    type: UpdateAssociationDto,
+  })
+  @Patch()
+  @AssociationContext()
+  public update(@UploadedFile() file,
+                @RequestPrincipalContext() requestPrincipal: RequestPrincipal,
+                @Body() request: UpdateAssociationDto) {
+
+    if (file) {
+      request.logo = this.requestToFile(file.buffer, file.originalname, file.mimetype, FileTypeConstant.IMAGE);
+    }
+
+    return this.associationService
+      .updateAssociation(requestPrincipal.association, request)
+      .then(association => {
+        return Promise.resolve(new ApiResponseDto(null, 204));
+      });
   }
 }

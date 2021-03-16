@@ -42,10 +42,10 @@ export class BillTransactionsHandler {
                 email: bill.membership.portalUser.email,
                 firstName: bill.membership.portalUser.firstName,
                 lastName: bill.membership.portalUser.lastName,
-                paymentDate: paymentTransaction?.confirmedPaymentDate,
+                paymentDate: paymentTransaction?.confirmedPaymentDate ?? " ",
                 paymentStatus: bill.paymentStatus,
                 phoneNumber: bill.membership.portalUser.phoneNumber,
-                transactionReference: paymentTransaction?.reference,
+                transactionReference: paymentTransaction?.reference ?? " ",
               };
               response.push(res);
             });

@@ -11,18 +11,25 @@ export class RoleHandler {
   }
 
   transform(role: Role) {
-    return this.connection.getCustomRepository(PermissionRepository).findByRole(role).then(permissions => {
-      const permissionItems = permissions.map(permission => {
-        return {
-          name: permission.name,
-          code: permission.code,
-        };
-      });
-      const response: RolePermissionResponse = {
-        code: role.code, name: role.name, permissions: permissionItems,
 
-      };
-      return response;
+    const permissionRepository = this.connection.getCustomRepository(PermissionRepository);
+    return permissionRepository.find().then(allPermissions => {
+      return permissionRepository.findByRole(role).then(permissions => {
+        return allPermissions.map(allPermission => {
+          const exists = permissions.find(permission => permission.id === allPermission.id);
+          return {
+            name: allPermission.name,
+            code: allPermission.code,
+            exist: !!exists,
+          };
+        });
+      });
+    }).then(_ => {
+      return Promise.resolve({
+        name: role.name,
+        code: role.code,
+        permissions: _,
+      });
     });
   }
 }

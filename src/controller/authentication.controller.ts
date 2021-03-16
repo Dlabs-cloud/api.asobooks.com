@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Patch, Post } from '@nestjs/common';
 import { SignUpDto } from '../dto/auth/request/sign-up.dto';
 import { AuthenticationService } from '../service-impl/authentication.service';
 import { Public } from '../dlabs-nest-starter/security/annotations/public';
@@ -21,8 +21,8 @@ import { InvalidtokenException } from '../exception/invalidtoken.exception';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { LoggedInUserInfoHandler } from './handlers/logged-in-user-info.handler';
-import { InActiveAccountException } from '../exception/in-active-account.exception';
-
+import { ProfileUpdateDto } from '../dto/profile-update.dto';
+import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
 
 @Controller()
 export class AuthenticationController {
@@ -99,8 +99,6 @@ export class AuthenticationController {
           return Promise.resolve(new ApiResponseDto(null, 200, 'A reset link will been sent to the email if its exists'));
         });
       });
-
-
   }
 
 
@@ -108,8 +106,22 @@ export class AuthenticationController {
   public async me(@RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
     let response = await this.loggedInUserInfoHandler.transform(requestPrincipal.portalUser);
     return new ApiResponseDto(response);
+  }
 
 
+  @Patch('/me')
+  public updateProfile(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
+                       @Body() request: ProfileUpdateDto) {
+
+    return this.userManagementService
+      .updateProfile(requestPrincipal.portalUser, request)
+      .then(portalUser => {
+        return this.loggedInUserInfoHandler
+          .transform(portalUser)
+          .then(transformed => {
+            return new ApiResponseDto(transformed);
+          });
+      });
   }
 
   @Public()

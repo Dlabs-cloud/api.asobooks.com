@@ -32,7 +32,6 @@ export class GroupServiceFeeController {
                          @Param('code') code: string,
                          @Body() request: MembershipFeeRequestDto) {
 
-
     let memberships = await this.connection
       .getCustomRepository(MembershipRepository)
       .findByAssociationAndAccountTypeAndStatusAndIdentifiers(
@@ -42,14 +41,15 @@ export class GroupServiceFeeController {
         ...request.memberIdentifiers,
       );
 
-    let serviceFee = await this.connection.getCustomRepository(ServiceFeeRepository).findByCodeAndAssociation(code, requestPrincipal.association);
+    let serviceFee = await this.connection.getCustomRepository(ServiceFeeRepository)
+      .findByCodeAndAssociation(code, requestPrincipal.association);
     if (!serviceFee) {
       throw new NotFoundException(`Service-fee with code ${code} cannot be found`);
     }
     let group = await this.connection.getCustomRepository(GroupRepository).findByServiceFee(serviceFee);
 
     if (!group) {
-      throw new IllegalArgumentException('Group for service-impl fee cannot be found');
+      throw new IllegalArgumentException('Group for service fee cannot be found');
     }
     return this.connection.transaction(entityManager => {
       return this.groupService.addMember(entityManager, group[0], ...memberships);
@@ -100,7 +100,7 @@ export class GroupServiceFeeController {
                             @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
 
 
-    if (!memberIdentifiers.length) {
+    if (!memberIdentifiers || !memberIdentifiers.length) {
       throw new IllegalArgumentException('member identifiers must be provided');
     }
 

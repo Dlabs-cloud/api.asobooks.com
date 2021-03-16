@@ -45,7 +45,7 @@ export class AccessConstraintInterceptor implements NestInterceptor {
       const tokenPayload: TokenPayloadDto = await this.bearerTokenService
         .verifyBearerToken(splicedAuthorisationToken[1], TokenTypeConstant.LOGIN);
       const portalUser = tokenPayload.portalUser;
-      delete portalUser.password;
+   //   delete portalUser.password;
       const principal = new RequestPrincipal();
       principal.portalUser = portalUser;
       request.requestPrincipal = principal;

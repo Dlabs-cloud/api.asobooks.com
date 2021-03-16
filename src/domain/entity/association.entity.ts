@@ -19,6 +19,9 @@ export class Association extends BaseEntity {
   @OneToOne(() => Address)
   @JoinColumn({ name: 'addressId' })
   address?: Address;
+
+  @Column({ nullable: true })
+  addressId: number;
   @Column()
   code: string;
 }

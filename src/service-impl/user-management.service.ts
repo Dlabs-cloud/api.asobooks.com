@@ -29,6 +29,8 @@ import { MembershipInfoService } from './membership-info.service';
 import { AddressDto } from '../dto/address.dto';
 import { EditMemberDto } from '../dto/edit-member.dto';
 import { AddressService } from './address.service';
+import { ProfileUpdateDto } from '../dto/profile-update.dto';
+import { profile } from 'winston';
 
 @Injectable()
 export class UserManagementService {
@@ -193,6 +195,28 @@ export class UserManagementService {
     });
   }
 
+
+  async updateProfile(portalUser: PortalUser, profileUpdate: ProfileUpdateDto) {
+    if (profileUpdate.firstName) {
+      portalUser.firstName = profileUpdate.firstName;
+    }
+    if (profileUpdate.lastName) {
+      portalUser.lastName = profileUpdate.lastName;
+    }
+
+    if (profileUpdate.newPassword && profileUpdate.password) {
+      portalUser.password = await this.authenticationUtils
+        .comparePassword(profileUpdate.password, portalUser.password)
+        .then(isCorrect => {
+          if (!isCorrect) {
+            throw new IllegalArgumentException('Password do not match');
+          }
+          return this.authenticationUtils
+            .hashPassword(profileUpdate.newPassword);
+        });
+    }
+    return portalUser.save();
+  }
 
   public async updateMembership(association: Association, membershipInfo: MembershipInfo, updateInfo: EditMemberDto) {
     await this.connection.transaction(async entityManager => {

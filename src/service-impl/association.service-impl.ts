@@ -25,6 +25,9 @@ import { WalletService } from './wallet.service';
 import { PortalAccountService } from './portal-account.service';
 import { PortalAccountDto } from '../dto/portal-account.dto';
 import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { UpdateAssociationDto } from 'src/dto/update-association.dto';
+import { WalletRepository } from '../dao/wallet.repository';
+import { retry } from 'rxjs/operators';
 
 
 @Injectable()
@@ -37,6 +40,53 @@ export class AssociationServiceImpl implements AssociationService {
               private readonly walletService: WalletService,
               private readonly portalAccountService: PortalAccountService,
               private readonly associationFileService: AssociationFileService) {
+  }
+
+  updateAssociation(association: Association, updateInfo: UpdateAssociationDto): Promise<Association> {
+    return this.connection.transaction(async entityManager => {
+      if (updateInfo.name) {
+        association.name = updateInfo.name;
+      }
+
+      if (updateInfo.type) {
+        association.type = updateInfo.type;
+      }
+
+      if (updateInfo.address) {
+        const addressDto = new AddressDto();
+        addressDto.name = updateInfo.address.address;
+        addressDto.country = await entityManager.getCustomRepository(CountryRepository)
+          .findOneItemByStatus({ code: updateInfo.address.countryCode });
+        association.address = await entityManager
+          .getCustomRepository(AddressRepository)
+          .saveAddress(entityManager, addressDto);
+      }
+
+      if (updateInfo.logo) {
+        await this
+          .associationFileService
+          .createLogo(entityManager, association, updateInfo.logo as FileUploadResponseDto);
+      }
+
+      if (updateInfo.bankInfo) {
+        await this.bankInfoService
+          .create(entityManager, updateInfo.bankInfo)
+          .then(bankInfo => {
+            return this.connection
+              .getCustomRepository(WalletRepository)
+              .findByAssociation(association)
+              .then(wallet => {
+                if (!wallet) {
+                  throw new Error('Wallet was not created for association');
+                }
+                wallet.bank = bankInfo;
+                return entityManager.save(wallet);
+              });
+          });
+      }
+
+      return entityManager.save(association);
+    });
   }
 
 
@@ -96,7 +146,7 @@ export class AssociationServiceImpl implements AssociationService {
             .findOneItemByStatus({ code: bankInfoData.code });
           bankInfo = await entityManager.save(bankInfo);
         } else {
-          bankInfo = await this.bankInfoService.create(entityManager, bankInfoData, association);
+          bankInfo = await this.bankInfoService.create(entityManager, bankInfoData);
         }
       }
 

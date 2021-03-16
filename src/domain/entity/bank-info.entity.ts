@@ -9,6 +9,8 @@ export class BankInfo extends BaseEntity {
   accountNumber: string;
   @ManyToOne(() => Bank)
   bank: Bank;
+  @Column({ nullable: true })
+  bankId: number;
   @Column({
     nullable: true,
   })

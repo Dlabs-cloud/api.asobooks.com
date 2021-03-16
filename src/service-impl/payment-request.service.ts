@@ -25,8 +25,6 @@ import { WalletService } from './wallet.service';
 import { InitiateTransactionResponse } from '@dlabs/payment/dto/initiate-transaction.response';
 import { Association } from '../domain/entity/association.entity';
 import { PortalUser } from '../domain/entity/portal-user.entity';
-import { EventBus } from '@nestjs/cqrs';
-import { now } from 'moment';
 
 @Injectable()
 export class PaymentRequestService {
@@ -37,8 +35,7 @@ export class PaymentRequestService {
               private readonly paymentTransactionService: PaymentTransactionService,
               private readonly invoiceService: InvoiceService,
               private readonly walletService: WalletService,
-              private readonly paymentRequestSequence: PaymentRequestReferenceSequence,
-              private readonly eventBus: EventBus) {
+              private readonly paymentRequestSequence: PaymentRequestReferenceSequence) {
   }
 
 

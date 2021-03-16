@@ -7,7 +7,7 @@ import { GenericStatusConstant } from '../enums/generic-status-constant';
 
 @Entity()
 export class AssociationFile extends BaseEntity {
-  @ManyToOne(() => FileResource)
+  @ManyToOne(() => FileResource, { eager: true })
   file: FileResource;
   @ManyToOne(() => Association)
   association: Association;

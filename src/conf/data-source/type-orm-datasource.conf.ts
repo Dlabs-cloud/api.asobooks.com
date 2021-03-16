@@ -26,7 +26,7 @@ export class TypeOrmDatasourceConf {
       username: this.configService.get('DB_USERNAME', 'postgres'),
       database: this.configService.get('DB_DATABASE', 'postgres'),
       dropSchema: false,
-      logging: true,
+      logging: false,
       entities: [
         __dirname + '/../../domain/entity/*.entity{.js,.ts}',
         __dirname + '/../../dlabs-wallet/src/domain/entity/*.entity{.js,.ts}',

@@ -17,8 +17,9 @@ export class Wallet extends BaseEntity {
   })
   reference: string;
 
-  @ManyToOne(() => BankInfo, { nullable: true })
+  @ManyToOne(() => BankInfo, { nullable: true, eager: true })
   bank: BankInfo;
+
 
   @ManyToOne(() => Association)
   association: Association;

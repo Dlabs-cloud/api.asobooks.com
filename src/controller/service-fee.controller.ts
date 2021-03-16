@@ -25,7 +25,7 @@ import { BillRepository } from '../dao/bill.repository';
 import { BillSearchQueryDto } from '../dto/bill-search-query.dto';
 import { Bill } from '../domain/entity/bill.entity';
 import { SubscriptionBillsResponseDto } from '../dto/subscription-bills-response.dto';
-import { BillTransactionsHandler } from './handlers/bill-transactions-handler.service';
+import { BillTransactionsHandler } from './handlers/bill-transactions.handler';
 import { BillQueryDto } from '../dto/bill-query.dto';
 
 @Controller('service-fees')
@@ -169,7 +169,11 @@ export class ServiceFeeController {
                   offset: +query.offset,
                   total: billsTransactionsAndCount[1] as number,
                 };
-                return new ApiResponseDto(paginationRes);
+                const response = {
+                  serviceFee,
+                  queryData: paginationRes,
+                };
+                return new ApiResponseDto(response);
               });
 
           });

@@ -28,8 +28,11 @@ import { RoleMembershipController } from './role-membership.controller';
 import { RoleController } from './role.controller';
 import { RoleHandler } from './handlers/role.handler';
 import { ServiceFeeHandler } from './handlers/service-fee.handler';
-import { BillTransactionsHandler } from './handlers/bill-transactions-handler.service';
+import { BillTransactionsHandler } from './handlers/bill-transactions.handler';
 import { SubscriptionController } from './subscription.controller';
+import { WalletWithdrawalController } from './wallet-withdrawal.controller';
+import { WalletController } from './wallet.controller';
+import { AssociationHandler } from './handlers/association.handler';
 
 @Module({
   imports: [
@@ -56,6 +59,8 @@ import { SubscriptionController } from './subscription.controller';
     PaymentTransactionController,
     RoleMembershipController,
     RoleController,
+    WalletWithdrawalController,
+    WalletController,
   ],
   providers: [
     ResponseTransformInterceptor,
@@ -66,6 +71,7 @@ import { SubscriptionController } from './subscription.controller';
     RoleHandler,
     ServiceFeeHandler,
     BillTransactionsHandler,
+    AssociationHandler,
     {
 
       provide: APP_INTERCEPTOR,

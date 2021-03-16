@@ -6,23 +6,36 @@ import { Connection, EntityManager } from 'typeorm';
 import { BankRepository } from '../dao/bank.repository';
 import { threadId } from 'worker_threads';
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
+import { BankInfoRepository } from '../dao/bank-info.repository';
 
 @Injectable()
 export class BankInfoService {
   constructor(private readonly  connection: Connection) {
   }
 
-  async create(entityManager: EntityManager, bankInfo: BankInfoDto, association: Association): Promise<BankInfo> {
-    let newBankInfo = new BankInfo();
-    newBankInfo.accountNumber = bankInfo.accountNumber;
-    let bank = await this.connection
-      .getCustomRepository(BankRepository)
-      .findOneItemByStatus({ code: bankInfo.code });
 
-    if (!bank) {
-      throw new IllegalArgumentException(`Bank with code ${bankInfo.code} is not valid`);
-    }
-    newBankInfo.bank = bank;
-    return entityManager.save(newBankInfo);
+  create(entityManager: EntityManager, bankInfo: BankInfoDto) {
+    return this.connection
+      .getCustomRepository(BankRepository)
+      .findOneItemByStatus({ code: bankInfo.code })
+      .then(bank => {
+        if (!bank) {
+          throw new IllegalArgumentException(`Bank with code ${bankInfo.code} is not valid`);
+        }
+        return this.connection
+          .getCustomRepository(BankInfoRepository)
+          .findByBankAndAccountNumber(bank, bankInfo.accountNumber)
+          .then(existingBankInfo => {
+            if (existingBankInfo) {
+              return Promise.resolve(existingBankInfo);
+            }
+            let newBankInfo = new BankInfo();
+            newBankInfo.accountNumber = bankInfo.accountNumber;
+            newBankInfo.bank = bank;
+            return entityManager.save(newBankInfo);
+          });
+      });
+
+
   }
 }
