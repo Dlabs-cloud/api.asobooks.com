@@ -99,6 +99,36 @@ describe('role controller-e2e', () => {
     });
   });
 
+
+  it('get members of a role', () => {
+    return getAssociationUser().then(_ => {
+      return factory().upset(Role).use(role => {
+        role.association = _.association;
+        return role;
+      }).create().then(role => {
+        return factory().upset(MembershipRole).use(membershipRole => {
+          membershipRole.role = role;
+          return membershipRole;
+        }).createMany(5).then((p) => {
+          return request(applicationContext.getHttpServer())
+            .get(`/roles/${role.code}/memberships`)
+            .set('Authorization', _.token)
+            .set('X-ASSOCIATION-IDENTIFIER', _.association.code)
+            .expect(200).then(response => {
+              const data = response.body.data;
+              expect(data.length).toEqual(5);
+              const datum = data[0];
+              expect(datum.firstName).toBeDefined();
+              expect(datum.lastName).toBeDefined();
+              expect(datum.phoneNumber).toBeDefined();
+              expect(datum.email).toBeDefined();
+              expect(datum.identifier).toBeDefined();
+            });
+        });
+      });
+    });
+  });
+
   afterAll(async () => {
     await connection.close();
     await applicationContext.close();

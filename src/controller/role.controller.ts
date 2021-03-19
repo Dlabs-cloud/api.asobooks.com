@@ -5,13 +5,9 @@ import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorato
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
 import { RoleService } from '../service-impl/role.service';
 import { ApiResponseDto } from '../dto/api-response.dto';
-import { RoleMembershipRequestDto } from '../dto/role-membership.request.dto';
 import { Connection } from 'typeorm/connection/Connection';
-import { MembershipRepository } from '../dao/membership.repository';
-import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 import { RoleRepository } from '../dao/role.repository';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
-import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { RoleHandler } from './handlers/role.handler';
 
 @AssociationContext()

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, NotFoundException, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post } from '@nestjs/common';
 import { RoleMembershipRequestDto } from '../dto/role-membership.request.dto';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
@@ -11,6 +11,10 @@ import { ApiResponseDto } from '../dto/api-response.dto';
 import { RoleService } from '../service-impl/role.service';
 import { Connection } from 'typeorm/connection/Connection';
 import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
+import { RolePermissionRepository } from '../dao/role-permission.repository';
+import { MembershipRoleRepository } from '../dao/membership-role.repository';
+import { MembershipInfo } from '../domain/entity/association-member-info.entity';
+import { MembershipInfoRepository } from '../dao/membership-info.repository';
 
 @Controller('roles/:code/memberships')
 @AssociationContext()
@@ -65,7 +69,35 @@ export class RoleMembershipController {
               return new ApiResponseDto({}, 204);
             });
           });
-
       });
+  }
+
+  @Get()
+  getMember(@Param('code') code: string,
+            @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
+    return this.connection
+      .getCustomRepository(RoleRepository)
+      .findOneItemByStatus({ association: requestPrincipal.association, code })
+      .then(role => {
+        if (!role) {
+          throw new NotFoundException('Role with code could not be found');
+        }
+        return this.connection
+          .getCustomRepository(MembershipRepository)
+          .findByRole(role).then(memberships => {
+            return memberships.map(membership => {
+              const membershipInfo = membership.membershipInfo;
+              const portalUser = membershipInfo.portalUser;
+              return {
+                firstName: portalUser.firstName,
+                lastName: portalUser.lastName,
+                phoneNumber: portalUser.phoneNumber,
+                email: portalUser.email,
+                identifier: membershipInfo.identifier,
+              };
+            });
+          });
+      }).then(memberInfos => new ApiResponseDto(memberInfos));
+
   }
 }

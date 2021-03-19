@@ -115,19 +115,31 @@ describe('role controller-e2e', () => {
         role.association = testUser.association;
         return role;
       }).create().then(role => {
-        return request(applicationContext.getHttpServer())
-          .delete(`/roles/${role.code}`)
-          .set('Authorization', testUser.token)
-          .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
-          .expect(204).then(_ => {
-            return getConnection().getCustomRepository(RoleRepository).count({
-              code: role.code,
-              status: GenericStatusConstant.IN_ACTIVE,
-            })
-              .then(count => {
-                expect(count).toEqual(1);
-              });
-          });
+        return factory().upset(RolePermission).use(rolePermission => {
+          rolePermission.role = role;
+          return rolePermission;
+        }).createMany(2).then(_ => {
+          return request(applicationContext.getHttpServer())
+            .delete(`/roles/${role.code}`)
+            .set('Authorization', testUser.token)
+            .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+            .expect(204).then(_ => {
+              return getConnection().getCustomRepository(RoleRepository).count({
+                code: role.code,
+                status: GenericStatusConstant.IN_ACTIVE,
+              })
+                .then(count => {
+                  expect(count).toEqual(1);
+                }).then(_ => {
+                  return connection
+                    .getCustomRepository(RolePermissionRepository)
+                    .count({ role, status: GenericStatusConstant.IN_ACTIVE })
+                    .then(count => {
+                      expect(count).toEqual(2);
+                    });
+                });
+            });
+        });
       });
     });
   });

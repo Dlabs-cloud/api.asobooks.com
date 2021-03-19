@@ -11,6 +11,7 @@ import { RolePermission } from '../domain/entity/role-permission.entity';
 import { Membership } from '../domain/entity/membership.entity';
 import { MembershipRole } from '../domain/entity/membership-role.entity';
 import { MembershipRoleRepository } from '../dao/membership-role.repository';
+import { RolePermissionRepository } from '../dao/role-permission.repository';
 
 @Injectable()
 export class RoleService {
@@ -77,8 +78,20 @@ export class RoleService {
   }
 
   deleteRole(role: Role) {
-    role.status = GenericStatusConstant.IN_ACTIVE;
-    return role.save().then(() => Promise.resolve());
+    return this.connection.transaction(entityManager => {
+      role.status = GenericStatusConstant.IN_ACTIVE;
+      return entityManager.save(role).then(() => Promise.resolve()).then(_ => {
+        return entityManager.getCustomRepository(RolePermissionRepository)
+          .find({ role }).then(rolePermissions => {
+            rolePermissions = rolePermissions.map(rolePermission => {
+              rolePermission.status = GenericStatusConstant.IN_ACTIVE;
+              return rolePermission;
+            });
+            return entityManager.save(rolePermissions);
+          });
+      });
+    });
+
 
   }
 }

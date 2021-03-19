@@ -14,6 +14,8 @@ import { MembershipInfo } from '../domain/entity/association-member-info.entity'
 import { ServiceFee } from '../domain/entity/service.fee.entity';
 import { Bill } from '../domain/entity/bill.entity';
 import { AssociationMemberQueryDto } from '../dto/association-member-query.dto';
+import { Role } from '../domain/entity/role.entity';
+import { MembershipRole } from '../domain/entity/membership-role.entity';
 
 
 @EntityRepository(Membership)
@@ -177,6 +179,18 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .andWhere('membership.status = :status', { status })
       .getMany();
 
+  }
+
+
+  findByRole(role: Role, status = GenericStatusConstant.ACTIVE) {
+    return this.createQueryBuilder('membership')
+      .select()
+      .innerJoin(MembershipRole, 'membershipRole', 'membershipRole.membership = membership.id')
+      .innerJoinAndSelect('membership.membershipInfo', 'membershipInfo')
+      .innerJoinAndSelect('membershipInfo.portalUser', 'portalUser')
+      .where('membershipRole.role = :role', { role: role.id })
+      .andWhere('membershipRole.status = :status', {status})
+      .getMany();
   }
 
 

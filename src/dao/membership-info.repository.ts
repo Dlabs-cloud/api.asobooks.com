@@ -7,6 +7,7 @@ import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Membership } from '../domain/entity/membership.entity';
 import { PortalUserQueryDto } from '../dto/portal-user-query.dto';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
+import { Role } from '../domain/entity/role.entity';
 
 @EntityRepository(MembershipInfo)
 export class MembershipInfoRepository extends BaseRepository<MembershipInfo> {
@@ -68,4 +69,6 @@ export class MembershipInfoRepository extends BaseRepository<MembershipInfo> {
       status,
     });
   }
+
+
 }
