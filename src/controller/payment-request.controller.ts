@@ -11,34 +11,32 @@ import { ApiResponseDto } from '../dto/api-response.dto';
 @AssociationContext()
 export class PaymentRequestController {
 
-  constructor(private readonly connection: Connection, private readonly paymentRequestService: PaymentRequestService) {
+  constructor(private readonly connection: Connection,
+              private readonly paymentRequestService: PaymentRequestService) {
   }
 
-  // @Get('/:reference/validate')
-  // validate(@Param('reference') reference: string) {
-  //   return this.paymentRequestService.validatePayment(reference);
-  // }
 
   @Get('confirm')
   confirmPayment(@Query() queryParam: ConfirmPaymentDto) {
-    return this.paymentRequestService.confirmPayment(queryParam).then(paymentRequest => {
-      return this.connection
-        .getCustomRepository(PaymentTransactionRepository)
-        .findByPaymentRequest(paymentRequest).then(paymentTransaction => {
-          const response: PaymentRequestDto = {
-            amountInMinorUnit: paymentRequest.amountInMinorUnit,
-            description: paymentRequest.description,
-            paymentProvider: paymentRequest.paymentProvider,
-            paymentStatus: paymentRequest.paymentStatus,
-            paymentType: paymentRequest.paymentType,
-            reference: paymentRequest.reference,
-            merchantReference: paymentRequest.merchantReference,
-            amountPaidInMinorUnit: paymentRequest.amountPaidInMinorUnit,
-            paymentTransactionId: paymentTransaction.id,
-          };
-          return new ApiResponseDto(response);
-        });
+    return this.paymentRequestService.validatePayment(queryParam)
+      .then(paymentRequest => {
+        return this.connection
+          .getCustomRepository(PaymentTransactionRepository)
+          .findByPaymentRequest(paymentRequest).then(paymentTransaction => {
+            const response: PaymentRequestDto = {
+              amountInMinorUnit: paymentRequest.amountInMinorUnit,
+              description: paymentRequest.description,
+              paymentProvider: paymentRequest.paymentProvider,
+              paymentStatus: paymentRequest.paymentStatus,
+              paymentType: paymentRequest.paymentType,
+              reference: paymentRequest.reference,
+              merchantReference: paymentRequest.merchantReference,
+              amountPaidInMinorUnit: paymentRequest.amountPaidInMinorUnit,
+              paymentTransactionId: paymentTransaction.id,
+            };
+            return new ApiResponseDto(response);
+          });
 
-    });
+      });
   }
 }

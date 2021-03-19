@@ -4,6 +4,8 @@ export enum PaymentChannel {
   BANK_TRANSFER = 'BANK_TRANSFER',
   ACCOUNT = 'ACCOUNT',
   QR = 'QR',
-  PAGA = 'PAGA'
+  PAGA = 'PAGA',
+  CASH = 'CASH',
+  PAY_OUT = 'PAY_OUT'
 
 }

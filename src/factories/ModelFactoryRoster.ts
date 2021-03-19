@@ -53,6 +53,10 @@ import { RolePermission } from '../domain/entity/role-permission.entity';
 import { RolePermissionFactory } from './factory/role-permission.factory';
 import { MembershipRoleFactory } from './factory/membership-role.factory';
 import { MembershipRole } from '../domain/entity/membership-role.entity';
+import { WalletTransaction } from '../domain/entity/wallet-transaction.entity';
+import { WalletTransactionFactory } from './factory/wallet-transaction.factory';
+import { WalletWithdrawal } from '../domain/entity/wallet-withdrawal.entity';
+import { WalletWithdrawalFactory } from './factory/wallet-withdrawal.factory';
 
 export class ModelFactoryRoster {
   static register(modelFactory: ModelFactory) {
@@ -83,5 +87,7 @@ export class ModelFactoryRoster {
     modelFactory.register(Permission, PermissionFactory);
     modelFactory.register(RolePermission, RolePermissionFactory);
     modelFactory.register(MembershipRole, MembershipRoleFactory);
+    modelFactory.register(WalletTransaction, WalletTransactionFactory);
+    modelFactory.register(WalletWithdrawal, WalletWithdrawalFactory);
   }
 }

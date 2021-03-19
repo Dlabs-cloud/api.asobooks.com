@@ -27,9 +27,6 @@ export class WalletTransaction extends BaseEntity {
   @JoinColumn()
   paymentTransaction: PaymentTransaction;
 
-  @OneToOne(() => WalletWithdrawal)
-  @JoinColumn()
-  walletWithdrawal: WalletWithdrawal;
 
   @Column({
     type: 'bigint',

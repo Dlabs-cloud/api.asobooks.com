@@ -45,9 +45,9 @@ export class FakerService implements OnApplicationBootstrap {
 
 
   onApplicationBootstrap(): any {
-    return this.seed().catch(err => {
-      console.log(err);
-    });
+    // return this.seed().catch(err => {
+    //   console.log(err);
+    // });
 
   }
 

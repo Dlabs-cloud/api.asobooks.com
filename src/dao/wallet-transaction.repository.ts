@@ -7,15 +7,14 @@ import { Wallet } from '../domain/entity/wallet.entity';
 @EntityRepository(WalletTransaction)
 export class WalletTransactionRepository extends BaseRepository<WalletTransaction> {
 
-  findWalletByStartDateAndEndDateAssociation(startDate: Date, endDate: Date, association: Association) {
+  findByStartDateAndEndDateWallet(startDate: Date, endDate: Date, wallet: Wallet) {
     return this
       .createQueryBuilder('walletTransaction')
       .select()
-      .innerJoin(Wallet, 'wallet', 'wallet.id = walletTransaction.walletId')
-      .where('wallet.association = :association', { association: association.id })
-      .andWhere('walletTransaction.updatedAt >= startDate', { startDate })
-      .andWhere('walletTransaction.updatedAt <= endDate', { endDate })
-      .limit(1)
+      .where('walletTransaction.wallet = :walletId', { walletId: wallet.id })
+      .andWhere('walletTransaction.updatedAt >= :startDate', { startDate })
+      .andWhere('walletTransaction.updatedAt <= :endDate', { endDate })
+      .take(1)
       .getOne();
   }
 }

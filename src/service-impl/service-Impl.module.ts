@@ -29,6 +29,8 @@ import { FakerService } from './faker.service';
 import { MembershipInfoService } from './membership-info.service';
 import { AddressService } from './address.service';
 import { RoleService } from './role.service';
+import { WalletWithdrawalService } from './wallet-withdrawal.service';
+import { WalletTransactionService } from './wallet-transaction.service';
 
 
 @Module({
@@ -65,6 +67,8 @@ import { RoleService } from './role.service';
     RoleService,
     PaymentTransactionService,
     AddressService,
+    WalletWithdrawalService,
+    WalletTransactionService,
   ],
   providers: [
     AuthenticationService,
@@ -91,6 +95,8 @@ import { RoleService } from './role.service';
     BillService,
     FakerService,
     MembershipInfoService,
+    WalletWithdrawalService,
+    WalletTransactionService,
   ],
 })
 export class ServiceImplModule {

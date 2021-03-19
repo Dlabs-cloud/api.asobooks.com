@@ -6,6 +6,7 @@ import { PaymentType } from '../../domain/enums/payment-type.enum';
 import { PaymentProvider } from '../../domain/enums/payment-provider.enum';
 import { Invoice } from '../../domain/entity/invoice.entity';
 import { Association } from '../../domain/entity/association.entity';
+import { WalletWithdrawal } from '../../domain/entity/wallet-withdrawal.entity';
 
 export class PaymentRequestFactory implements FactoryHelper<PaymentRequest> {
   async apply(faker: Faker.FakerStatic, modelFactory: ModelFactory): Promise<PaymentRequest> {
@@ -17,6 +18,7 @@ export class PaymentRequestFactory implements FactoryHelper<PaymentRequest> {
     paymentRequest.merchantReference = Date.now() + faker.random.alphaNumeric();
     paymentRequest.description = faker.random.words(50);
     paymentRequest.association = await modelFactory.create(Association);
+    paymentRequest.walletWithdrawal = await modelFactory.create(WalletWithdrawal);
     paymentRequest.amountInMinorUnit = Math.ceil(Number(faker.finance.amount(2_00_00, 5000_00)));
     paymentRequest.invoice = await modelFactory.create(Invoice);
     return paymentRequest;

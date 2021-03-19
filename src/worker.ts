@@ -10,6 +10,7 @@ async function bootstrap() {
 
   let port = process.env.HOST_PORT || process.env.WORKER_PORT || 5656;
   app.listen(port).then(() => {
+    console.log('Worker is starting up');
     console.log(`Starting up worker on  ${port}`);
   });
 }

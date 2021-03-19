@@ -24,4 +24,7 @@ export class Wallet extends BaseEntity {
   @ManyToOne(() => Association)
   association: Association;
 
+  @Column({ nullable: true })
+  associationId: number;
+
 }

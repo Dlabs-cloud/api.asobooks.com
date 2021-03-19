@@ -51,10 +51,7 @@ export class AssociationController extends BaseController {
 
     return this
       .associationHandler
-      .transform(requestPrincipal.association).then(response => {
-        console.log(response);
-        return new ApiResponseDto(response);
-      });
+      .transform(requestPrincipal.association).then(response => new ApiResponseDto(response));
   }
 
 

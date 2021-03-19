@@ -74,14 +74,13 @@ describe('Test subscription controller', () => {
                 const query = queryParams.join('&');
                 const url = `/subscriptions/${bill.subscription.code}?${query}`;
                 return generateToken(testUser.membership).then(token => {
-
                   return request(applicationContext.getHttpServer())
                     .get(url)
                     .set('Authorization', token)
                     .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
                     .expect(200).then(respnse => {
                       const body = respnse.body.data;
-                      const item = body.items[0];
+                      const item = body.queryData.items[0];
                       const portalUser = bill.membership.portalUser;
                       expect(item.email).toEqual(portalUser.email);
                       expect(item.firstName).toEqual(portalUser.firstName);
@@ -90,11 +89,10 @@ describe('Test subscription controller', () => {
                       expect(item.paymentStatus).toEqual(bill.paymentStatus);
                       expect(item.phoneNumber).toEqual(portalUser.phoneNumber);
                       expect(item.transactionReference).toEqual(paymentTransaction.reference);
-                      expect(body.itemsPerPage).toEqual(1);
-                      expect(body.total).toEqual(1);
+                      expect(body.queryData.itemsPerPage).toEqual(1);
+                      expect(body.queryData.total).toEqual(1);
                     });
                 });
-
               });
             });
           });
@@ -132,15 +130,15 @@ describe('Test subscription controller', () => {
               .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
               .expect(200).then(respnse => {
                 const body = respnse.body.data;
-                const item = body.items[0];
+                const item = body.queryData.items[0];
                 const portalUser = bill.membership.portalUser;
                 expect(item.email).toEqual(portalUser.email);
                 expect(item.firstName).toEqual(portalUser.firstName);
                 expect(item.lastName).toEqual(portalUser.lastName);
                 expect(item.paymentStatus).toEqual(bill.paymentStatus);
                 expect(item.phoneNumber).toEqual(portalUser.phoneNumber);
-                expect(body.itemsPerPage).toEqual(1);
-                expect(body.total).toEqual(1);
+                expect(body.queryData.itemsPerPage).toEqual(1);
+                expect(body.queryData.total).toEqual(1);
               });
           });
         });

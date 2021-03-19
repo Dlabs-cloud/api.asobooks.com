@@ -2,7 +2,6 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 import { Membership } from './membership.entity';
 import { BaseEntity } from '../../common/base.entity';
 import { BankInfo } from './bank-info.entity';
-import { PaymentStatus } from '../enums/payment-status.enum';
 import { Wallet } from './wallet.entity';
 import { WalletWithdrawalEnum } from '../enums/wallet.withdrawal.enum';
 
@@ -14,9 +13,9 @@ export class WalletWithdrawal extends BaseEntity {
   description: string;
   @Column({ type: 'bigint' })
   amountInMinorUnit: number;
-  @ManyToOne(() => BankInfo, { eager: true })
+  @ManyToOne(() => BankInfo)
   bankInfo: BankInfo;
-  @Column()
+  @Column({ unique: true })
   reference: string;
   @ManyToOne(() => Wallet)
   wallet: Wallet;
@@ -28,9 +27,7 @@ export class WalletWithdrawal extends BaseEntity {
     default: WalletWithdrawalEnum.PENDING,
   })
   withdrawalStatus: WalletWithdrawalEnum;
-
-
-  @Column({ nullable: true })
+  @Column({ nullable: true, unique: true })
   merchantReference: string;
 
 

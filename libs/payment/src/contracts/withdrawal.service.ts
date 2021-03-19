@@ -1,6 +1,6 @@
-import { WithdrawalResponseDto } from '@dlabs/payment/dto/withdrawal.response.dto';
 import { WithdrawalDto } from '@dlabs/payment/dto/withdrawal.dto';
+import { VerificationResponseDto } from '@dlabs/payment/dto';
 
 export interface WithdrawalService {
-  withdraw(withdrawalInfo: WithdrawalDto): Promise<WithdrawalResponseDto>
+  withdraw(withdrawalInfo: WithdrawalDto): Promise<VerificationResponseDto>
 }

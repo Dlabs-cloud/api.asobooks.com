@@ -1,10 +1,11 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 import { PaymentStatus } from '../enums/payment-status.enum';
 import { PaymentProvider } from '../enums/payment-provider.enum';
 import { PaymentType } from '../enums/payment-type.enum';
 import { Invoice } from './invoice.entity';
 import { Association } from './association.entity';
+import { WalletWithdrawal } from './wallet-withdrawal.entity';
 
 @Entity()
 export class PaymentRequest extends BaseEntity {
@@ -48,11 +49,14 @@ export class PaymentRequest extends BaseEntity {
   @JoinColumn({ name: 'invoiceId', referencedColumnName: 'id' })
   invoice: Invoice;
 
-
   @Column({
     nullable: true,
   })
   invoiceId: number;
+
+  @ManyToOne(() => WalletWithdrawal, { eager: true })
+  @JoinColumn({ name: 'walletWithdrawalId', referencedColumnName: 'id' })
+  walletWithdrawal: WalletWithdrawal;
 
   @ManyToOne(() => Association, { eager: true })
   @JoinColumn({ name: 'associationId', referencedColumnName: 'id' })

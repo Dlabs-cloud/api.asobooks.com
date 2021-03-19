@@ -335,7 +335,7 @@ describe('Service fees set up test ', () => {
                         .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
                         .expect(200).then(respnse => {
                           const body = respnse.body.data;
-                          const item = body.items[0];
+                          const item = body.queryData.items[0];
                           const portalUser = bill.membership.portalUser;
                           expect(item.email).toEqual(portalUser.email);
                           expect(item.firstName).toEqual(portalUser.firstName);
@@ -344,8 +344,8 @@ describe('Service fees set up test ', () => {
                           expect(item.paymentStatus).toEqual(bill.paymentStatus);
                           expect(item.phoneNumber).toEqual(portalUser.phoneNumber);
                           expect(item.transactionReference).toEqual(paymentTransaction.reference);
-                          expect(body.itemsPerPage).toEqual(1);
-                          expect(body.total).toEqual(1);
+                          expect(body.queryData.itemsPerPage).toEqual(1);
+                          expect(body.queryData.total).toEqual(1);
                         });
                     });
 

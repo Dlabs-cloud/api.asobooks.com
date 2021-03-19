@@ -1,6 +1,5 @@
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
-import { Association } from '../domain/entity/association.entity';
 import { TestingModule } from '@nestjs/testing';
 import { baseTestingModule, getAssociationUser } from './test-utils';
 import { ValidatorTransformPipe } from '../conf/validator-transform.pipe';
@@ -15,7 +14,6 @@ import { RolePermissionRepository } from '../dao/role-permission.repository';
 import { RoleRepository } from '../dao/role.repository';
 import { Role } from '../domain/entity/role.entity';
 import { RolePermission } from '../domain/entity/role-permission.entity';
-import { response } from 'express';
 import { PermissionRepository } from '../dao/permission.repository';
 
 describe('role controller-e2e', () => {
@@ -65,45 +63,53 @@ describe('role controller-e2e', () => {
 
 
   it('Test that a role can be gotten with its permissions', () => {
-    connection.getCustomRepository(PermissionRepository).delete({
-      id: MoreThanOrEqual(1),
-    }).then(U => {
-      return getAssociationUser().then(testUser => {
-        return factory().upset(Role).use(role => {
-          role.association = testUser.association;
-          return role;
-        }).create().then(role => {
-          return factory().upset(RolePermission).use(rolePermission => {
-            rolePermission.role = role;
-            rolePermission.association = testUser.association;
-            return rolePermission;
-          }).create().then(rolePermission => {
-            return request(applicationContext.getHttpServer())
-              .get(`/roles/${role.code}`)
-              .set('Authorization', testUser.token)
-              .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
-              .expect(200).then(response => {
-                const data = response.body.data;
-                expect(data).toEqual({
-                  name: role.name,
-                  code: role.code,
-                  permissions: [
-                    {
-                      name: rolePermission.permission.name,
-                      code: rolePermission.permission.code,
-                      exist: true,
-                    },
-                  ],
-                });
+    return connection
+      .getCustomRepository(RolePermissionRepository)
+      .delete({
+        id: MoreThanOrEqual(1),
+      }).then(_ => {
+        return connection.getCustomRepository(PermissionRepository).delete({
+          id: MoreThanOrEqual(1),
+        }).then(U => {
+          return getAssociationUser().then(testUser => {
+            return factory().upset(Role).use(role => {
+              role.association = testUser.association;
+              return role;
+            }).create().then(role => {
+              return factory().upset(RolePermission).use(rolePermission => {
+                rolePermission.role = role;
+                rolePermission.association = testUser.association;
+                return rolePermission;
+              }).create().then(rolePermission => {
+                return request(applicationContext.getHttpServer())
+                  .get(`/roles/${role.code}`)
+                  .set('Authorization', testUser.token)
+                  .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+                  .expect(200).then(response => {
+                    const data = response.body.data;
+                    expect(data).toEqual({
+                      name: role.name,
+                      code: role.code,
+                      permissions: [
+                        {
+                          name: rolePermission.permission.name,
+                          code: rolePermission.permission.code,
+                          exist: true,
+                        },
+                      ],
+                    });
+                  });
               });
+            });
           });
         });
       });
-    });
+
 
   });
-  it('Test that a role can be deleted', () => {
 
+
+  it('Test that a role can be deleted', () => {
     return getAssociationUser().then(testUser => {
       return factory().upset(Role).use(role => {
         role.association = testUser.association;

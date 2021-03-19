@@ -7,7 +7,7 @@ import { Association } from './association.entity';
 export class BankInfo extends BaseEntity {
   @Column()
   accountNumber: string;
-  @ManyToOne(() => Bank)
+  @ManyToOne(() => Bank, { eager: true })
   bank: Bank;
   @Column({ nullable: true })
   bankId: number;

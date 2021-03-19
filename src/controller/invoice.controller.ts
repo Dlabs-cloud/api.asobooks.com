@@ -33,7 +33,7 @@ export class InvoiceController {
         if (!invoice) {
           throw new NotFoundException('Invoice cannot be found');
         }
-        return this.paymentRequestService.makePayment(invoice);
+        return this.paymentRequestService.initiate(invoice);
       }).then(paymentRequest => {
         return Promise.resolve(new ApiResponseDto(paymentRequest));
       });

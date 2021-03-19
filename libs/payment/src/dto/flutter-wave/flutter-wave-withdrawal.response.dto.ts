@@ -1,5 +1,7 @@
+import { Status } from '@dlabs/payment';
+
 export class FlutterWaveWithdrawalResponseDto {
-  status: string;
+  status: Status;
   message: string;
   data: {
     id: string;
