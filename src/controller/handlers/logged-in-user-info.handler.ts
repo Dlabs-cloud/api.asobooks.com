@@ -5,6 +5,11 @@ import { MembershipRepository } from '../../dao/membership.repository';
 import { PortalAccountRepository } from '../../dao/portal-account.repository';
 import { Injectable } from '@nestjs/common';
 import { Connection } from 'typeorm';
+import { RoleRepository } from '../../dao/role.repository';
+import { MembershipRoleRepository } from '../../dao/membership-role.repository';
+import { CollectionUtils } from '../../common/utils/collection-utils';
+import { MembershipRole } from '../../domain/entity/membership-role.entity';
+import { PermissionRepository } from '../../dao/permission.repository';
 
 @Injectable()
 export class LoggedInUserInfoHandler {
@@ -25,21 +30,44 @@ export class LoggedInUserInfoHandler {
     if (!associations.length) {
       return Promise.resolve(response);
     }
-    let portalAccounts = await this.connection
+
+    const accountPermissions: { permissionid: number; portalaccountid: number }[] = await this.connection
+      .getCustomRepository(PermissionRepository)
+      .findByPortalUser(portalUser);
+
+    const portalAccountId = accountPermissions.map(accountPermission => accountPermission.portalaccountid);
+    const permissionId = accountPermissions.map(accountPermission => accountPermission.permissionid);
+
+
+    const portalAccounts = await this.connection
       .getCustomRepository(PortalAccountRepository)
-      .findByStatusAndAssociation(GenericStatusConstant.ACTIVE, ...associations);
+      .findByIds(portalAccountId);
+
+    const permissionModels = await this.connection
+      .getCustomRepository(PermissionRepository)
+      .findByIds(permissionId, { status: GenericStatusConstant.ACTIVE });
+
     const transformedAssociations = associations
       .map(association => {
-
         let associationAccounts = portalAccounts
           .filter(portalAccount => portalAccount.associationId === association.id)
           .map(portalAccount => {
+            const permissions = accountPermissions
+              .filter(accountPermission => accountPermission.portalaccountid === portalAccount.id)
+              .map(accountPermission => {
+                const permission = permissionModels
+                  .find(permission => permission.id === accountPermission.permissionid);
+                return {
+                  name: permission.name,
+                  code: permission.code,
+                };
+              });
             return {
               accountCode: portalAccount.code,
               dateUpdated: portalAccount.updatedAt,
               name: portalAccount.name,
               type: portalAccount.type,
-              permissions: [],
+              permissions: permissions,
             };
           });
 

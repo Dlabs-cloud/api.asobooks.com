@@ -5,6 +5,9 @@ import { EntityRepository } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import { Role } from '../domain/entity/role.entity';
 import { RolePermission } from '../domain/entity/role-permission.entity';
+import { PortalUser } from '../domain/entity/portal-user.entity';
+import { MembershipRole } from '../domain/entity/membership-role.entity';
+import { Membership } from '../domain/entity/membership.entity';
 
 @EntityRepository(Permission)
 export class PermissionRepository extends BaseRepository<Permission> {
@@ -23,5 +26,22 @@ export class PermissionRepository extends BaseRepository<Permission> {
       .andWhere('rolePermission.role = :role', { role: role.id })
       .andWhere('rolePermission.status = :status', { status })
       .getMany();
+  }
+
+  findByPortalUser(user: PortalUser, status = GenericStatusConstant.ACTIVE): Promise<{ permissionid: number, portalaccountid: number }[]> {
+    return this.createQueryBuilder('permission')
+      .distinct()
+      .select(['permission.id as permissionId', 'portalAccount.id as portalAccountId'])
+      .innerJoin(RolePermission, 'rolePermission', 'rolePermission.permission = permission.id')
+      .innerJoin(Role, 'role', 'rolePermission.role = role.id')
+      .innerJoin(MembershipRole, 'membershipRole', 'membershipRole.role = role.id')
+      .innerJoin(Membership, 'membership', 'membershipRole.membership = membership.id')
+      .innerJoin(PortalAccount, 'portalAccount', 'membership.portalAccount = portalAccount.id')
+      .where('membership.portalUser = :portalUser', { portalUser: user.id })
+      .andWhere('role.status = :status', { status })
+      .andWhere('membershipRole.status = :status', { status })
+      .andWhere('rolePermission.status = :status', { status })
+      .andWhere('permission.status = :status', { status })
+      .getRawMany();
   }
 }

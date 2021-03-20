@@ -21,6 +21,8 @@ import { MembershipRole } from '../domain/entity/membership-role.entity';
 @EntityRepository(Membership)
 export class MembershipRepository extends BaseRepository<Membership> {
 
+
+
   public findByPortalAccountAndPortalUser(portalUser: PortalUser,
                                           portalAccount: PortalAccount,
                                           status = GenericStatusConstant.ACTIVE): Promise<Membership> {

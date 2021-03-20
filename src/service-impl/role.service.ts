@@ -38,7 +38,6 @@ export class RoleService {
               const rolePermission = new RolePermission();
               rolePermission.permission = permission;
               rolePermission.role = role;
-              rolePermission.association = association;
               return entityManager.save(rolePermission);
             });
             return Promise.all(rolePermissionPromise).then(() => {

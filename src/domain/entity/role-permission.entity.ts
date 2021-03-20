@@ -12,6 +12,4 @@ export class RolePermission extends BaseEntity {
   @ManyToOne(() => Permission)
   permission: Permission;
 
-  @ManyToOne(() => Association)
-  association: Association;
 }

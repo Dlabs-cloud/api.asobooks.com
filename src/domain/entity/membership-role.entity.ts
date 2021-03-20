@@ -10,6 +10,4 @@ export class MembershipRole extends BaseEntity {
   membership: Membership;
   @ManyToOne(() => Role)
   role: Role;
-
-
 }

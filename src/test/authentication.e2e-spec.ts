@@ -6,7 +6,7 @@ import { PortalUser } from '../domain/entity/portal-user.entity';
 import { PortalAccount } from '../domain/entity/portal-account.entity';
 import { TestingModule } from '@nestjs/testing';
 import { ServiceImplModule } from '../service-impl/service-Impl.module';
-import { baseTestingModule, getLoginUser, getTestUser } from './test-utils';
+import { baseTestingModule, getAssociationUser, getLoginUser, getTestUser } from './test-utils';
 import { getConnection } from 'typeorm';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import * as request from 'supertest';
@@ -26,6 +26,9 @@ import { ServiceModule } from '../service/service.module';
 import { MembershipRepository } from '../dao/membership.repository';
 import { ProfileUpdateDto } from '../dto/profile-update.dto';
 import { CommonModule } from '../common/common.module';
+import { RolePermission } from '../domain/entity/role-permission.entity';
+import { Role } from '../domain/entity/role.entity';
+import { MembershipRole } from '../domain/entity/membership-role.entity';
 
 describe('AuthController', () => {
   let applicationContext: INestApplication;
@@ -207,18 +210,17 @@ describe('AuthController', () => {
 
   });
 
-  it('test that when a user is logged in he can get me', async () => {
 
+  it('test that when a user is logged in he can get me', async () => {
     let association = await factory().upset(Association).use(association => {
       association.status = GenericStatusConstant.PENDING_ACTIVATION;
       return association;
     }).create();
+
     let response = await request(applicationContext.getHttpServer())
       .get('/me')
       .set('Authorization', (await getLoginUser(null, null, association)).token);
     let responseData = response.body.data;
-
-
     expect(responseData.firstName).toBeDefined();
     expect(responseData.lastName).toBeDefined();
     expect(responseData.username).toBeDefined();
@@ -269,13 +271,75 @@ describe('AuthController', () => {
     expect(membership).toBeDefined();
 
   });
+
+
+  it('Test that permissions are returned with when calling me', () => {
+    return getAssociationUser(GenericStatusConstant.ACTIVE).then(associationUser => {
+      return factory().upset(Role).use(role => {
+        role.association = associationUser.association;
+        return role;
+      }).create().then(role => {
+        return factory().upset(RolePermission).use(rolePermission => {
+          rolePermission.role = role;
+          return rolePermission;
+        }).createMany(4).then(_ => {
+          return factory().upset(MembershipRole).use(membershipRole => {
+            membershipRole.role = role;
+            membershipRole.membership = associationUser.user.membership;
+            return membershipRole;
+          }).createMany(4).then(() => {
+            return request(applicationContext.getHttpServer())
+              .get('/me')
+              .set('Authorization', associationUser.token)
+              .expect(200)
+              .then(response => {
+                let responseData = response.body.data;
+                expect(responseData.firstName).toBeDefined();
+                expect(responseData.lastName).toBeDefined();
+                expect(responseData.username).toBeDefined();
+                expect(responseData.email).toBeDefined();
+                expect(responseData.phoneNumber).toBeDefined();
+                expect(responseData.associations).toBeDefined();
+                expect(responseData.associations.length).toEqual(1);
+                expect(responseData.associations).toEqual(
+                  expect.arrayContaining([
+                    expect.objectContaining({
+                      name: expect.anything(),
+                      type: expect.anything(),
+                      code: expect.anything(),
+                      status: GenericStatusConstant.ACTIVE,
+                      accounts: expect.arrayContaining([
+                        expect.objectContaining({
+                          accountCode: expect.anything(),
+                          dateUpdated: expect.anything(),
+                          name: expect.anything(),
+                          type: expect.anything(),
+                          permissions: expect.arrayContaining([
+                            expect.objectContaining({
+                              name: expect.anything(),
+                              code: expect.anything(),
+                            }),
+                          ]),
+                        }),
+                      ]),
+                    }),
+                  ]),
+                );
+              });
+          });
+        });
+
+      });
+    });
+
+  });
+
+
   it('Test that email should be sent to a user that has not been verified', async () => {
     let portalUser = await getTestUser(GenericStatusConstant.PENDING_ACTIVATION);
     const payload: PasswordResetDto = {
       email: portalUser.membership.portalUser.email,
     };
-
-
     await request(applicationContext.getHttpServer())
       .post(`/validate-principal`)
       .send(payload)
