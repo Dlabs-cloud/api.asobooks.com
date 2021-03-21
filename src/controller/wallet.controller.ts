@@ -12,6 +12,9 @@ import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-c
 import { WalletWithdrawalDto } from '../dto/wallet-withdrawal.dto';
 import { ApiResponseDto } from '../dto/api-response.dto';
 import { WalletWithdrawalService } from '../service-impl/wallet-withdrawal.service';
+import { HasMembership } from '../dlabs-nest-starter/security/annotations/has-membership';
+import { PermissionEnum } from '../core/permission.enum';
+import { HasPermission } from '../dlabs-nest-starter/security/annotations/has-permission';
 
 @Controller('wallets')
 @AssociationContext()
@@ -45,6 +48,8 @@ export class WalletController {
 
 
   @Post()
+  @HasMembership(PortalAccountTypeConstant.EXECUTIVE_ACCOUNT)
+ // @HasPermission(PermissionEnum.CAN_WITHDRAW_FROM_WALLET)
   withdraw(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
            @Body() request: WalletWithdrawalDto) {
     return this.connection

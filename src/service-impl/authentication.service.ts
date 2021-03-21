@@ -28,6 +28,7 @@ import { InActiveAccountException } from '../exception/in-active-account.excepti
 import { IllegalArgumentException } from '../exception/illegal-argument.exception';
 import { MembershipInfoService } from './membership-info.service';
 import { MembershipCodeSequence } from '../core/sequenceGenerators/membership-code.sequence';
+import { tsconfigPathsBeforeHookFactory } from '@nestjs/cli/lib/compiler/hooks/tsconfig-paths.hook';
 
 @Injectable()
 export class AuthenticationService {

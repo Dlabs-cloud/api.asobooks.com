@@ -8,6 +8,7 @@ import { LoggerInterceptor } from './security/interceptors/logger.interceptor';
 import { ServiceImplModule } from '../service-impl/service-Impl.module';
 import { ConfModule } from '../conf/conf.module';
 import { ServiceModule } from '../service/service.module';
+import { PermissionsInterceptor } from './security/interceptors/permissions.interceptor';
 
 @Module({
   imports: [
@@ -34,6 +35,11 @@ import { ServiceModule } from '../service/service.module';
     {
       provide: APP_INTERCEPTOR,
       useExisting: LoggerInterceptor,
+    },
+    PermissionsInterceptor,
+    {
+      provide: APP_INTERCEPTOR,
+      useExisting: PermissionsInterceptor,
     },
     LoggerInterceptor,
   ],

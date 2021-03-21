@@ -3,9 +3,10 @@ import { BaseEntity } from '../../common/base.entity';
 
 @Entity()
 export class Permission extends BaseEntity {
-  @Column()
+  @Column({ unique: true })
   name: string;
 
-  @Column()
+
+  @Column({ unique: true })
   code: string;
 }

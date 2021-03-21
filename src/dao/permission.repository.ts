@@ -8,6 +8,10 @@ import { RolePermission } from '../domain/entity/role-permission.entity';
 import { PortalUser } from '../domain/entity/portal-user.entity';
 import { MembershipRole } from '../domain/entity/membership-role.entity';
 import { Membership } from '../domain/entity/membership.entity';
+import { PortalAccountRepository } from './portal-account.repository';
+import { Association } from '../domain/entity/association.entity';
+import { PermissionEnum } from '../core/permission.enum';
+import { MembershipInfo } from '../domain/entity/association-member-info.entity';
 
 @EntityRepository(Permission)
 export class PermissionRepository extends BaseRepository<Permission> {
@@ -43,5 +47,29 @@ export class PermissionRepository extends BaseRepository<Permission> {
       .andWhere('rolePermission.status = :status', { status })
       .andWhere('permission.status = :status', { status })
       .getRawMany();
+  }
+
+  hasPermission(user: PortalUser, association: Association, ...permissions: PermissionEnum[]) {
+    const status = GenericStatusConstant.ACTIVE;
+    return this
+      .createQueryBuilder('permission')
+      .select()
+      .distinct()
+      .innerJoin(RolePermission, 'rolePermission', 'rolePermission.permission = permission.id')
+      .innerJoin(Role, 'role', 'rolePermission.role = role.id')
+      .innerJoin(MembershipRole, 'membershipRole', 'membershipRole.role = role.id')
+      .innerJoin(Membership, 'membership', 'membershipRole.membership = membership.id')
+      .innerJoin(MembershipInfo, 'membershipInfo', 'membershipInfo.id = membership.membershipInfo')
+      .where('membership.portalUser = :portalUser', { portalUser: user.id })
+      .andWhere('role.status = :status', { status })
+      .andWhere('membershipRole.status = :status', { status })
+      .andWhere('rolePermission.status = :status', { status })
+      .andWhere('permission.status = :status', { status })
+      .andWhere('permission.status = :status', { status })
+      .andWhere('permission.name IN (:...names)', { names: permissions })
+      .andWhere('membershipInfo.association = :association', { association: association.id })
+      .getCount();
+
+
   }
 }
