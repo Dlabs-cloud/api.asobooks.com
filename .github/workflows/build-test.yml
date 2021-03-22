@@ -5,25 +5,19 @@ on:
 #  pull_request:
 #    branches: [ develop ]
 jobs:
-  build:
+  build_and_deploy:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:10.8
-        env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: test
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    strategy:
+      matrix:
+        node-version: [ 12.x ]
+
     steps:
       - name: Checking out of repo.
         uses: actions/checkout@v2
       - name: Setup Node.js environment
-        uses: actions/setup-node@v2.1.1
+        uses: actions/setup-node@v1
         with:
-          node-version: '12'
+          node-version: ${{ matrix.node-version }}
           check-latest: true
       - name: Get npm cache directory
         uses: actions/cache@v2
@@ -42,13 +36,13 @@ jobs:
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASS }}
       - name: Build Docker image
-        run:  npm run docker-build
+        run: npm run docker-build
       - name: Publish Docker image
         run: docker push $REPO
 
 
 
-        
+
 #      - name: Run Test
 #        run: npm run test:cov
 #      - name: Upload coverage to Codecov
