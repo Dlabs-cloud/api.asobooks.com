@@ -9,7 +9,6 @@ import { Role } from '../../domain/entity/role.entity';
 export class RolePermissionFactory implements FactoryHelper<RolePermission> {
   async apply(faker: Faker.FakerStatic, modelFactory: ModelFactory): Promise<RolePermission> {
     const rolePermission = new RolePermission();
-    rolePermission.association = await factory().create(Association);
     rolePermission.permission = await factory().create(Permission);
     rolePermission.role = await factory().create(Role);
     return rolePermission;
