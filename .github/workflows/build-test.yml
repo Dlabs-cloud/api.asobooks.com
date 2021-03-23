@@ -28,13 +28,15 @@ jobs:
             ${{ runner.OS }}-npm-cache-
       - name: Install all node modules
         run: npm install
-        
+
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASS }}
       - name: Build Docker image
         run: npm run docker-build
       - name: Publish Docker image
         run: docker push ${{ secrets.DOCKER_REPO }}
+        
+#        /opt/webserver/asobooks-test/scripts
 
 
 

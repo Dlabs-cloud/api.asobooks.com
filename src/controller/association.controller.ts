@@ -46,12 +46,11 @@ export class AssociationController extends BaseController {
 
   @Get()
   @AssociationContext()
-  public async getOnBoardingAssociation(@RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
-
-
+  public async getAssociation(@RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
     return this
       .associationHandler
-      .transform(requestPrincipal.association).then(response => new ApiResponseDto(response));
+      .transform(requestPrincipal.association)
+      .then(response => new ApiResponseDto(response));
   }
 
 

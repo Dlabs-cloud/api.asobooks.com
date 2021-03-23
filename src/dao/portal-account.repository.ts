@@ -92,5 +92,18 @@ export class PortalAccountRepository extends BaseRepository<PortalAccount> {
       .getMany();
   }
 
+  findByAssociationsAndStatus(association: Association[], ...status: GenericStatusConstant[]) {
+    const associationIds = association.map(association => association.id);
+    return this
+      .createQueryBuilder('portalAccount')
+      .select()
+      .where('portalAccount.status IN (:...status)')
+      .andWhere('portalAccount.association  IN  (:...association)', { association: associationIds })
+      .setParameter('status', status)
+      .getMany();
+
+
+  }
+
 
 }
