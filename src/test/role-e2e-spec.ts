@@ -78,16 +78,15 @@ describe('role controller-e2e', () => {
             }).create().then(role => {
               return factory().upset(RolePermission).use(rolePermission => {
                 rolePermission.role = role;
-                rolePermission.association = testUser.association;
                 return rolePermission;
               }).create().then(rolePermission => {
                 return request(applicationContext.getHttpServer())
-                  .get(`/roles/${role.code}`)
+                  .get(`/roles`)
                   .set('Authorization', testUser.token)
                   .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
                   .expect(200).then(response => {
                     const data = response.body.data;
-                    expect(data).toEqual({
+                    expect(data[0]).toEqual({
                       name: role.name,
                       code: role.code,
                       permissions: [

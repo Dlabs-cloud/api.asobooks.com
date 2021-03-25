@@ -28,6 +28,15 @@ export class RoleController {
   }
 
 
+  @Get()
+  get(@RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
+    return this.connection.getCustomRepository(RoleRepository)
+      .find({ status: GenericStatusConstant.ACTIVE, association: requestPrincipal.association })
+      .then(roles => {
+        return this.roleTransformer.transformRoles(roles).then(roles => new ApiResponseDto(roles));
+      });
+  }
+
   @Delete('/:code')
   delete(@Param('code')code: string, @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
     return this.connection.getCustomRepository(RoleRepository)
@@ -41,7 +50,7 @@ export class RoleController {
   }
 
   @Get(':code')
-  get(@Param('code') code: string, @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
+  getRole(@Param('code') code: string, @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
     return this.connection.getCustomRepository(RoleRepository)
       .findOne({ code, status: GenericStatusConstant.ACTIVE, association: requestPrincipal.association })
       .then(role => {

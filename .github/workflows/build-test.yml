@@ -35,7 +35,7 @@ jobs:
         run: npm run docker-build
       - name: Publish Docker image
         run: docker push ${{ secrets.DOCKER_REPO }}
-        
+
 #        /opt/webserver/asobooks-test/scripts
 
 

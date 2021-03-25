@@ -23,4 +23,8 @@ export class BaseEntity extends Base {
     type: 'timestamp',
   })
   updatedAt?: Date;
+
+  equals(entity: any) {
+    return this.id === entity.id;
+  }
 }
