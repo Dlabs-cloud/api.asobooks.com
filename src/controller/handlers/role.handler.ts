@@ -30,7 +30,8 @@ export class RoleHandler {
     if (!roles || !roles.length) {
       return [];
     }
-    const permissions = await this.connection.getCustomRepository(PermissionRepository)
+    const permissions = await this.connection
+      .getCustomRepository(PermissionRepository)
       .find({ status: GenericStatusConstant.ACTIVE });
     const rolePermissions = await this.connection
       .getCustomRepository(RolePermissionRepository)

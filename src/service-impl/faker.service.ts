@@ -32,6 +32,9 @@ import { Subscription } from '../domain/entity/subcription.entity';
 import { MembershipRepository } from '../dao/membership.repository';
 import { BillService } from './bill.service';
 import { getManager } from 'typeorm';
+import { Permission } from '../domain/entity/permission.entity';
+import { Role } from '../domain/entity/role.entity';
+import { RolePermission } from '../domain/entity/role-permission.entity';
 
 @Injectable()
 export class FakerService implements OnApplicationBootstrap {
@@ -45,9 +48,9 @@ export class FakerService implements OnApplicationBootstrap {
 
 
   onApplicationBootstrap(): any {
-    // return this.seed().catch(err => {
-    //   console.log(err);
-    // });
+    return this.seed().catch(err => {
+      console.log(err);
+    });
 
   }
 
@@ -73,6 +76,8 @@ export class FakerService implements OnApplicationBootstrap {
                     });
                     return Promise.all(paymentTransactions);
                   }).then(() => {
+                    return this.createRolePermissions(testUser.association);
+                  }).then(() => {
                     return this.createWallet(testUser.association);
                   }).then(() => {
                     return this.seedActivityLog(testUser.association);
@@ -80,13 +85,31 @@ export class FakerService implements OnApplicationBootstrap {
                     return this.seedServiceFee(testUser.association);
                   });
                 });
-
-
             });
         }
       });
   }
 
+
+  async createRolePermissions(association: Association) {
+    const permissions = await factory().createMany(10, Permission);
+    const roles = await factory().upset(Role).use(role => {
+      role.association = association;
+      return role;
+    }).createMany(3);
+    const rolePromise = roles.map(role => {
+      const rolePermPromise = permissions.map(permission => {
+        return factory().upset(RolePermission).use(rolePermission => {
+          rolePermission.permission = permission;
+          rolePermission.role = role;
+          return rolePermission;
+        }).create();
+      });
+      return Promise.all(rolePermPromise);
+    });
+
+    return Promise.all(rolePromise);
+  }
 
   seedActivityLog(association: Association) {
     return factory().upset(ActivityLog).use(activityLog => {
