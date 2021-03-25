@@ -29,7 +29,6 @@ export class LoggedInUserInfoHandler {
     const portalAccounts = await this.connection
       .getCustomRepository(PortalAccountRepository)
       .findByAssociationsAndStatus(associations, GenericStatusConstant.ACTIVE, GenericStatusConstant.PENDING_ACTIVATION);
-    console.log(portalAccounts);
     const accountPermissions: { permissionid: number; portalaccountid: number }[] = await this.connection
       .getCustomRepository(PermissionRepository)
       .findByPortalUser(portalUser);
