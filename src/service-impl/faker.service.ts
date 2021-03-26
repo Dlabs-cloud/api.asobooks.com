@@ -70,20 +70,34 @@ export class FakerService implements OnApplicationBootstrap {
             }).then(portalUser => {
               return this.getTestUser(GenericStatusConstant.ACTIVE, portalUser, null, PortalAccountTypeConstant.EXECUTIVE_ACCOUNT)
                 .then(testUser => {
-                  return this.createMembers(testUser.association).then(members => {
-                    const paymentTransactions = members.map(member => {
-                      return this.createPaymentTransactions(member, testUser.association);
+                  return factory().upset(MembershipInfo).use(mInfo => {
+                    mInfo.portalUser = portalUser;
+                    mInfo.association = testUser.association;
+                    return mInfo;
+                  })
+                    .create()
+                    .then(() => {
+                      return this
+                        .createAccounts(testUser.association, PortalAccountTypeConstant.EXECUTIVE_ACCOUNT)
+                        .then(() => {
+                          return this.createAccounts(testUser.association, PortalAccountTypeConstant.MEMBER_ACCOUNT).then(members => {
+                            const paymentTransactions = members.map(member => {
+                              return this.createPaymentTransactions(member, testUser.association);
+                            });
+                            return Promise.all(paymentTransactions);
+                          }).then(() => {
+                            return this.createRolePermissions(testUser.association);
+                          }).then(() => {
+                            return this.createWallet(testUser.association);
+                          }).then(() => {
+                            return this.seedActivityLog(testUser.association);
+                          }).then(_ => {
+                            return this.seedServiceFee(testUser.association);
+                          });
+                        });
+
                     });
-                    return Promise.all(paymentTransactions);
-                  }).then(() => {
-                    return this.createRolePermissions(testUser.association);
-                  }).then(() => {
-                    return this.createWallet(testUser.association);
-                  }).then(() => {
-                    return this.seedActivityLog(testUser.association);
-                  }).then(_ => {
-                    return this.seedServiceFee(testUser.association);
-                  });
+
                 });
             });
         }
@@ -125,14 +139,14 @@ export class FakerService implements OnApplicationBootstrap {
     }).create();
   }
 
-  async createMembers(association) {
+  async createAccounts(association, type: PortalAccountTypeConstant) {
     const membershipInfos = await factory().upset(MembershipInfo).use(membershipInfo => {
       membershipInfo.association = association;
       return membershipInfo;
     }).createMany(50);
     let portalAccount = await this.connection.getCustomRepository(PortalAccountRepository)
       .findOne({
-        type: PortalAccountTypeConstant.MEMBER_ACCOUNT,
+        type,
         association: association,
       });
     const membershipPromise = membershipInfos.map(membershipInfo => {
@@ -195,6 +209,7 @@ export class FakerService implements OnApplicationBootstrap {
       portalUser.status = status;
       return portalUser;
     }).create();
+
 
     let membership = await (factory()
       .upset(Membership)
