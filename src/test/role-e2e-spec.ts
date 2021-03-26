@@ -75,31 +75,32 @@ describe('role controller-e2e', () => {
             return factory().upset(Role).use(role => {
               role.association = testUser.association;
               return role;
-            }).create().then(role => {
-              return factory().upset(RolePermission).use(rolePermission => {
-                rolePermission.role = role;
-                return rolePermission;
-              }).create().then(rolePermission => {
-                return request(applicationContext.getHttpServer())
-                  .get(`/roles`)
-                  .set('Authorization', testUser.token)
-                  .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
-                  .expect(200).then(response => {
-                    const data = response.body.data;
-                    expect(data[0]).toEqual({
-                      name: role.name,
-                      code: role.code,
-                      permissions: [
-                        {
-                          name: rolePermission.permission.name,
-                          code: rolePermission.permission.code,
-                          exist: true,
-                        },
-                      ],
+            }).create()
+              .then(role => {
+                return factory().upset(RolePermission).use(rolePermission => {
+                  rolePermission.role = role;
+                  return rolePermission;
+                }).create().then(rolePermission => {
+                  return request(applicationContext.getHttpServer())
+                    .get(`/roles`)
+                    .set('Authorization', testUser.token)
+                    .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+                    .expect(200).then(response => {
+                      const data = response.body.data;
+                      expect(data[0]).toEqual({
+                        name: role.name,
+                        code: role.code,
+                        permissions: [
+                          {
+                            name: rolePermission.permission.name,
+                            code: rolePermission.permission.code,
+                            exist: true,
+                          },
+                        ],
+                      });
                     });
-                  });
+                });
               });
-            });
           });
         });
       });

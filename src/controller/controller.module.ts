@@ -33,6 +33,7 @@ import { SubscriptionController } from './subscription.controller';
 import { WalletWithdrawalController } from './wallet-withdrawal.controller';
 import { WalletController } from './wallet.controller';
 import { AssociationHandler } from './handlers/association.handler';
+import { MembershipRolesHandler } from './handlers/membership.roles.handler';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { AssociationHandler } from './handlers/association.handler';
     ServiceFeeHandler,
     BillTransactionsHandler,
     AssociationHandler,
+    MembershipRolesHandler,
     {
 
       provide: APP_INTERCEPTOR,

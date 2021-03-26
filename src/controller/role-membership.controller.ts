@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
 import { RoleMembershipRequestDto } from '../dto/role-membership.request.dto';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
@@ -11,20 +11,34 @@ import { ApiResponseDto } from '../dto/api-response.dto';
 import { RoleService } from '../service-impl/role.service';
 import { Connection } from 'typeorm/connection/Connection';
 import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
-import { RolePermissionRepository } from '../dao/role-permission.repository';
 import { MembershipRoleRepository } from '../dao/membership-role.repository';
-import { MembershipInfo } from '../domain/entity/association-member-info.entity';
-import { MembershipInfoRepository } from '../dao/membership-info.repository';
+import { MembershipRoleQueryDto } from '../dto/membership-role.query.dto';
+import { MembershipRolesHandler } from './handlers/membership.roles.handler';
 
-@Controller('roles/:code/memberships')
+@Controller()
 @AssociationContext()
 export class RoleMembershipController {
 
   constructor(private readonly roleService: RoleService,
+              private readonly membershipRoleHandler: MembershipRolesHandler,
               private readonly connection: Connection) {
   }
 
-  @Post()
+  @Get('/role-memberships')
+  getMembershipRoles(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
+                     @Query() query: MembershipRoleQueryDto) {
+
+    return this.connection
+      .getCustomRepository(MembershipRoleRepository)
+      .findByByAssociation(requestPrincipal.association, query)
+      .then(roleMembership => {
+        const res = this.membershipRoleHandler.transform(roleMembership);
+        return new ApiResponseDto(res);
+      });
+
+  }
+
+  @Post('/roles/:code/memberships')
   addMembership(@Body()request: RoleMembershipRequestDto,
                 @Param('code')code: string,
                 @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
@@ -47,7 +61,7 @@ export class RoleMembershipController {
   }
 
 
-  @Delete('/:identifier')
+  @Delete('/roles/:code/memberships/:identifier')
   removeMember(@Param('code') code: string,
                @Param('identifier')identifier: string,
                @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
@@ -72,7 +86,7 @@ export class RoleMembershipController {
       });
   }
 
-  @Get()
+  @Get('/roles/:code/memberships')
   getMember(@Param('code') code: string,
             @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
     return this.connection
