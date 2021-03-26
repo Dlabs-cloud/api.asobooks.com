@@ -20,23 +20,23 @@ jobs:
           node-version: ${{ matrix.node-version }}
           check-latest: true
 
-#      - name: Get npm cache directory
-#        uses: actions/cache@v2
-#        with:
-#          path: ~/.npm
-#          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-#          restore-keys: |
-#            ${{ runner.OS }}-npm-cache-
+      - name: Get npm cache directory
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
 
-#      - name: Install all node modules
-#        run: npm install
+      - name: Install all node modules
+        run: npm install
 
-#      - name: Login to Docker Hub
-#        run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASS }}
-#      - name: Build Docker image
-#        run: npm run docker-build
-#      - name: Publish Docker image
-#        run: docker push ${{ secrets.DOCKER_REPO }}
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASS }}
+      - name: Build Docker image
+        run: npm run docker-build
+      - name: Publish Docker image
+        run: docker push ${{ secrets.DOCKER_REPO }}
 
       - name: deploy command
         uses: appleboy/ssh-action@master
