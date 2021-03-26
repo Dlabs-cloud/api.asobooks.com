@@ -46,7 +46,7 @@ export class ServiceFeeController {
 
     let recipients = serviceFeeRequestDto.recipients;
     let members: Membership[] = null;
-    if (recipients) {
+    if (recipients && recipients.length) {
       members = await this.connection.getCustomRepository(MembershipRepository)
         .findByAssociationAndAccountTypeAndStatusAndIdentifiers(requestPrincipal.association,
           PortalAccountTypeConstant.MEMBER_ACCOUNT, GenericStatusConstant.ACTIVE,
