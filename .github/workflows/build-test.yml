@@ -46,9 +46,11 @@ jobs:
           passphrase: ${{secrets.CI_KEY_PASSPHRASE}}
           key: ${{ secrets.CI_KEY }}
           script: |
-            whoami
             cd /opt/webserver/asobooks-test/
-            ls -la
+            docker pull uncletee/asobooks-api
+            docker-compose down
+            docker system prune -f
+            docker-compose up
 
 #        /opt/webserver/asobooks-test/scripts
 
