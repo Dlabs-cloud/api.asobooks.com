@@ -50,7 +50,7 @@ jobs:
             docker pull uncletee/asobooks-api
             docker-compose down
             docker system prune -f
-            docker-compose up
+            docker-compose up -d
 
 #        /opt/webserver/asobooks-test/scripts
 
