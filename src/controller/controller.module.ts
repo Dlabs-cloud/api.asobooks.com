@@ -34,6 +34,7 @@ import { WalletWithdrawalController } from './wallet-withdrawal.controller';
 import { WalletController } from './wallet.controller';
 import { AssociationHandler } from './handlers/association.handler';
 import { MembershipRolesHandler } from './handlers/membership.roles.handler';
+import { PermissionController } from './permission.controller';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { MembershipRolesHandler } from './handlers/membership.roles.handler';
     RoleController,
     WalletWithdrawalController,
     WalletController,
+    PermissionController,
   ],
   providers: [
     ResponseTransformInterceptor,
@@ -74,6 +76,7 @@ import { MembershipRolesHandler } from './handlers/membership.roles.handler';
     BillTransactionsHandler,
     AssociationHandler,
     MembershipRolesHandler,
+
     {
 
       provide: APP_INTERCEPTOR,
