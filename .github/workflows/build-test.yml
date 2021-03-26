@@ -47,7 +47,8 @@ jobs:
           key: ${{ secrets.CI_KEY }}
           script: |
             whoami
-            ls -al
+            cd /opt/webserver/asobooks-test/
+            ls -la
 
 #        /opt/webserver/asobooks-test/scripts
 
