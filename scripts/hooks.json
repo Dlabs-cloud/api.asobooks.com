@@ -1,8 +1,9 @@
 [
   {
     "id": "test-deploy",
-    "execute-command": "/my/scrips/path/redeploy.sh",
-    "command-working-directory": "/my/path/to/hooks",
+    "execute-command": "/opt/webserver/asobooks-test/deploy.sh",
+    "command-working-directory": "/opt/webserver/asobooks-test",
     "response-message": "Deploy test successfully"
   }
 ]
+
