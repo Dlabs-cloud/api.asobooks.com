@@ -69,14 +69,21 @@ export class AssociationController extends BaseController {
                 @RequestPrincipalContext() requestPrincipal: RequestPrincipal,
                 @Body() request: UpdateAssociationDto) {
 
-    if (file) {
-      request.logo = this.requestToFile(file.buffer, file.originalname, file.mimetype, FileTypeConstant.IMAGE);
+
+    try {
+      if (file) {
+        request.logo = this.requestToFile(file.buffer, file.originalname, file.mimetype, FileTypeConstant.IMAGE);
+      }
+
+      return this.associationService
+        .updateAssociation(requestPrincipal.association, request)
+        .then(association => {
+          return Promise.resolve(new ApiResponseDto(null, 204));
+        });
+
+    }catch (e) {
+      console.log(e)
     }
 
-    return this.associationService
-      .updateAssociation(requestPrincipal.association, request)
-      .then(association => {
-        return Promise.resolve(new ApiResponseDto(null, 204));
-      });
   }
 }
