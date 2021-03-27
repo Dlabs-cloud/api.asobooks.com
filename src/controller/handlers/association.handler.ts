@@ -31,7 +31,10 @@ export class AssociationHandler {
               .getCustomRepository(BankRepository)
               .findOne({ id: wallet.bank.bankId })
               .then(bank => {
-                response.accountNumber = wallet.bank.accountNumber;
+                response.account = {
+                  name: 'Fake account',
+                  number: wallet.bank.accountNumber,
+                };
                 response.bank = {
                   name: bank.name,
                   code: bank.code,

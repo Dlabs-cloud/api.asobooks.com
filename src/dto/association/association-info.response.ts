@@ -7,6 +7,9 @@ export class AssociationInfoResponse {
   logo: string;
   address: AddressDto;
   type: AssociationTypeConstant;
-  accountNumber: string;
-  bank: {name, code};
+  account: {
+    name: string,
+    number: string
+  };
+  bank: { name, code };
 }

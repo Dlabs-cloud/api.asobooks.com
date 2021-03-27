@@ -142,9 +142,10 @@ describe('AssociationController', () => {
                 const data = response.body.data;
                 expect(data.name).toBeDefined();
                 expect(data.type).toBeDefined();
-                expect(data.accountNumber).toBeDefined();
+                expect(data.account.name).toBeDefined();
+                expect(data.account.number).toBeDefined();
                 expect(data.bank).toBeDefined();
-                expect(data.address).toBeDefined()
+                expect(data.address).toBeDefined();
               });
           });
       });
