@@ -35,6 +35,7 @@ export class AssociationController extends BaseController {
                                  @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
 
 
+
     if (file) {
       associationRequestDto.logo = this.requestToFile(file.buffer, file.originalname, file.mimetype, FileTypeConstant.IMAGE);
     }

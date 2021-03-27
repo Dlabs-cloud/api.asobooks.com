@@ -21,6 +21,7 @@ export class AmazonS3FileService implements IFileService {
     return this.upload(fileDto).then(response => {
       return this.save(entityManager, response);
     }).catch(reason => {
+      console.log(reason);
       throw new HttpException('Cannot upload image at this time', HttpStatus.BAD_GATEWAY);
     });
   }

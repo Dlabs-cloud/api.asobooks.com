@@ -28,6 +28,7 @@ import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-c
 import { UpdateAssociationDto } from 'src/dto/update-association.dto';
 import { WalletRepository } from '../dao/wallet.repository';
 import { retry } from 'rxjs/operators';
+import { FileDto } from '../dto/file.dto';
 
 
 @Injectable()
@@ -65,7 +66,7 @@ export class AssociationServiceImpl implements AssociationService {
       if (updateInfo.logo) {
         await this
           .associationFileService
-          .createLogo(entityManager, association, updateInfo.logo as FileUploadResponseDto);
+          .createLogo(entityManager, association, updateInfo.logo as FileDto);
       }
 
       if (updateInfo.bankInfo) {
@@ -109,7 +110,7 @@ export class AssociationServiceImpl implements AssociationService {
 
 
       if (associationDto.logo) {
-        let fileUploadResponseDto = associationDto.logo as FileUploadResponseDto;
+        let fileUploadResponseDto = associationDto.logo as FileDto;
         await this.associationFileService.createLogo(entityManager, association, fileUploadResponseDto);
       }
 

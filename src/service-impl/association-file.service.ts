@@ -16,7 +16,7 @@ export class AssociationFileService {
   }
 
 
-  async createLogo(entityManager: EntityManager, association: Association, fileUploadResponseDto: FileUploadResponseDto) {
+  async createLogo(entityManager: EntityManager, association: Association, fileDto: FileDto) {
     let associationFile = await entityManager
       .getCustomRepository(AssociationFileRepository)
       .findOneByAssociationAndType(association, AssociationFileTypeConstant.LOGO);
@@ -25,7 +25,7 @@ export class AssociationFileService {
       await entityManager.save(associationFile);
     }
     let newAssociationFile = new AssociationFile();
-    newAssociationFile.file = await this.fileService.save(entityManager, fileUploadResponseDto);
+    newAssociationFile.file = await this.fileService.uploadAndPersist(entityManager, fileDto);
     newAssociationFile.association = association;
     newAssociationFile.type = AssociationFileTypeConstant.LOGO;
     await entityManager.save(newAssociationFile);
