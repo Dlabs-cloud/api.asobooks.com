@@ -21,14 +21,14 @@ export class AssociationFileService {
       .getCustomRepository(AssociationFileRepository)
       .findOneByAssociationAndType(association, AssociationFileTypeConstant.LOGO);
     if (associationFile) {
-      association.status = GenericStatusConstant.IN_ACTIVE;
+      associationFile.status = GenericStatusConstant.IN_ACTIVE;
       await entityManager.save(associationFile);
     }
-    let newAssociationFile = new AssociationFile();
-    newAssociationFile.file = await this.fileService.uploadAndPersist(entityManager, fileDto);
-    newAssociationFile.association = association;
-    newAssociationFile.type = AssociationFileTypeConstant.LOGO;
-    await entityManager.save(newAssociationFile);
+    associationFile = new AssociationFile();
+    associationFile.file = await this.fileService.uploadAndPersist(entityManager, fileDto);
+    associationFile.association = association;
+    associationFile.type = AssociationFileTypeConstant.LOGO;
+    await entityManager.save(associationFile);
     return associationFile;
   }
 }
