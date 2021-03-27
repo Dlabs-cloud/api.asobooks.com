@@ -24,7 +24,7 @@ import { ServiceFeeHandler } from './handlers/service-fee.handler';
 import { BillRepository } from '../dao/bill.repository';
 import { BillSearchQueryDto } from '../dto/bill-search-query.dto';
 import { Bill } from '../domain/entity/bill.entity';
-import { SubscriptionBillsResponseDto } from '../dto/subscription-bills-response.dto';
+import { MembershipBills } from '../dto/membership.bills';
 import { BillTransactionsHandler } from './handlers/bill-transactions.handler';
 import { BillQueryDto } from '../dto/bill-query.dto';
 
@@ -163,7 +163,7 @@ export class ServiceFeeController {
             const billPaymentTransactionIds = (billsTransactionsAndCount[0]) as Map<Bill, number>;
             return this.billTransactionHandler.transform(billPaymentTransactionIds)
               .then(transformed => {
-                const paginationRes: PaginatedResponseDto<SubscriptionBillsResponseDto> = {
+                const paginationRes: PaginatedResponseDto<MembershipBills> = {
                   items: transformed ?? [],
                   itemsPerPage: +query.limit,
                   offset: +query.offset,

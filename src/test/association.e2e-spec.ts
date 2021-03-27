@@ -28,6 +28,7 @@ import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { UpdateAssociationDto } from '../dto/update-association.dto';
 import { Wallet } from '../domain/entity/wallet.entity';
 import { AddressRepository } from '../dao/address.repository';
+import { AccountDetail } from '../domain/entity/account-detail.entity';
 
 async function generateAssociationRequestToken() {
   const payload: AssociationRequestDto = {
@@ -131,23 +132,30 @@ describe('AssociationController', () => {
         wallet.association = association;
         return wallet;
       }).create().then(_ => {
-        return getAssociationUser(GenericStatusConstant.ACTIVE, null, association)
-          .then(testUser => {
-            return request(applicationContext.getHttpServer())
-              .get('/associations')
-              .set('Authorization', testUser.token)
-              .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
-              .expect(200)
-              .then(response => {
-                const data = response.body.data;
-                expect(data.name).toBeDefined();
-                expect(data.type).toBeDefined();
-                expect(data.account.name).toBeDefined();
-                expect(data.account.number).toBeDefined();
-                expect(data.bank).toBeDefined();
-                expect(data.address).toBeDefined();
-              });
-          });
+        return factory().upset(AccountDetail).use(accountDetail => {
+          accountDetail.number = _.bank.accountNumber;
+          accountDetail.bank = _.bank.bank;
+          return accountDetail;
+        }).create().then(_ => {
+          return getAssociationUser(GenericStatusConstant.ACTIVE, null, association)
+            .then(testUser => {
+              return request(applicationContext.getHttpServer())
+                .get('/associations')
+                .set('Authorization', testUser.token)
+                .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+                .expect(200)
+                .then(response => {
+                  const data = response.body.data;
+                  expect(data.name).toBeDefined();
+                  expect(data.type).toBeDefined();
+                  expect(data.account.name).toBeDefined();
+                  expect(data.account.number).toBeDefined();
+                  expect(data.bank).toBeDefined();
+                  expect(data.address).toBeDefined();
+                });
+            });
+        });
+
       });
     });
   });

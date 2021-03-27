@@ -16,6 +16,7 @@ import { BillInvoice } from '../domain/entity/bill-invoice.entity';
 import { Invoice } from '../domain/entity/invoice.entity';
 import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
+import { MemberBillSearchQueryDto } from '../dto/member-bill-search.query.dto';
 
 @EntityRepository(Bill)
 export class BillRepository extends BaseRepository<Bill> {
@@ -65,7 +66,7 @@ export class BillRepository extends BaseRepository<Bill> {
       .getMany();
   }
 
-  findMembershipBillByQuery(membership: Membership, billSearchQuery: BillSearchQueryDto) {
+  findByMembershipByQuery(membership: Membership, billSearchQuery: BillSearchQueryDto) {
     let billSelectQueryBuilder = this.createQueryBuilder('bill');
     billSelectQueryBuilder
       .where('bill.membership = :membership')
@@ -83,6 +84,15 @@ export class BillRepository extends BaseRepository<Bill> {
     return billSelectQueryBuilder.getManyAndCount();
   }
 
+
+  sumByMembershipAndPaymentStatus(membership: Membership, paymentStatus: PaymentStatus, status = GenericStatusConstant.ACTIVE) {
+    return this.createQueryBuilder('bill')
+      .where('bill.membership = :membership')
+      .andWhere('bill.status = :status', { status })
+      .andWhere('bill.paymentStatus = :paymentStatus', { paymentStatus })
+      .select('SUM(bill.payableAmountInMinorUnit)', 'sum')
+      .getRawOne();
+  }
 
   countByServiceFeeAndPaymentStatus(serviceFee: ServiceFee, paymentStatus: PaymentStatus) {
     return this.createQueryBuilder('bill')
@@ -104,6 +114,27 @@ export class BillRepository extends BaseRepository<Bill> {
       .getRawOne();
   }
 
+
+  findByMembershipAndQuery(membership: Membership, query: MemberBillSearchQueryDto, status = GenericStatusConstant.ACTIVE) {
+    const billSelectQueryBuilder = this.createQueryBuilder('bill')
+      .select(['bill.id', 'paymentTransaction.id'])
+      .innerJoinAndSelect(Subscription, 'subscription', 'bill.subscription = subscription.id')
+      .innerJoin(ServiceFee, 'serviceFee', 'subscription.serviceFee = serviceFee.id')
+      .leftJoin(BillInvoice, 'billInvoice', 'billInvoice.bill = bill.id')
+      .leftJoin(Invoice, 'invoice', 'billInvoice.invoice = invoice.id')
+      .leftJoin(PaymentRequest, 'paymentRequest', 'paymentRequest.invoice = invoice.id')
+      .leftJoin(PaymentTransaction, 'paymentTransaction', 'paymentTransaction.paymentRequest = paymentRequest.id')
+      .where('bill.status =:status', { status })
+      .limit(query.limit)
+      .offset(query.offset);
+
+    if (query.feeType) {
+      billSelectQueryBuilder.andWhere('serviceFee.type = :type', { type: query.feeType });
+    }
+
+    this.billSearchQuery(query, billSelectQueryBuilder);
+    return this.extractBillPaymentTransaction(billSelectQueryBuilder);
+  }
 
   findByServiceFeeAndQuery(serviceFee: ServiceFee, query: BillQueryDto, status = GenericStatusConstant.ACTIVE) {
     const billSelectQueryBuilder = this.createQueryBuilder('bill')

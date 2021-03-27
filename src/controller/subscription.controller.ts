@@ -5,7 +5,7 @@ import { RequestPrincipal } from '../dlabs-nest-starter/security/request-princip
 import { Connection } from 'typeorm/connection/Connection';
 import { SubscriptionRepository } from '../dao/subscription.repository';
 import { BillRepository } from '../dao/bill.repository';
-import { SubscriptionBillsResponseDto } from '../dto/subscription-bills-response.dto';
+import { MembershipBills } from '../dto/membership.bills';
 import { BillTransactionsHandler } from './handlers/bill-transactions.handler';
 import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { ApiResponseDto } from '../dto/api-response.dto';
@@ -43,7 +43,7 @@ export class SubscriptionController {
                 const billPaymentTransactionIds = (billsAndCount[0]) as Map<Bill, number>;
                 return this.subscriptionHandler.transform(billPaymentTransactionIds)
                   .then(transformed => {
-                    const paginationRes: PaginatedResponseDto<SubscriptionBillsResponseDto> = {
+                    const paginationRes: PaginatedResponseDto<MembershipBills> = {
                       items: transformed ?? [],
                       itemsPerPage: +query.limit,
                       offset: +query.offset,

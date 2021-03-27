@@ -58,8 +58,8 @@ export class BillService {
           }
           bill.disCountInPercentage = 0;
           bill.vatInPercentage = 0;
-          bill.currentAmountInMinorUnit = subscription.serviceFee.amountInMinorUnit;
-          bill.payableAmountInMinorUnit = BillService.calculateAmountToBePaid(bill);
+          bill.currentAmountInMinorUnit = +subscription.serviceFee.amountInMinorUnit;
+          bill.payableAmountInMinorUnit = +BillService.calculateAmountToBePaid(bill);
           bill.totalAmountPaidInMinorUnit = 0;
           bill.code = sq;
           bill.subscription = subscription;

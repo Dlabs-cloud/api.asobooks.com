@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Bill } from '../../domain/entity/bill.entity';
 import { MembershipRepository } from '../../dao/membership.repository';
 import { PaymentTransactionRepository } from '../../dao/payment-transaction.repository';
-import { SubscriptionBillsResponseDto } from '../../dto/subscription-bills-response.dto';
+import { MembershipBills } from '../../dto/membership.bills';
 import { Connection } from 'typeorm/connection/Connection';
 import { PortalUserRepository } from '../../dao/portal-user.repository';
 
@@ -34,18 +34,20 @@ export class BillTransactionsHandler {
           }).then(async (bills) => {
             const paymentTransactions = await this.connection.getCustomRepository(PaymentTransactionRepository)
               .findByIds(paymentTransactionIds);
-            const response: SubscriptionBillsResponseDto[] = [];
+            const response: MembershipBills[] = [];
             billTransactions.forEach((value, bill) => {
               bill = bills.find(billValue => billValue.id === bill.id);
               const paymentTransaction = paymentTransactions.find(paymentTransaction => paymentTransaction.id === value);
-              const res: SubscriptionBillsResponseDto = {
+              const res: MembershipBills = {
+                amountInMinorUnit: bill.payableAmountInMinorUnit,
+                billName: bill.subscription?.description,
                 email: bill.membership.portalUser.email,
                 firstName: bill.membership.portalUser.firstName,
                 lastName: bill.membership.portalUser.lastName,
-                paymentDate: paymentTransaction?.confirmedPaymentDate ?? " ",
+                paymentDate: paymentTransaction?.confirmedPaymentDate ?? ' ',
                 paymentStatus: bill.paymentStatus,
                 phoneNumber: bill.membership.portalUser.phoneNumber,
-                transactionReference: paymentTransaction?.reference ?? " ",
+                transactionReference: paymentTransaction?.reference ?? ' ',
               };
               response.push(res);
             });

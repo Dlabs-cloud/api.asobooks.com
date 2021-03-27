@@ -31,7 +31,7 @@ export class MembershipBillsController {
         if (!membership) {
           return Promise.resolve([null, null]);
         }
-        return this.connection.getCustomRepository(BillRepository).findMembershipBillByQuery(membership, query);
+        return this.connection.getCustomRepository(BillRepository).findByMembershipByQuery(membership, query);
       }).then(result => {
         let bills = result[0];
         if (bills.length) {

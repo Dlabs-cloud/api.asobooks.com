@@ -6,6 +6,8 @@ import { AssociationInfoResponse } from '../../dto/association/association-info.
 import { WalletRepository } from '../../dao/wallet.repository';
 import { BankRepository } from '../../dao/bank.repository';
 import { AddressRepository } from '../../dao/address.repository';
+import { BankInfo } from '../../domain/entity/bank-info.entity';
+import { AccountDetailRepository } from '../../dao/account-detail.repository';
 
 @Injectable()
 export class AssociationHandler {
@@ -26,20 +28,27 @@ export class AssociationHandler {
           .getCustomRepository(WalletRepository)
           .findOne({
             association,
+          }, {
+            relations: [
+              'bank',
+              'bank.bank',
+            ],
           }).then(wallet => {
-            return this.connection
-              .getCustomRepository(BankRepository)
-              .findOne({ id: wallet.bank.bankId })
-              .then(bank => {
+            const bankInfo: BankInfo = wallet.bank;
+            return this.connection.getCustomRepository(AccountDetailRepository)
+              .findOne({
+                number: bankInfo.accountNumber,
+              }).then(accountDetails => {
                 response.account = {
-                  name: 'Fake account',
-                  number: wallet.bank.accountNumber,
+                  name: accountDetails?.name,
+                  number: bankInfo?.accountNumber,
                 };
                 response.bank = {
-                  name: bank.name,
-                  code: bank.code,
+                  name: bankInfo?.bank.name,
+                  code: bankInfo?.bank.code,
                 };
               });
+
           }).then(_ => {
             return this.connection
               .getCustomRepository(AddressRepository)

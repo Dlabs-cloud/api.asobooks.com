@@ -35,6 +35,8 @@ import { getManager } from 'typeorm';
 import { Permission } from '../domain/entity/permission.entity';
 import { Role } from '../domain/entity/role.entity';
 import { RolePermission } from '../domain/entity/role-permission.entity';
+import { AccountDetail } from '../domain/entity/account-detail.entity';
+import { Bank } from '../domain/entity/bank.entity';
 
 @Injectable()
 export class FakerService implements OnApplicationBootstrap {
@@ -93,6 +95,8 @@ export class FakerService implements OnApplicationBootstrap {
                             return this.seedActivityLog(testUser.association);
                           }).then(_ => {
                             return this.seedServiceFee(testUser.association);
+                          }).then(_ => {
+                            return this.seedAccountDetails();
                           });
                         });
 
@@ -296,6 +300,25 @@ export class FakerService implements OnApplicationBootstrap {
           await this.billsService.createSubscriptionBill(subscription, members[i]);
         }
       });
+  }
+
+
+  async seedAccountDetails() {
+    const stBank = await Bank.findOne({ id: 1 });
+    const ndBank = await Bank.findOne({ id: 2 });
+    await factory().upset(AccountDetail).use(accountDetail => {
+      accountDetail.bank = stBank;
+      accountDetail.number = '1234567890';
+      return accountDetail;
+    }).create();
+
+    await factory().upset(AccountDetail).use(accountDetail => {
+      accountDetail.bank = ndBank;
+      accountDetail.number = '1234567899';
+      return accountDetail;
+    }).create();
+
+
   }
 
 
