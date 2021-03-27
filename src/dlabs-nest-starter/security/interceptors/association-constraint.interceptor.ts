@@ -1,4 +1,11 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor, UnauthorizedException } from '@nestjs/common';
+import {
+  CallHandler,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+  NestInterceptor,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Connection } from 'typeorm';
 import { AccessTypes } from '../accessTypes/access-types';
@@ -32,7 +39,7 @@ export class AssociationConstraintInterceptor implements NestInterceptor {
 
     let association = await this.connection.getCustomRepository(AssociationRepository).findByPortalUserAndCodeAndStatus(principal.portalUser, associationCode);
     if (!association) {
-      throw new UnauthorizedException('Association code provided in header is not valid');
+      throw new ForbiddenException('Association code provided in header is not valid');
     }
     principal.association = association;
     request.requestPrincipal = principal;

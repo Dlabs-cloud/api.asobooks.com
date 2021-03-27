@@ -33,6 +33,7 @@ export class AssociationFileRepository extends BaseRepository<AssociationFile> {
       .setParameter('association', association.id)
       .setParameter('type', type)
       .setParameter('status', status)
+      .orderBy('createdAt', 'DESC')
       .getOne();
   }
 
