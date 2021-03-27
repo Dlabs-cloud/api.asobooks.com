@@ -15,7 +15,7 @@ export class BankService {
 
   verifyBankAccount(accountNumber: string, bank: Bank) {
     return this.connection.getCustomRepository(AccountDetailRepository)
-      .findByAccountNumber(accountNumber)
+      .findByAccountNumberAndBank(accountNumber, bank)
       .then(accountDetails => {
 
         if (accountDetails) {
