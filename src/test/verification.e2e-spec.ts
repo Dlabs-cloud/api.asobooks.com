@@ -10,6 +10,7 @@ import { Bank } from '../domain/entity/bank.entity';
 import * as faker from 'faker';
 import { BankVerificationService, FLUTTERWAVEBANKVERIFICATION, PaymentModule } from '@dlabs/payment';
 import { BankVerificationResponse } from '@dlabs/payment/dto/bank-verification.response';
+import { AccountDetail } from '../domain/entity/account-detail.entity';
 
 describe('verification controller', () => {
     let applicationContext: INestApplication;
@@ -114,6 +115,24 @@ describe('verification controller', () => {
       });
     });
 
+
+    it('test that account with account details that exists will not call endpoint ', () => {
+      return factory()
+        .upset(AccountDetail)
+        .create()
+        .then(accountDetail => {
+          const url = `/verifications/banks/${accountDetail.bank.code}/account/${accountDetail.number}/verify`;
+          return request(applicationContext.getHttpServer())
+            .get(url)
+            .set('Authorization', associationUser.token)
+            .expect(200).then(response => {
+              const data = response.body.data;
+              expect(data.bankName).toEqual(accountDetail.bank.name);
+              expect(data.accountName).toEqual(accountDetail.name);
+              expect(data.accountNumber).toEqual(accountDetail.number);
+            });
+        });
+    });
 
     afterAll(async () => {
       await connection.close();
