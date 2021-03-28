@@ -9,6 +9,7 @@ import * as moment from 'moment';
 import { Bill } from '../domain/entity/bill.entity';
 import { Invoice } from '../domain/entity/invoice.entity';
 import { BillInvoice } from '../domain/entity/bill-invoice.entity';
+import { WalletWithdrawal } from '../domain/entity/wallet-withdrawal.entity';
 
 @EntityRepository(PaymentTransaction)
 export class PaymentTransactionRepository extends BaseRepository<PaymentTransaction> {
@@ -44,8 +45,16 @@ export class PaymentTransactionRepository extends BaseRepository<PaymentTransact
 
   findByAssociationAndQuery(association: Association, query: PaymentTransactionSearchQueryDto, status = GenericStatusConstant.ACTIVE) {
     const builder = this.createQueryBuilder('paymentTransaction')
-      .innerJoin(PaymentRequest, 'paymentRequest', 'paymentTransaction.paymentRequest = paymentRequest.id')
+      .innerJoinAndSelect('paymentTransaction.paymentRequest', 'paymentRequest')
       .innerJoin(Association, 'association', 'paymentRequest.association = association.id')
+      .leftJoinAndSelect('paymentRequest.invoice', 'invoice')
+      .leftJoinAndSelect('paymentRequest.walletWithdrawal', 'walletWithdrawal')
+      .leftJoinAndSelect('invoice.createdBy', 'createdBy')
+      .leftJoinAndSelect('createdBy.membershipInfo', 'membershipInfo')
+      .leftJoinAndSelect('createdBy.portalUser', 'user')
+      .leftJoinAndSelect('walletWithdrawal.initiatedBy', 'initiatedBy')
+      .leftJoinAndSelect('initiatedBy.membershipInfo', 'membershipInformation')
+      .leftJoinAndSelect('initiatedBy.portalUser', 'portalUser')
       .where('association.id = :associationId')
       .andWhere('paymentTransaction.status = :status')
       .setParameter('associationId', association.id)

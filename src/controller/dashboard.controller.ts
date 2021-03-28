@@ -89,7 +89,7 @@ export class DashboardController {
                       offset: 0,
                     })
                       .then((paymentTransactions) => {
-                        return this.paymentTransactionHandler.transform(paymentTransactions[0], association).then(paymentTransactions => dashboardDto.paymentTransactions = paymentTransactions);
+                        return this.paymentTransactionHandler.transform(paymentTransactions[0]).then(paymentTransactions => dashboardDto.paymentTransactions = paymentTransactions);
                       }).then(() => {
                         return new ApiResponseDto(dashboardDto);
                       });

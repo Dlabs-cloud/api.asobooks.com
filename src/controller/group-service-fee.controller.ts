@@ -17,6 +17,7 @@ import { PaginatedResponseDto } from '../dto/paginated-response.dto';
 import { PortalUserQueryDto } from '../dto/portal-user-query.dto';
 import { MembershipInfoHandler } from './handlers/membership-info.handler';
 import { MembershipInfoRepository } from '../dao/membership-info.repository';
+import { isEmpty } from '@nestjs/common/utils/shared.utils';
 
 @Controller('service-fees')
 @AssociationContext()
@@ -66,8 +67,8 @@ export class GroupServiceFeeController {
                           @Param('code')code: string,
                           @Query() query: PortalUserQueryDto) {
 
-    query.limit = query.limit > 100 ? 100 : query.limit;
-    query.offset = query.offset < 0 ? 0 : query.offset;
+    query.limit = !isEmpty(query.limit) && (query.limit < 100) ? query.limit : 100;
+    query.offset = !isEmpty(query.offset) && (query.offset < 0) ? query.offset : 0;
     let membershipInfos = await this.connection
       .getCustomRepository(MembershipInfoRepository)
       .findByAssociationAndUserQuery(requestPrincipal.association, query);

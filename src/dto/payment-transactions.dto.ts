@@ -1,3 +1,5 @@
+import { PaymentType } from '../domain/enums/payment-type.enum';
+
 export class PaymentTransactionsDto {
   membershipReference: string;
   amountInMinorUnit: number;
@@ -5,5 +7,5 @@ export class PaymentTransactionsDto {
   transactionReference: string;
   paidByFirstName: string;
   paidByLastLastName: string;
-
+  paymentType: PaymentType;
 }

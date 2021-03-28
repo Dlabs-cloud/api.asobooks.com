@@ -64,8 +64,8 @@ describe('Payment Transactions', () => {
       .set('Authorization', assoUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code);
 
-
     const data = response.body.items[0];
+
     expect(parseInt(response.body.itemsPerPage.toString())).toEqual(5);
     expect(parseInt(response.body.total.toString())).toEqual(10);
     expect(data.paidByFirstName).toBeDefined();
@@ -73,6 +73,7 @@ describe('Payment Transactions', () => {
     expect(data.amountInMinorUnit).toBeDefined();
     expect(data.membershipReference).toBeDefined();
     expect(data.transactionReference).toBeDefined();
+    expect(data.paymentType).toBeDefined();
     expect(data.paymentDate).toBeDefined();
   });
 

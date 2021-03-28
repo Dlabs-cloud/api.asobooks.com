@@ -16,7 +16,7 @@ export class ActivityLogRepository extends BaseRepository<ActivityLog> {
       .offset(query.offset);
 
     if (query.type) {
-      builder.andWhere('log.activityType =: type', { type: query.type });
+      builder.andWhere('log.activityType = :type', { type: query.type });
     }
 
     return builder.getManyAndCount();

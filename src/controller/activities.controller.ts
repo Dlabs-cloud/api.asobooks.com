@@ -8,6 +8,7 @@ import { Connection } from 'typeorm/connection/Connection';
 import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
 import { ApiResponseDto } from '../dto/api-response.dto';
 import { ActivityLogQueryDto } from '../dto/activity-log.query.dto';
+import { isEmpty } from '@nestjs/common/utils/shared.utils';
 
 @Controller('activities')
 @AssociationContext()
@@ -20,8 +21,8 @@ export class ActivitiesController {
   recentActivities(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
                    @Query() query: ActivityLogQueryDto) {
 
-    query.limit = query.limit > 100 ? 100 : query.limit;
-    query.offset = query.offset < 0 ? 0 : query.offset;
+    query.limit = !isEmpty(query.limit) && (query.limit < 100) ? query.limit : 100;
+    query.offset = !isEmpty(query.offset) && (query.offset < 0) ? query.offset : 0;
 
     return this.connection
       .getCustomRepository(ActivityLogRepository)

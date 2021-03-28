@@ -26,7 +26,7 @@ describe('Activity controller', () => {
 
 
   it('Test that recent activities can be gotten', async () => {
-    const url = `/activities?type${ActivityTypeConstant.PAYMENT}`;
+    const url = `/activities?type=${ActivityTypeConstant.PAYMENT}`;
     return getAssociationUser().then(assoUser => {
       return factory().upset(ActivityLog).use(activityLog => {
         activityLog.association = assoUser.association;
@@ -39,7 +39,7 @@ describe('Activity controller', () => {
           .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
           .expect(200).then(response => {
             const data = response.body.data;
-            expect(data.itemsPerPage).toEqual(20);
+            expect(data.itemsPerPage).toEqual(100);
             expect(data.offset).toEqual(0);
             expect(data.total).toEqual(7);
             const items = data.items;

@@ -1,49 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { PaymentTransaction } from '../../domain/entity/payment-transaction.entity';
-import { Connection } from 'typeorm/connection/Connection';
 import { PaymentTransactionsDto } from '../../dto/payment-transactions.dto';
-import { MembershipRepository } from '../../dao/membership.repository';
-import { PaymentRequestRepository } from '../../dao/payment-request.repository';
-import { PaymentTransactionRepository } from '../../dao/payment-transaction.repository';
-import { InvoiceRepository } from '../../dao/invoice.repository';
-import { PortalUserRepository } from '../../dao/portal-user.repository';
-import { connectableObservableDescriptor } from 'rxjs/internal/observable/ConnectableObservable';
-import { dtsDtsxOrDtsDtsxMapRegex } from 'ts-loader/dist/constants';
-import { MembershipInfoRepository } from '../../dao/membership-info.repository';
-import { Association } from '../../domain/entity/association.entity';
-import { PortalAccountRepository } from '../../dao/portal-account.repository';
+import { PaymentType } from '../../domain/enums/payment-type.enum';
+import { Connection } from 'typeorm/connection/Connection';
 
 @Injectable()
 export class PaymentTransactionHandler {
 
-  constructor(private readonly connection: Connection) {
-  }
 
-  async transform(paymentTransactions: PaymentTransaction[], association: Association) {
+  async transform(paymentTransactions: PaymentTransaction[]) {
     if (!paymentTransactions.length) {
       return Promise.resolve([]);
     }
-    const paymentRequests = await this.connection.getCustomRepository(PaymentRequestRepository).findByPaymentTransaction(paymentTransactions);
-    const invoices = paymentRequests.map(paymentRequest => paymentRequest.invoice);
-    const membershipIds = invoices.map(invoice => invoice.createdById);
-
-    const memberships = await this.connection.getCustomRepository(MembershipRepository).findByIds(membershipIds);
-
-    const portalUsers = await this.connection.getCustomRepository(PortalUserRepository).findByMemberships(memberships);
-    const membershipInfos = await this.connection.getCustomRepository(MembershipInfoRepository).findByMemberships(memberships);
     return paymentTransactions.map(paymentTransaction => {
-      const paymentRequest = paymentRequests.find(paymentRequest => paymentRequest.id === paymentTransaction.paymentRequestId);
-
-      const invoice = invoices.find(invoice => invoice.id === paymentRequest.invoiceId);
-      const membership = memberships.find(membership => membership.id === invoice.createdById);
-      const portalUser = portalUsers.find(portalUser => portalUser.id === membership.portalUserId);
-      const membershipInfo = membershipInfos.find(membershipInfo => membershipInfo.portalUserId === portalUser.id);
+      const paymentRequest = paymentTransaction.paymentRequest;
+      const membership = ((paymentRequest.paymentType === PaymentType.CREDIT) || (paymentRequest.paymentType === PaymentType.WALLET_REVERSAL))
+        ? paymentRequest?.invoice?.createdBy
+        : paymentRequest?.walletWithdrawal?.initiatedBy;
+      const portalUser = membership.portalUser;
       const data: PaymentTransactionsDto = {
         paidByFirstName: portalUser.firstName,
         paidByLastLastName: portalUser.lastName,
         amountInMinorUnit: paymentTransaction.amountInMinorUnit,
-        membershipReference: membershipInfo.identifier,
+        membershipReference: membership?.membershipInfo?.identifier,
         paymentDate: paymentTransaction.datePaid,
+        paymentType: paymentRequest.paymentType,
         transactionReference: paymentTransaction.reference,
       };
       return data;
