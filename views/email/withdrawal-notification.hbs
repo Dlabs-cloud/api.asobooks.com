@@ -197,6 +197,14 @@
             color: #ffffff;
         }
 
+        #link {
+            border: none;
+            background: none;
+            color: #3d3f9d;
+            padding: 0;
+            text-decoration: underline;
+        }
+
         /* -------------------------------------
             OTHER STYLES THAT MIGHT BE USEFUL
         ------------------------------------- */
@@ -369,32 +377,37 @@
                     <tr>
                         <td class="wrapper">
                             <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                <tr><td><h1><img src='img/asobooks-md.png' alt=''></h1></td></tr>
                                 <tr>
                                     <td>
                                         <p>Hi {{firstName}},</p>
-                                        <p>You have requested to reset password to your {{projectName}} account
-                                            password.</p>
-                                        <p>please click on the button to reset password </p>
-                                        <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-                                               class="btn btn-primary">
-                                            <tbody>
+                                        <p>
+                                            Your Asobooks wallet has been debited successfully.
+                                            <br>
+                                            See transaction details below;
+                                        </p>
+
+                                        <table border="1">
                                             <tr>
-                                                <td align="left">
-                                                    <table role="presentation" border="0" cellpadding="0"
-                                                           cellspacing="0">
-                                                        <tbody>
-                                                        <tr>
-                                                            <td><a href="{{callbackUrl}}" target="_blank">Reset
-                                                                Password</a></td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
-                                                    <p>Good luck!!</p>
-                                                    <p>Your Friends at AsoBooks</p>
-                                                </td>
+                                                <td>Date</td>
+                                                <td>{{date}}</td>
                                             </tr>
-                                            </tbody>
+                                            <tr>
+                                                <td>Transaction reference id</td>
+                                                <td>{{transactionReferenceId}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Amount withdrawn</td>
+                                                <td>{{amountWithdrawn}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Recipient</td>
+                                                <td>{{recipientName}}</td>
+                                            </tr>
                                         </table>
+                                        <br>
+                                        <p>Regards,</p>
+                                        <p>AsoBooks</p>
                                     </td>
                                 </tr>
                             </table>
