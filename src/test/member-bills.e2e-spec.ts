@@ -39,7 +39,7 @@ describe('membership-bills controller', () => {
 
     return generateToken(membership).then(token => {
       return request(applicationContext.getHttpServer())
-        .get(`/member-bills`)
+        .get(`/member-workspace/bills`)
         .set('Authorization', token)
         .set('X-ASSOCIATION-IDENTIFIER', membership.portalAccount.association.code)
         .expect(200).then(response => {

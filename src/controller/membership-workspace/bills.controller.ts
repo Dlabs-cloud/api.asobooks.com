@@ -1,25 +1,27 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
-import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
-import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
+import { AssociationContext } from '../../dlabs-nest-starter/security/annotations/association-context';
+import { RequestPrincipalContext } from '../../dlabs-nest-starter/security/decorators/request-principal.docorator';
+import { RequestPrincipal } from '../../dlabs-nest-starter/security/request-principal.service';
 import { Connection } from 'typeorm/connection/Connection';
-import { BillRepository } from '../dao/bill.repository';
-import { BillSearchQueryDto } from '../dto/bill-search-query.dto';
-import { MembershipRepository } from '../dao/membership.repository';
-import { PaginatedResponseDto } from '../dto/paginated-response.dto';
-import { ApiResponseDto } from '../dto/api-response.dto';
-import { SubscriptionRepository } from '../dao/subscription.repository';
-import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
+import { BillRepository } from '../../dao/bill.repository';
+import { BillSearchQueryDto } from '../../dto/bill-search-query.dto';
+import { MembershipRepository } from '../../dao/membership.repository';
+import { PaginatedResponseDto } from '../../dto/paginated-response.dto';
+import { ApiResponseDto } from '../../dto/api-response.dto';
+import { SubscriptionRepository } from '../../dao/subscription.repository';
+import { PortalAccountTypeConstant } from '../../domain/enums/portal-account-type-constant';
 import { isEmpty } from '@nestjs/common/utils/shared.utils';
 
-@Controller('/member-bills')
+
+@Controller('member-workspace')
 @AssociationContext()
-export class MembershipBillsController {
+export class BillsController {
 
   constructor(private readonly connection: Connection) {
+
   }
 
-  @Get()
+  @Get('bills')
   getBills(@RequestPrincipalContext() requestPrincipal: RequestPrincipal, @Query()query: BillSearchQueryDto) {
 
     query.limit = !isEmpty(query.limit) && (query.limit < 100) ? query.limit : 100;

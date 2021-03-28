@@ -40,7 +40,11 @@ export class MembershipManagementController {
   public getMember(@Param('identifier') identifier: string,
                    @RequestPrincipalContext() requestParameter: RequestPrincipal) {
     return this.connection.getCustomRepository(MembershipInfoRepository)
-      .findOne({ association: requestParameter.association, identifier: identifier })
+      .findOne({ association: requestParameter.association, identifier: identifier }, {
+        relations: [
+          'address',
+        ],
+      })
       .then(membershipInfo => {
         if (!membershipInfo) {
           throw new NotFoundException(`Member with identifier cannot be found`);
@@ -49,24 +53,21 @@ export class MembershipManagementController {
           .getCustomRepository(PortalAccountRepository)
           .findByPortalUserAndStatus(membershipInfo.portalUser)
           .then(portalAccounts => {
-            return this.connection.getCustomRepository(AddressRepository)
-              .findOne(membershipInfo.addressId)
-              .then(address => {
-                const userInfo = membershipInfo.portalUser;
-                const response: PortalUserDto = {
-                  accounts: portalAccounts.map(portalAccount => portalAccount.type),
-                  address: address,
-                  dateCreated: membershipInfo.createdAt,
-                  email: userInfo.email,
-                  firstName: userInfo.firstName,
-                  gender: userInfo.gender,
-                  identifier: membershipInfo.identifier,
-                  lastName: userInfo.lastName,
-                  phoneNumber: userInfo.phoneNumber,
-                  username: userInfo.username,
-                };
-                return Promise.resolve(new ApiResponseDto(response));
-              });
+            const userInfo = membershipInfo.portalUser;
+            const response: PortalUserDto = {
+              accounts: portalAccounts.map(portalAccount => portalAccount.type),
+              address: membershipInfo.address,
+              dateCreated: membershipInfo.createdAt,
+              email: userInfo.email,
+              firstName: userInfo.firstName,
+              gender: userInfo.gender,
+              identifier: membershipInfo.identifier,
+              lastName: userInfo.lastName,
+              phoneNumber: userInfo.phoneNumber,
+              username: userInfo.username,
+            };
+            return Promise.resolve(new ApiResponseDto(response));
+
           });
       });
   }
