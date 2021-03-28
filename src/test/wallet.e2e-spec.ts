@@ -68,7 +68,7 @@ describe('Wallet controller', () => {
     it('Test that amount less than the wallet amount cannot be withdrawn', () => {
       const password = faker.random.uuid();
       const payload: WalletWithdrawalDto = {
-        amountInMinorUnit: 500,
+        amountInMinorUnit: 500000,
         password,
       };
       return (new AuthenticationUtils()).hashPassword(password).then(hash => {

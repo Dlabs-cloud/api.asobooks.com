@@ -40,7 +40,7 @@ export class WalletWithdrawalService {
             .getCustomRepository(WalletRepository)
             .findByAssociation(association)
             .then(wallet => {
-              if (+walletInfo.amountInMinorUnit < +wallet.availableBalanceInMinorUnits) {
+              if (+walletInfo.amountInMinorUnit > +wallet.availableBalanceInMinorUnits) {
                 throw new ForbiddenException('Wallet balance is less than the provided amount');
               }
               return this.walletWithdrawalSequence
