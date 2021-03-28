@@ -39,4 +39,5 @@ export class PaymentTransaction extends BaseEntity {
 
   @Column()
   confirmedPaymentDate: Date;
+
 }

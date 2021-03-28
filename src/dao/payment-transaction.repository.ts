@@ -1,6 +1,6 @@
 import { BaseRepository } from '../common/BaseRepository';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
-import { EntityRepository, In } from 'typeorm';
+import { Brackets, EntityRepository, In } from 'typeorm';
 import { PaymentRequest } from '../domain/entity/payment-request.entity';
 import { Association } from '../domain/entity/association.entity';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
@@ -19,7 +19,7 @@ export class PaymentTransactionRepository extends BaseRepository<PaymentTransact
       return Promise.resolve(undefined);
     }
     const billIds = bills.map(bill => bill.id);
-    this.createQueryBuilder('paymentTransaction')
+    return this.createQueryBuilder('paymentTransaction')
       .innerJoin(PaymentRequest, 'paymentRequest', 'paymentTransaction.paymentRequest = paymentRequest.id')
       .innerJoin(Invoice, 'invoice', 'invoice.id = paymentRequest.invoice')
       .innerJoin(BillInvoice, 'billInvoice', 'billInvoice.invoice = invoice.id')
@@ -78,6 +78,19 @@ export class PaymentTransactionRepository extends BaseRepository<PaymentTransact
       const date = moment(query.dateCreatedBefore, 'DD/MM/YYYY').endOf('day').toDate();
       builder.andWhere('paymentTransaction.confirmedPaymentDate <= :beforeDate', { beforeDate: date });
     }
+
+    if (query.type) {
+      builder.andWhere('paymentRequest.paymentType = :paymentType', { paymentType: query.type });
+    }
+
+    if (query.membershipIdentifier) {
+      builder.andWhere(new Brackets(qb => {
+        qb.orWhere('membershipInfo.identifier = :identifier', { identifier: query.membershipIdentifier })
+          .orWhere('membershipInformation.identifier = :identifier', { identifier: query.membershipIdentifier });
+      }));
+    }
+
+    builder.orderBy('paymentTransaction.updatedAt', 'DESC');
     return builder.getManyAndCount();
   }
 

@@ -41,7 +41,7 @@ export class DashboardController {
                 .then((transformed: MembershipBills[]) => {
                   const payments = transformed.map(data => {
                     const res: MembershipPayments = {
-                      amountPaidInMinorUnit: data.amountInMinorUnit,
+                      amountPaidInMinorUnit: +data.amountInMinorUnit,
                       name: data.billName,
                       paymentDate: data.paymentDate,
                       receiptNumber: data.transactionReference,

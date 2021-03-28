@@ -38,8 +38,8 @@ export class WalletController {
           .then(walletTransaction => {
             const walletBalanceForTheMonth = walletTransaction?.walletBalance || 0;
             const response: WalletBalanceResponseDto = {
-              amountThisMonthInMinorUnit: walletBalanceForTheMonth,
-              balanceInMinorUnit: wallet.availableBalanceInMinorUnits,
+              amountThisMonthInMinorUnit: +walletBalanceForTheMonth,
+              balanceInMinorUnit: +wallet.availableBalanceInMinorUnits,
             };
             return Promise.resolve(new ApiResponseDto(response));
           });

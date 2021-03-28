@@ -126,7 +126,9 @@ export class BillRepository extends BaseRepository<Bill> {
       .leftJoin(PaymentTransaction, 'paymentTransaction', 'paymentTransaction.paymentRequest = paymentRequest.id')
       .where('bill.status =:status', { status })
       .limit(query.limit)
-      .offset(query.offset);
+      .offset(query.offset)
+      .orderBy('createdAt', 'DESC');
+
 
     if (query.feeType) {
       billSelectQueryBuilder.andWhere('serviceFee.type = :type', { type: query.feeType });

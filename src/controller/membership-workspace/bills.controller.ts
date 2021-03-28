@@ -22,7 +22,8 @@ export class BillsController {
   }
 
   @Get('bills')
-  getBills(@RequestPrincipalContext() requestPrincipal: RequestPrincipal, @Query()query: BillSearchQueryDto) {
+  getBills(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
+           @Query()query: BillSearchQueryDto) {
 
     query.limit = !isEmpty(query.limit) && (query.limit < 100) ? query.limit : 100;
     query.offset = !isEmpty(query.offset) && (query.offset < 0) ? query.offset : 0;

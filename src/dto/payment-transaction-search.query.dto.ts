@@ -1,4 +1,6 @@
 import { IsDateFormat } from '../common/class-validators/date-format.validator';
+import { PaymentType } from '../domain/enums/payment-type.enum';
+import { IsEnum, IsOptional } from 'class-validator';
 
 export class PaymentTransactionSearchQueryDto {
   limit?: number;
@@ -9,4 +11,9 @@ export class PaymentTransactionSearchQueryDto {
   dateCreatedBefore?: number;
   @IsDateFormat('DD/MM/YYYY')
   dateCreatedAfter?: number;
+  @IsOptional()
+  @IsEnum(PaymentType)
+  type?: PaymentType;
+  @IsOptional()
+  membershipIdentifier?: string;
 }

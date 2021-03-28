@@ -22,7 +22,6 @@ import { MembershipRole } from '../domain/entity/membership-role.entity';
 export class MembershipRepository extends BaseRepository<Membership> {
 
 
-
   public findByPortalAccountAndPortalUser(portalUser: PortalUser,
                                           portalAccount: PortalAccount,
                                           status = GenericStatusConstant.ACTIVE): Promise<Membership> {
@@ -68,6 +67,7 @@ export class MembershipRepository extends BaseRepository<Membership> {
   findByAssociationAndUserAndAccountType(association: Association, user: PortalUser, accountType: PortalAccountTypeConstant, status = GenericStatusConstant.ACTIVE) {
     return this.createQueryBuilder('membership')
       .select()
+      .innerJoinAndSelect('membership.membershipInfo', 'membershipInfo')
       .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.id = membership.portalAccountId')
       .innerJoin(Association, 'association', 'association.id = portalAccount.associationId')
       .where('membership.portalUser = :portalUser', { portalUser: user.id })
@@ -191,7 +191,7 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .innerJoinAndSelect('membership.membershipInfo', 'membershipInfo')
       .innerJoinAndSelect('membershipInfo.portalUser', 'portalUser')
       .where('membershipRole.role = :role', { role: role.id })
-      .andWhere('membershipRole.status = :status', {status})
+      .andWhere('membershipRole.status = :status', { status })
       .getMany();
   }
 
