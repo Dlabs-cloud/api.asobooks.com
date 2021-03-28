@@ -17,7 +17,10 @@ export abstract class BaseRepository<T extends BaseEntity> extends Repository<T>
     });
   }
 
-  public findByIdAndStatus(id: number, ...status: GenericStatusConstant[]) {
+  public findByIdAndStatus(id: number, ...status: GenericStatusConstant[]): Promise<T | undefined> | Promise<undefined> {
+    if (!id) {
+      return Promise.resolve(undefined);
+    }
     return this.createQueryBuilder()
       .select()
       .where('id =:id', { id })

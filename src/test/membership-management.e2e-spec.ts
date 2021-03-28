@@ -253,6 +253,8 @@ describe('Membership-management-controller ', () => {
         return factory().upset(MembershipInfo).use(membershipInfo => {
           membershipInfo.association = associationUser.association;
           membershipInfo.status = GenericStatusConstant.ACTIVE;
+          membershipInfo.address = null;
+          membershipInfo.addressId = null;
           return membershipInfo;
         }).create().then(membershipInfo => {
           return factory().upset(Membership).use(membership => {
@@ -289,7 +291,8 @@ describe('Membership-management-controller ', () => {
                     expect(portalUser.phoneNumber).toEqual(payload.phoneNumber);
                     expect(portalUser.lastName).toEqual(payload.lastName);
                     expect(portalUser.firstName).toEqual(payload.firstName);
-                  }).then(() => {
+                    return membershipInfo;
+                  }).then((membershipInfo) => {
                     return getConnection()
                       .getCustomRepository(AddressRepository)
                       .findOne({ id: membershipInfo.addressId })

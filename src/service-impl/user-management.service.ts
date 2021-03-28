@@ -30,7 +30,6 @@ import { AddressDto } from '../dto/address.dto';
 import { EditMemberDto } from '../dto/edit-member.dto';
 import { AddressService } from './address.service';
 import { ProfileUpdateDto } from '../dto/profile-update.dto';
-import { profile } from 'winston';
 
 @Injectable()
 export class UserManagementService {
@@ -229,12 +228,15 @@ export class UserManagementService {
       }
       if (updateInfo.address) {
         const addressUpdate = updateInfo.address;
-        await this.addressService.updateMemberAddress(entityManager, membershipInfo, addressUpdate);
+        membershipInfo.address = await this.addressService.updateMemberAddress(entityManager, membershipInfo, addressUpdate);
       }
       if (updateInfo.phoneNumber) {
         portalUser.phoneNumber = updateInfo.phoneNumber;
       }
+
       await entityManager.save(portalUser);
+      await entityManager.save(membershipInfo);
+
       const portalAccounts = await entityManager
         .getCustomRepository(PortalAccountRepository)
         .findByStatusAndAssociation(GenericStatusConstant.ACTIVE, association);
