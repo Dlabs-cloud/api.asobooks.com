@@ -197,6 +197,14 @@
             color: #ffffff;
         }
 
+        #link {
+            border: none;
+            background: none;
+            color: #3d3f9d;
+            padding: 0;
+            text-decoration: underline;
+        }
+
         /* -------------------------------------
             OTHER STYLES THAT MIGHT BE USEFUL
         ------------------------------------- */
@@ -369,32 +377,33 @@
                     <tr>
                         <td class="wrapper">
                             <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                <tr><td><h1><img src='img/asobooks-md.png' alt=''></h1></td></tr>
                                 <tr>
                                     <td>
                                         <p>Hi {{firstName}},</p>
-                                        <p>You have requested to reset password to your {{projectName}} account
-                                            password.</p>
-                                        <p>please click on the button to reset password </p>
-                                        <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-                                               class="btn btn-primary">
-                                            <tbody>
-                                            <tr>
-                                                <td align="left">
-                                                    <table role="presentation" border="0" cellpadding="0"
-                                                           cellspacing="0">
-                                                        <tbody>
-                                                        <tr>
-                                                            <td><a href="{{callbackUrl}}" target="_blank">Reset
-                                                                Password</a></td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
-                                                    <p>Good luck!!</p>
-                                                    <p>Your Friends at AsoBooks</p>
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
+                                        <p>Welcome to Asobooks. Your admin at {{associationName}} created your account as a member of the association. </p>
+                                        <p>At Asobooks, we provide you a stress-free and efficient way to monitor your association’s activities and pay dues and fees electronically from anywhere in the world.
+                                        </p>
+                                        <p>
+                                            Login details <br>
+                                            Username: Ibigbemi.faith@gmail.com <br>
+                                            Password: 290789354
+
+                                        </p>
+                                        <p>Next Steps
+                                            <ul>
+                                                <li>Login using the login details provided above {{loginLink}}</li>
+                                                <li>Change password to a preferred one</li>
+                                                <li>Monitor association’s activities and pay dues and fees electronically anywhere in the world</li>
+                                            </ul>
+                                        </p>
+                                        <p>In the meantime, if you need some help or have anything to say to us, send a message to
+                                            <a href='mailto:support@asobooks.com'>support@asobooks.com</a> or call <a
+                                              href='tel:xxx'>xxx</a> and we will jump right into a conversation with you.
+                                        </p>
+
+                                        <p>Welcome to a Bold New World,</p>
+                                        <p>Your Friends at AsoBooks</p>
                                     </td>
                                 </tr>
                             </table>

@@ -197,6 +197,14 @@
             color: #ffffff;
         }
 
+        #link {
+            border: none;
+            background: none;
+            color: #3d3f9d;
+            padding: 0;
+            text-decoration: underline;
+        }
+
         /* -------------------------------------
             OTHER STYLES THAT MIGHT BE USEFUL
         ------------------------------------- */
@@ -369,12 +377,47 @@
                     <tr>
                         <td class="wrapper">
                             <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                <tr><td><h1><img src='img/asobooks-md.png' alt=''></h1></td></tr>
                                 <tr>
                                     <td>
                                         <p>Hi {{firstName}},</p>
-                                        <p>You have requested to reset password to your {{projectName}} account
-                                            password.</p>
-                                        <p>please click on the button to reset password </p>
+                                        <p>
+                                            Your payment to {{ associationName }} via Asobooks was successful. <br>
+                                            See transaction details below;
+                                        </p>
+                                        <table border="1">
+                                            <tr>
+                                                <td>Date</td>
+                                                <td>{{date}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Transaction reference id</td>
+                                                <td>{{transactionReferenceId}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Receipt Number</td>
+                                                <td>{{receiptNumber}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Customer’s name</td>
+                                                <td>{{customerName}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Name of bill</td>
+                                                <td>{{nameOfBill}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Amount paid</td>
+                                                <td>{{amountPaid}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Association’s name</td>
+                                                <td>{{associationName}}</td>
+                                            </tr>
+                                        </table>
+                                        <br>
+                                        <p>To view your receipt, click on the link below</p>
+
                                         <table role="presentation" border="0" cellpadding="0" cellspacing="0"
                                                class="btn btn-primary">
                                             <tbody>
@@ -384,17 +427,16 @@
                                                            cellspacing="0">
                                                         <tbody>
                                                         <tr>
-                                                            <td><a href="{{callbackUrl}}" target="_blank">Reset
-                                                                Password</a></td>
+                                                            <td><a href="{{receiptUrl}}" target='_blank'>View receipt</a></td>
                                                         </tr>
                                                         </tbody>
                                                     </table>
-                                                    <p>Good luck!!</p>
-                                                    <p>Your Friends at AsoBooks</p>
                                                 </td>
                                             </tr>
                                             </tbody>
                                         </table>
+                                        <p>Regards,</p>
+                                        <p>AsoBooks</p>
                                     </td>
                                 </tr>
                             </table>
