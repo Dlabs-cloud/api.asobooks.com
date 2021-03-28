@@ -18,9 +18,11 @@ export class ActivitiesController {
 
   @Get()
   recentActivities(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
-                   @Query() query: ActivityLogQueryDto,
-                   @Query('limit')limit: number = 20,
-                   @Query('offset')offset: number = 0) {
+                   @Query() query: ActivityLogQueryDto) {
+
+    query.limit = query.limit > 100 ? 100 : query.limit;
+    query.offset = query.offset < 0 ? 0 : query.offset;
+
     return this.connection
       .getCustomRepository(ActivityLogRepository)
       .findByAssociationAndQuery(requestPrincipal.association, query)
@@ -36,8 +38,8 @@ export class ActivitiesController {
         });
         const res: PaginatedResponseDto<ActivityLogDto> = {
           items: data,
-          itemsPerPage: limit,
-          offset: offset,
+          itemsPerPage: query.limit,
+          offset: query.offset,
           total: count,
         };
         return Promise.resolve(new ApiResponseDto(res));
