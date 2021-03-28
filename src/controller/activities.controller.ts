@@ -7,6 +7,7 @@ import { ActivityLogDto } from '../dto/activity-log.dto';
 import { Connection } from 'typeorm/connection/Connection';
 import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
 import { ApiResponseDto } from '../dto/api-response.dto';
+import { ActivityLogQueryDto } from '../dto/activity-log.query.dto';
 
 @Controller('activities')
 @AssociationContext()
@@ -17,11 +18,12 @@ export class ActivitiesController {
 
   @Get()
   recentActivities(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
+                   @Query() query: ActivityLogQueryDto,
                    @Query('limit')limit: number = 20,
                    @Query('offset')offset: number = 0) {
     return this.connection
       .getCustomRepository(ActivityLogRepository)
-      .findByAssociationAndLimitAndOffset(requestPrincipal.association, limit, offset)
+      .findByAssociationAndQuery(requestPrincipal.association, query)
       .then((response) => {
         const activityLogs = response[0];
         const count = response[1];

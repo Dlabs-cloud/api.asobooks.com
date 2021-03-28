@@ -7,6 +7,7 @@ import { getConnection } from 'typeorm';
 import { factory } from './factory';
 import * as request from 'supertest';
 import { ActivityLog } from '../domain/entity/activity-log.entity';
+import { ActivityTypeConstant } from '../domain/enums/activity-type-constant';
 
 
 describe('Activity controller', () => {
@@ -25,10 +26,11 @@ describe('Activity controller', () => {
 
 
   it('Test that recent activities can be gotten', async () => {
-    const url = '/activities';
+    const url = `/activities?type${ActivityTypeConstant.PAYMENT}`;
     return getAssociationUser().then(assoUser => {
       return factory().upset(ActivityLog).use(activityLog => {
         activityLog.association = assoUser.association;
+        activityLog.activityType = ActivityTypeConstant.PAYMENT;
         return activityLog;
       }).createMany(7).then(activityLogs => {
         return request(applicationContext.getHttpServer())
