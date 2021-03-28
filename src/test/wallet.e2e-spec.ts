@@ -65,6 +65,35 @@ describe('Wallet controller', () => {
       });
     });
 
+    it('Test that amount less than the wallet amount cannot be withdrawn', () => {
+      const password = faker.random.uuid();
+      const payload: WalletWithdrawalDto = {
+        amountInMinorUnit: 500,
+        password,
+      };
+      return (new AuthenticationUtils()).hashPassword(password).then(hash => {
+        return factory().upset(PortalUser).use(portalUser => {
+          portalUser.password = hash;
+          return portalUser;
+        }).create();
+      }).then(portalUser => {
+        return getAssociationUser(GenericStatusConstant.ACTIVE, portalUser).then(testUser => {
+          return factory().upset(Wallet).use(wallet => {
+            wallet.association = testUser.association;
+            wallet.availableBalanceInMinorUnits = 1_000;
+            return wallet;
+          }).create().then(_ => {
+            return request(applicationContext.getHttpServer())
+              .post('/wallets')
+              .set('Authorization', testUser.token)
+              .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
+              .send(payload)
+              .expect(403)
+          });
+        });
+      });
+    });
+
     it('Test that wallet details can be gotten', () => {
       return getAssociationUser().then(testUser => {
         return factory().upset(Wallet).use(wallet => {

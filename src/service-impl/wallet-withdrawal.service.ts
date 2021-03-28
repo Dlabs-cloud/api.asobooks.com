@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Connection } from 'typeorm/connection/Connection';
 import { WalletWithdrawal } from '../domain/entity/wallet-withdrawal.entity';
 import { WalletRepository } from '../dao/wallet.repository';
@@ -40,6 +40,9 @@ export class WalletWithdrawalService {
             .getCustomRepository(WalletRepository)
             .findByAssociation(association)
             .then(wallet => {
+              if (+walletInfo.amountInMinorUnit < +wallet.availableBalanceInMinorUnits) {
+                throw new ForbiddenException('Wallet balance is less than the provided amount');
+              }
               return this.walletWithdrawalSequence
                 .next()
                 .then(reference => {
