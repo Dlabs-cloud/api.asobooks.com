@@ -6,9 +6,14 @@ import { PaymentType } from '../enums/payment-type.enum';
 import { Invoice } from './invoice.entity';
 import { Association } from './association.entity';
 import { WalletWithdrawal } from './wallet-withdrawal.entity';
+import { Membership } from './membership.entity';
 
 @Entity()
 export class PaymentRequest extends BaseEntity {
+
+  @ManyToOne(() => Membership, { nullable: false })
+  initiatedBy: Membership;
+
   @Column({
     type: 'bigint',
   })

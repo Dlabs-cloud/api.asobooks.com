@@ -35,6 +35,7 @@ import { WalletController } from './wallet.controller';
 import { AssociationHandler } from './handlers/association.handler';
 import { MembershipRolesHandler } from './handlers/membership.roles.handler';
 import { PermissionController } from './permission.controller';
+import { WalletTransactionHandler } from './handlers/wallet-transaction.handler';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { PermissionController } from './permission.controller';
     PaymentTransactionHandler,
     SubscriptionHandler,
     MembershipInfoHandler,
+    WalletTransactionHandler,
     RoleHandler,
     ServiceFeeHandler,
     BillTransactionsHandler,

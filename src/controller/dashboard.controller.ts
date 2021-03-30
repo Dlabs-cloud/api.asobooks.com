@@ -15,6 +15,8 @@ import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import * as moment from 'moment';
 import { getMonthDateRange } from '../common/useful-Utils';
 import { ContributionGraphDto } from '../dto/contribution-graph-dto';
+import { WalletTransactionRepository } from '../dao/wallet-transaction.repository';
+import { WalletTransactionHandler } from './handlers/wallet-transaction.handler';
 
 
 @Controller('/dashboard')
@@ -22,7 +24,7 @@ import { ContributionGraphDto } from '../dto/contribution-graph-dto';
 export class DashboardController {
 
   constructor(private readonly connection: Connection,
-              private readonly paymentTransactionHandler: PaymentTransactionHandler) {
+              private readonly walletTransactionHandler: WalletTransactionHandler) {
   }
 
 
@@ -82,17 +84,18 @@ export class DashboardController {
               .then(() => {
                 return this.connection.getCustomRepository(WalletRepository)
                   .findByAssociation(association)
-                  .then(wallet => dashboardDto.walletBalanceInMinorUnit = wallet.availableBalanceInMinorUnits)
-                  .then(() => {
-                    return this.connection.getCustomRepository(PaymentTransactionRepository).findByAssociationAndQuery(association, {
+                  .then(wallet => {
+                    dashboardDto.walletBalanceInMinorUnit = wallet.availableBalanceInMinorUnits;
+                    return wallet;
+                  }).then((wallet) => {
+                    return this.connection.getCustomRepository(WalletTransactionRepository).findByWalletAndQuery(wallet, {
                       limit: 10,
                       offset: 0,
-                    })
-                      .then((paymentTransactions) => {
-                        return this.paymentTransactionHandler.transform(paymentTransactions[0]).then(paymentTransactions => dashboardDto.paymentTransactions = paymentTransactions);
-                      }).then(() => {
-                        return new ApiResponseDto(dashboardDto);
-                      });
+                    }).then((walletTransactionCount) => {
+                      return walletTransactionCount[0].map(this.walletTransactionHandler.transform);
+                    }).then(() => {
+                      return new ApiResponseDto(dashboardDto);
+                    });
                   });
 
               });

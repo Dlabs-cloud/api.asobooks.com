@@ -11,7 +11,7 @@ import * as request from 'supertest';
 import * as moment from 'moment';
 import { PaymentTransactionRepository } from '../dao/payment-transaction.repository';
 
-describe('Payment Transactions', () => {
+describe('Wallet Transactions', () => {
   let applicationContext: INestApplication;
   let connection: Connection;
   let association: Association;
@@ -32,33 +32,13 @@ describe('Payment Transactions', () => {
   });
 
 
-  it('Test that payment transaction can be gotten', async () => {
-
+  it('Test that a wallet transaction can be gotten by query', async () => {
     jest.setTimeout(12000);
     await connection.getCustomRepository(PaymentTransactionRepository).delete({
       id: MoreThanOrEqual(1),
     });
     await mockPaymentTransactions(association);
-    const url = `/payment-transactions`;
-    return request(applicationContext.getHttpServer())
-      .get(url)
-      .set('Authorization', assoUser.token)
-      .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code)
-      .expect(200).then(respnse => {
-        const body = respnse.body;
-        expect(parseInt(body.itemsPerPage.toString())).toEqual(100);
-        expect(parseInt(body.total.toString())).toEqual(10);
-      });
-
-  });
-
-  it('Test that a payment transaction can be gotten by query', async () => {
-    jest.setTimeout(12000);
-    await connection.getCustomRepository(PaymentTransactionRepository).delete({
-      id: MoreThanOrEqual(1),
-    });
-    await mockPaymentTransactions(association);
-    const url = `/payment-transactions?limit=${5}&offset=${0}&minAmountInMinorUnit=${45_000_00}&maxAmountInMinorUnit=${50_000_00}&dateCreatedBefore=${moment(new Date()).format('DD/MM/YYYY')}&dateCreatedAfter=${moment(new Date()).format('DD/MM/YYYY')}`;
+    const url = `/wallets/transactions?limit=${5}&offset=${0}&minAmountInMinorUnit=${45_000_00}&maxAmountInMinorUnit=${50_000_00}&dateCreatedBefore=${moment(new Date()).format('DD/MM/YYYY')}&dateCreatedAfter=${moment(new Date()).format('DD/MM/YYYY')}`;
     let response = await request(applicationContext.getHttpServer())
       .get(url)
       .set('Authorization', assoUser.token)

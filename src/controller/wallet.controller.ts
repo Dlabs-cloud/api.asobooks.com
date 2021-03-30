@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
 import { Connection } from 'typeorm/connection/Connection';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
@@ -15,12 +15,18 @@ import { WalletWithdrawalService } from '../service-impl/wallet-withdrawal.servi
 import { HasMembership } from '../dlabs-nest-starter/security/annotations/has-membership';
 import { PermissionEnum } from '../core/permission.enum';
 import { HasPermission } from '../dlabs-nest-starter/security/annotations/has-permission';
+import { WalletTransactionQueryDto } from '../dto/wallet-transaction.query.dto';
+import { WalletTransactionResponseDto } from '../dto/wallet-transaction.response.dto';
+import { PaginatedResponseDto } from '../dto/paginated-response.dto';
+import { isEmpty } from '@nestjs/common/utils/shared.utils';
+import { WalletTransactionHandler } from './handlers/wallet-transaction.handler';
 
 @Controller('wallets')
 @AssociationContext()
 export class WalletController {
 
   constructor(private readonly walletWithdrawalService: WalletWithdrawalService,
+              private readonly walletTransactionHandler: WalletTransactionHandler,
               private readonly connection: Connection) {
   }
 
@@ -44,12 +50,41 @@ export class WalletController {
             return Promise.resolve(new ApiResponseDto(response));
           });
       });
+
+
+  }
+
+
+  @Get('/transactions')
+  getWalletTransaction(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
+                       @Query() query: WalletTransactionQueryDto) {
+    query.limit = !isEmpty(query.limit) && (query.limit < 100) ? query.limit : 100;
+    query.offset = !isEmpty(query.offset) && (query.offset < 0) ? query.offset : 0;
+    return this.connection
+      .getCustomRepository(WalletRepository)
+      .findByAssociation(requestPrincipal.association)
+      .then(wallet => {
+        this.connection.getCustomRepository(WalletTransactionRepository)
+          .findByWalletAndQuery(wallet, query)
+          .then(walletTransactions => {
+            const payload = walletTransactions[0]
+              .map(this.walletTransactionHandler.transform);
+            const response = new PaginatedResponseDto<WalletTransactionResponseDto>();
+            response.items = payload;
+            response.itemsPerPage = query.limit;
+            response.offset = query.limit;
+            response.total = walletTransactions[1] || 0;
+            return response;
+          }).then(response => {
+          return new ApiResponseDto(response);
+        });
+      });
   }
 
 
   @Post()
   @HasMembership(PortalAccountTypeConstant.EXECUTIVE_ACCOUNT)
- // @HasPermission(PermissionEnum.CAN_WITHDRAW_FROM_WALLET)
+  // @HasPermission(PermissionEnum.CAN_WITHDRAW_FROM_WALLET)
   withdraw(@RequestPrincipalContext() requestPrincipal: RequestPrincipal,
            @Body() request: WalletWithdrawalDto) {
     return this.connection

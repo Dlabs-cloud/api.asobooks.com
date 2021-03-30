@@ -24,6 +24,7 @@ export class WalletWithdrawalProcessor {
       .getCustomRepository(WalletWithdrawalRepository)
       .findOne({ id: walletWithdrawal }, {
         relations: [
+          'initiatedBy',
           'wallet',
           'bankInfo',
           'bankInfo.bank',

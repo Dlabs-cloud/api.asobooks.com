@@ -4,10 +4,14 @@ import { PaymentType } from '../enums/payment-type.enum';
 import { PaymentTransaction } from './payment-transaction.entity';
 import { BaseEntity } from '../../common/base.entity';
 import { WalletWithdrawal } from './wallet-withdrawal.entity';
+import { Membership } from './membership.entity';
 
 
 @Entity()
 export class WalletTransaction extends BaseEntity {
+
+  @ManyToOne(() => Membership, { nullable: false })
+  initiatedBy: Membership;
 
   @Column({
     type: 'bigint',
@@ -26,7 +30,6 @@ export class WalletTransaction extends BaseEntity {
   @OneToOne(() => PaymentTransaction)
   @JoinColumn()
   paymentTransaction: PaymentTransaction;
-
 
   @Column({
     type: 'bigint',
