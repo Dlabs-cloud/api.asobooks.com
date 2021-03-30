@@ -32,8 +32,8 @@ export class MembershipManagementController {
   @Post('create')
   public async createAssociationMember(@Body() memberSignUpDto: MemberSignUpDto,
                                        @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
-    const association = await this.userManagementService.createAssociationMember(memberSignUpDto, requestPrincipal.association, requestPrincipal.portalUser);
-    return new ApiResponseDto(association, 201);
+    const membershipInfo = await this.userManagementService.createAssociationMember(memberSignUpDto, requestPrincipal.association, requestPrincipal.portalUser);
+    return new ApiResponseDto({ membershipIdentifier: membershipInfo }, 201);
   }
 
   @Get(':identifier')

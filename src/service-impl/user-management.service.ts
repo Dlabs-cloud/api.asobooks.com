@@ -178,7 +178,7 @@ export class UserManagementService {
         }
       }
       this.eventBus.publish(new AssociationMembershipSignUpEvent(portalUser));
-      return Promise.resolve(association);
+      return Promise.resolve(membershipInfo);
     });
   }
 
