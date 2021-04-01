@@ -7,8 +7,9 @@ export class WalletTransactionHandler {
   transform(walletTransaction: WalletTransaction) {
     const portalUser = walletTransaction?.initiatedBy?.portalUser;
     const membershipInfo = walletTransaction?.initiatedBy?.membershipInfo;
+    const paymentTransaction = walletTransaction.paymentTransaction;
     const response: WalletTransactionResponseDto = {
-      amount: walletTransaction.amount,
+      amountInMinorUnit: +walletTransaction.amountInMinorUnit,
       date: walletTransaction.createdAt,
       initiatedBy: {
         firstName: portalUser?.firstName,
@@ -18,9 +19,9 @@ export class WalletTransactionHandler {
         phoneNumber: portalUser.phoneNumber,
       },
       paymentType: walletTransaction.paymentType,
-      previousWalletBalance: walletTransaction.previousWalletBalanceInMinorUnit,
-      transactionReference: walletTransaction.paymentTransaction.reference,
-      walletBalance: walletTransaction.walletBalance,
+      previousWalletBalanceInMinorUnit: +walletTransaction.previousWalletBalanceInMinorUnit,
+      transactionReference: paymentTransaction.reference,
+      walletBalanceInMinorUnit: +walletTransaction.walletBalanceInMinorUnit,
     };
     return response;
   }

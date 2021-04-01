@@ -9,11 +9,11 @@ export class WalletTransactionQueryDto {
   @IsNumber()
   @IsOptional()
   offset?: number;
+  @IsOptional()
   @IsNumber()
-  @IsString()
   minAmountInMinorUnit?: number;
+  @IsOptional()
   @IsNumber()
-  @IsString()
   maxAmountInMinorUnit?: number;
   @IsDateFormat('DD/MM/YYYY')
   dateCreatedBefore?: number;

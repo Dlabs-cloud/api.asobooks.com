@@ -16,7 +16,7 @@ export class WalletTransaction extends BaseEntity {
   @Column({
     type: 'bigint',
   })
-  amount: number;
+  amountInMinorUnit: number;
 
   @ManyToOne(() => Wallet)
   wallet: Wallet;
@@ -39,7 +39,7 @@ export class WalletTransaction extends BaseEntity {
   @Column({
     type: 'bigint',
   })
-  walletBalance: number;
+  walletBalanceInMinorUnit: number;
 
 
 }

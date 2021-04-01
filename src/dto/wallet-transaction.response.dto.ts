@@ -4,9 +4,9 @@ import { PortalUserDto } from './portal-user.dto';
 export class WalletTransactionResponseDto {
   date: Date;
   transactionReference: string;
-  amount: number;
+  amountInMinorUnit: number;
   initiatedBy: PortalUserDto;
-  previousWalletBalance: number;
-  walletBalance: number;
+  previousWalletBalanceInMinorUnit: number;
+  walletBalanceInMinorUnit: number;
   paymentType: PaymentType;
 }

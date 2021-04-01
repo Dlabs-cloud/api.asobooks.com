@@ -13,11 +13,11 @@ import * as moment from 'moment';
 export class WalletTransactionRepository extends BaseRepository<WalletTransaction> {
 
 
-  findByWalletAndQuery(wallet: Wallet, query: WalletTransactionQueryDto, status = GenericStatusConstant) {
+  findByWalletAndQuery(wallet: Wallet, query: WalletTransactionQueryDto, status = GenericStatusConstant.ACTIVE) {
     const builder = this.createQueryBuilder('walletTransaction')
       .select()
-      .innerJoinAndSelect(Membership, 'membership')
-      .innerJoinAndSelect(PaymentTransaction, 'paymentTransaction')
+      .innerJoinAndSelect('walletTransaction.initiatedBy', 'membership')
+      .innerJoinAndSelect('walletTransaction.paymentTransaction', 'paymentTransaction')
       .innerJoinAndSelect('membership.membershipInfo', 'membershipInfo')
       .innerJoinAndSelect('membership.portalUser', 'portalUser')
       .where('walletTransaction.status = :status', { status });
@@ -27,11 +27,11 @@ export class WalletTransactionRepository extends BaseRepository<WalletTransactio
     }
 
     if (query.minAmountInMinorUnit) {
-      builder.andWhere('walletTransaction.amount >= :minAmount', { minAmount: query.minAmountInMinorUnit });
+      builder.andWhere('walletTransaction.amountInMinorUnit >= :minAmount', { minAmount: query.minAmountInMinorUnit });
     }
 
     if (query.maxAmountInMinorUnit) {
-      builder.andWhere('walletTransaction.amount <= :maxAmount', { maxAmount: query.maxAmountInMinorUnit });
+      builder.andWhere('walletTransaction.amountInMinorUnit <= :maxAmount', { maxAmount: query.maxAmountInMinorUnit });
     }
 
     if (query.dateCreatedAfter) {

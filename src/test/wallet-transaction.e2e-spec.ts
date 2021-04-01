@@ -10,6 +10,10 @@ import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
 import * as request from 'supertest';
 import * as moment from 'moment';
 import { PaymentTransactionRepository } from '../dao/payment-transaction.repository';
+import { PaymentRequest } from '../domain/entity/payment-request.entity';
+import { WalletTransaction } from '../domain/entity/wallet-transaction.entity';
+import { Wallet } from '../domain/entity/wallet.entity';
+import { WalletTransactionRepository } from '../dao/wallet-transaction.repository';
 
 describe('Wallet Transactions', () => {
   let applicationContext: INestApplication;
@@ -34,27 +38,40 @@ describe('Wallet Transactions', () => {
 
   it('Test that a wallet transaction can be gotten by query', async () => {
     jest.setTimeout(12000);
-    await connection.getCustomRepository(PaymentTransactionRepository).delete({
+    await connection.getCustomRepository(WalletTransactionRepository).delete({
       id: MoreThanOrEqual(1),
     });
-    await mockPaymentTransactions(association);
+    const wallet = await factory().upset(Wallet).use(wallet => {
+      wallet.association = association;
+      return wallet;
+    }).create();
+    await factory().upset(WalletTransaction).use(walletTransaction => {
+      walletTransaction.wallet = wallet;
+      walletTransaction.amountInMinorUnit = 45_000_00;
+      return walletTransaction;
+    }).createMany(6);
     const url = `/wallets/transactions?limit=${5}&offset=${0}&minAmountInMinorUnit=${45_000_00}&maxAmountInMinorUnit=${50_000_00}&dateCreatedBefore=${moment(new Date()).format('DD/MM/YYYY')}&dateCreatedAfter=${moment(new Date()).format('DD/MM/YYYY')}`;
     let response = await request(applicationContext.getHttpServer())
       .get(url)
       .set('Authorization', assoUser.token)
       .set('X-ASSOCIATION-IDENTIFIER', assoUser.association.code);
 
-    const data = response.body.items[0];
+    const data = response.body.data;
+    const payload = data.items[0];
 
-    expect(parseInt(response.body.itemsPerPage.toString())).toEqual(5);
-    expect(parseInt(response.body.total.toString())).toEqual(10);
-    expect(data.paidByFirstName).toBeDefined();
-    expect(data.paidByLastLastName).toBeDefined();
-    expect(data.amountInMinorUnit).toBeDefined();
-    expect(data.membershipReference).toBeDefined();
-    expect(data.transactionReference).toBeDefined();
-    expect(data.paymentType).toBeDefined();
-    expect(data.paymentDate).toBeDefined();
+
+    expect(parseInt(data.itemsPerPage.toString())).toEqual(5);
+    expect(parseInt(data.total.toString())).toEqual(6);
+    expect(payload.initiatedBy.firstName).toBeDefined();
+    expect(payload.initiatedBy.lastName).toBeDefined();
+    expect(payload.initiatedBy.identifier).toBeDefined();
+    expect(payload.initiatedBy.email).toBeDefined();
+    expect(payload.amountInMinorUnit).toBeDefined();
+    expect(payload.transactionReference).toBeDefined();
+    expect(payload.previousWalletBalanceInMinorUnit).toBeDefined();
+    expect(payload.walletBalanceInMinorUnit).toBeDefined();
+    expect(payload.paymentType).toBeDefined();
+    expect(payload.date).toBeDefined();
   });
 
   afterAll(async () => {

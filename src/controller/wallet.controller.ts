@@ -42,7 +42,7 @@ export class WalletController {
           .getCustomRepository(WalletTransactionRepository)
           .findByStartDateAndEndDateWallet(startDate, endDate, wallet)
           .then(walletTransaction => {
-            const walletBalanceForTheMonth = walletTransaction?.walletBalance || 0;
+            const walletBalanceForTheMonth = walletTransaction?.walletBalanceInMinorUnit || 0;
             const response: WalletBalanceResponseDto = {
               amountThisMonthInMinorUnit: +walletBalanceForTheMonth,
               balanceInMinorUnit: +wallet.availableBalanceInMinorUnits,
@@ -64,7 +64,7 @@ export class WalletController {
       .getCustomRepository(WalletRepository)
       .findByAssociation(requestPrincipal.association)
       .then(wallet => {
-        this.connection.getCustomRepository(WalletTransactionRepository)
+        return this.connection.getCustomRepository(WalletTransactionRepository)
           .findByWalletAndQuery(wallet, query)
           .then(walletTransactions => {
             const payload = walletTransactions[0]
@@ -76,8 +76,8 @@ export class WalletController {
             response.total = walletTransactions[1] || 0;
             return response;
           }).then(response => {
-          return new ApiResponseDto(response);
-        });
+            return new ApiResponseDto(response);
+          });
       });
   }
 
