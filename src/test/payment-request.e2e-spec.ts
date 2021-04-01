@@ -78,7 +78,8 @@ describe('invoice controller', () => {
             .get(url)
             .set('Authorization', testUser.token)
             .set('X-ASSOCIATION-IDENTIFIER', testUser.association.code)
-            .expect(200).then(response => {
+            .expect(200)
+            .then(response => {
               const data = response.body.data;
               return getConnection().getCustomRepository(WalletRepository).findByAssociation(association).then(newWallet => {
                 const walletBalance = +wallet.availableBalanceInMinorUnits + +verificationResponseDto.amountInMinorUnit;

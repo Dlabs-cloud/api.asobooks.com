@@ -27,9 +27,10 @@ export class PaymentRequestRepository extends BaseRepository<PaymentRequest> {
   }
 
   findByReference(reference: string, status = GenericStatusConstant.ACTIVE) {
-    return this.findOneItemByStatus({
-      reference,
-      status,
+    return this.findOne({
+      reference, status,
+    }, {
+      relations: ['initiatedBy'],
     });
 
   }

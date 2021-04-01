@@ -11,8 +11,9 @@ export class WalletTransactionService {
 
   createWalletTransaction(entityManger: EntityManager, paymentType: PaymentType, wallet: Wallet, paymentTransaction: PaymentTransaction) {
     const initiatedBy = paymentTransaction?.paymentRequest?.initiatedBy;
+    console.log(paymentTransaction?.paymentRequest);
     if (!initiatedBy) {
-      throw new InternalServerErrorException('Error when processing a wallet withdrawal request');
+      throw new InternalServerErrorException('payment request of the payment transaction does not have initiatedBy');
     }
     const walletTransaction = new WalletTransaction();
     walletTransaction.amountInMinorUnit = Number(paymentTransaction.amountInMinorUnit);
