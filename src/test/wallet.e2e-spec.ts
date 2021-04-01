@@ -103,7 +103,7 @@ describe('Wallet controller', () => {
         }).create().then(wallet => {
           return factory().upset(WalletTransaction).use(wTransaction => {
             wTransaction.wallet = wallet;
-            wTransaction.walletBalance = 5_000_000;
+            wTransaction.walletBalanceInMinorUnit = 5_000_000;
             return wTransaction;
           }).create().then(_ => {
             return request(applicationContext.getHttpServer())

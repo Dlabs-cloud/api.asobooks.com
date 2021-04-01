@@ -43,55 +43,55 @@ export class PaymentTransactionRepository extends BaseRepository<PaymentTransact
   }
 
 
-  findByAssociationAndQuery(association: Association, query: PaymentTransactionSearchQueryDto, status = GenericStatusConstant.ACTIVE) {
-    const builder = this.createQueryBuilder('paymentTransaction')
-      .innerJoinAndSelect('paymentTransaction.paymentRequest', 'paymentRequest')
-      .innerJoin(Association, 'association', 'paymentRequest.association = association.id')
-      .leftJoinAndSelect('paymentRequest.invoice', 'invoice')
-      .leftJoinAndSelect('paymentRequest.walletWithdrawal', 'walletWithdrawal')
-      .leftJoinAndSelect('invoice.createdBy', 'createdBy')
-      .leftJoinAndSelect('createdBy.membershipInfo', 'membershipInfo')
-      .leftJoinAndSelect('createdBy.portalUser', 'user')
-      .leftJoinAndSelect('walletWithdrawal.initiatedBy', 'initiatedBy')
-      .leftJoinAndSelect('initiatedBy.membershipInfo', 'membershipInformation')
-      .leftJoinAndSelect('initiatedBy.portalUser', 'portalUser')
-      .where('association.id = :associationId')
-      .andWhere('paymentTransaction.status = :status')
-      .setParameter('associationId', association.id)
-      .setParameter('status', status)
-      .orderBy('paymentTransaction.id', 'DESC')
-      .offset(query.offset)
-      .limit(query.limit);
-
-    if (query.minAmountInMinorUnit) {
-      builder.andWhere('paymentTransaction.amountInMinorUnit >= :minAmount', { minAmount: query.minAmountInMinorUnit });
-    }
-    if (query.maxAmountInMinorUnit) {
-      builder.andWhere('paymentTransaction.amountInMinorUnit <= :maxAmount', { maxAmount: query.maxAmountInMinorUnit });
-    }
-    if (query.dateCreatedAfter) {
-      const date = moment(query.dateCreatedAfter, 'DD/MM/YYYY').startOf('day').toDate();
-      builder.andWhere('paymentTransaction.confirmedPaymentDate >= :afterDate', { afterDate: date });
-    }
-
-    if (query.dateCreatedBefore) {
-      const date = moment(query.dateCreatedBefore, 'DD/MM/YYYY').endOf('day').toDate();
-      builder.andWhere('paymentTransaction.confirmedPaymentDate <= :beforeDate', { beforeDate: date });
-    }
-
-    if (query.type) {
-      builder.andWhere('paymentRequest.paymentType = :paymentType', { paymentType: query.type });
-    }
-
-    if (query.membershipIdentifier) {
-      builder.andWhere(new Brackets(qb => {
-        qb.orWhere('membershipInfo.identifier = :identifier', { identifier: query.membershipIdentifier })
-          .orWhere('membershipInformation.identifier = :identifier', { identifier: query.membershipIdentifier });
-      }));
-    }
-
-    builder.orderBy('paymentTransaction.updatedAt', 'DESC');
-    return builder.getManyAndCount();
-  }
+  // findByAssociationAndQuery(association: Association, query: PaymentTransactionSearchQueryDto, status = GenericStatusConstant.ACTIVE) {
+  //   const builder = this.createQueryBuilder('paymentTransaction')
+  //     .innerJoinAndSelect('paymentTransaction.paymentRequest', 'paymentRequest')
+  //     .innerJoin(Association, 'association', 'paymentRequest.association = association.id')
+  //     .leftJoinAndSelect('paymentRequest.invoice', 'invoice')
+  //     .leftJoinAndSelect('paymentRequest.walletWithdrawal', 'walletWithdrawal')
+  //     .leftJoinAndSelect('invoice.createdBy', 'createdBy')
+  //     .leftJoinAndSelect('createdBy.membershipInfo', 'membershipInfo')
+  //     .leftJoinAndSelect('createdBy.portalUser', 'user')
+  //     .leftJoinAndSelect('walletWithdrawal.initiatedBy', 'initiatedBy')
+  //     .leftJoinAndSelect('initiatedBy.membershipInfo', 'membershipInformation')
+  //     .leftJoinAndSelect('initiatedBy.portalUser', 'portalUser')
+  //     .where('association.id = :associationId')
+  //     .andWhere('paymentTransaction.status = :status')
+  //     .setParameter('associationId', association.id)
+  //     .setParameter('status', status)
+  //     .orderBy('paymentTransaction.id', 'DESC')
+  //     .offset(query.offset)
+  //     .limit(query.limit);
+  //
+  //   if (query.minAmountInMinorUnit) {
+  //     builder.andWhere('paymentTransaction.amountInMinorUnit >= :minAmount', { minAmount: query.minAmountInMinorUnit });
+  //   }
+  //   if (query.maxAmountInMinorUnit) {
+  //     builder.andWhere('paymentTransaction.amountInMinorUnit <= :maxAmount', { maxAmount: query.maxAmountInMinorUnit });
+  //   }
+  //   if (query.dateCreatedAfter) {
+  //     const date = moment(query.dateCreatedAfter, 'DD/MM/YYYY').startOf('day').toDate();
+  //     builder.andWhere('paymentTransaction.confirmedPaymentDate >= :afterDate', { afterDate: date });
+  //   }
+  //
+  //   if (query.dateCreatedBefore) {
+  //     const date = moment(query.dateCreatedBefore, 'DD/MM/YYYY').endOf('day').toDate();
+  //     builder.andWhere('paymentTransaction.confirmedPaymentDate <= :beforeDate', { beforeDate: date });
+  //   }
+  //
+  //   if (query.type) {
+  //     builder.andWhere('paymentRequest.paymentType = :paymentType', { paymentType: query.type });
+  //   }
+  //
+  //   if (query.membershipIdentifier) {
+  //     builder.andWhere(new Brackets(qb => {
+  //       qb.orWhere('membershipInfo.identifier = :identifier', { identifier: query.membershipIdentifier })
+  //         .orWhere('membershipInformation.identifier = :identifier', { identifier: query.membershipIdentifier });
+  //     }));
+  //   }
+  //
+  //   builder.orderBy('paymentTransaction.updatedAt', 'DESC');
+  //   return builder.getManyAndCount();
+  // }
 
 }

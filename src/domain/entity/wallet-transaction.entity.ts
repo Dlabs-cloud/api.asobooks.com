@@ -4,15 +4,19 @@ import { PaymentType } from '../enums/payment-type.enum';
 import { PaymentTransaction } from './payment-transaction.entity';
 import { BaseEntity } from '../../common/base.entity';
 import { WalletWithdrawal } from './wallet-withdrawal.entity';
+import { Membership } from './membership.entity';
 
 
 @Entity()
 export class WalletTransaction extends BaseEntity {
 
+  @ManyToOne(() => Membership, { nullable: false })
+  initiatedBy: Membership;
+
   @Column({
     type: 'bigint',
   })
-  amount: number;
+  amountInMinorUnit: number;
 
   @ManyToOne(() => Wallet)
   wallet: Wallet;
@@ -27,7 +31,6 @@ export class WalletTransaction extends BaseEntity {
   @JoinColumn()
   paymentTransaction: PaymentTransaction;
 
-
   @Column({
     type: 'bigint',
   })
@@ -36,7 +39,7 @@ export class WalletTransaction extends BaseEntity {
   @Column({
     type: 'bigint',
   })
-  walletBalance: number;
+  walletBalanceInMinorUnit: number;
 
 
 }

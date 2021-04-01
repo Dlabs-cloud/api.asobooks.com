@@ -227,6 +227,7 @@ export class PaymentRequestService {
     paymentRequest.description = `Payment for generated invoice with reference ${invoice.code}`;
     paymentRequest.invoice = invoice;
     paymentRequest.association = association;
+    paymentRequest.initiatedBy = invoice.createdBy;
     paymentRequest.paymentProvider = PaymentProvider.FLUTTER_WAVE;
     paymentRequest.paymentStatus = PaymentStatus.NOT_PAID;
     paymentRequest.paymentType = PaymentType.CREDIT;
@@ -242,6 +243,7 @@ export class PaymentRequestService {
           paymentRequest.amountInMinorUnit = walletWithdrawal.amountInMinorUnit;
           paymentRequest.description = `Payment Request to withdraw from wallet`;
           paymentRequest.walletWithdrawal = walletWithdrawal;
+          paymentRequest.initiatedBy = walletWithdrawal.initiatedBy;
           paymentRequest.association = association;
           paymentRequest.paymentProvider = PaymentProvider.FLUTTER_WAVE;
           paymentRequest.paymentStatus = PaymentStatus.PENDING;

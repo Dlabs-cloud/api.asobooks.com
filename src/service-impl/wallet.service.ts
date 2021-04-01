@@ -48,7 +48,7 @@ export class WalletService {
         return this.walletTransactionService
           .createWalletTransaction(entityManager, paymentType, wallet, paymentTransaction)
           .then((walletTransaction) => {
-            wallet.availableBalanceInMinorUnits = Number(walletTransaction.walletBalance);
+            wallet.availableBalanceInMinorUnits = Number(walletTransaction.walletBalanceInMinorUnit);
             return entityManager.save(wallet);
           });
 
