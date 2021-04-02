@@ -17,6 +17,12 @@ export class TypeOrmDatasourceConf {
     return mode === 'test';
   }
 
+  public canSynchronize() {
+    const mode = this.configService.get('ENV', 'DEV');
+    return mode !== 'worker';
+
+  }
+
   public getTypeOrmConfig(): TypeOrmModuleOptions {
     return {
       type: 'postgres',
@@ -31,7 +37,7 @@ export class TypeOrmDatasourceConf {
         __dirname + '/../../domain/entity/*.entity{.js,.ts}',
         __dirname + '/../../dlabs-wallet/src/domain/entity/*.entity{.js,.ts}',
       ],
-      synchronize: true,
+      synchronize: this.canSynchronize(),
       ssl: this.isProduction(),
     };
   }
