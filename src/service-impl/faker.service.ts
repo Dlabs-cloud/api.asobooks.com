@@ -173,6 +173,7 @@ export class FakerService implements OnApplicationBootstrap {
       return factory().upset(PaymentRequest).use(paymenRequest => {
         paymenRequest.association = association;
         paymenRequest.invoice = invoice;
+        paymenRequest.initiatedBy = member;
         return paymenRequest;
       }).create();
     }).then(paymentRequest => {
