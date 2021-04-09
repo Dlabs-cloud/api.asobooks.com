@@ -3,11 +3,12 @@ import { Queues } from '../../core/cron.enum';
 import { Job } from 'bull';
 import { EmailQueueDto } from '../../dto/email-queue.dto';
 import { MailerService } from '@nestjs-modules/mailer';
+import { Log } from '../../conf/logger/Logger';
 
 @Processor(Queues.EMAIL)
 export class EmailProcessor {
 
-  constructor(private readonly mailerService: MailerService) {
+  constructor(private readonly mailerService: MailerService, private readonly log: Log) {
   }
 
   @Process()
@@ -23,7 +24,8 @@ export class EmailProcessor {
     };
 
     return this.mailerService.sendMail(sendMailOptions).catch(error => {
-      console.log(error);
+      this.log.error('There was an error sending email');
+      throw error;
     });
 
 

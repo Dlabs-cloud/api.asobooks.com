@@ -13,10 +13,12 @@ import { AssociationOnboardingDto } from '../dto/association-onboarding.dto';
 import { UpdateAssociationDto } from '../dto/update-association.dto';
 import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
 import { AssociationHandler } from './handlers/association.handler';
+import { Log } from '../conf/logger/Logger';
 
 @Controller('associations')
 export class AssociationController extends BaseController {
   constructor(@Inject(ASSOCIATION_SERVICE) private readonly associationService: AssociationService,
+              private readonly log: Log,
               private readonly associationHandler: AssociationHandler) {
     super();
   }
@@ -33,7 +35,6 @@ export class AssociationController extends BaseController {
   public async createAssociation(@UploadedFile() file,
                                  @Body() associationRequestDto: AssociationRequestDto,
                                  @RequestPrincipalContext() requestPrincipal: RequestPrincipal) {
-
 
 
     if (file) {
@@ -81,8 +82,9 @@ export class AssociationController extends BaseController {
           return Promise.resolve(new ApiResponseDto(null, 204));
         });
 
-    }catch (e) {
-      console.log(e)
+    } catch (e) {
+      this.log.error(e)
+      throw e;
     }
 
   }

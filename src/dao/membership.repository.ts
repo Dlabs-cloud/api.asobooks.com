@@ -173,7 +173,7 @@ export class MembershipRepository extends BaseRepository<Membership> {
                                                          ...identifiers: string[]) {
     return this.createQueryBuilder('membership')
       .select()
-      .innerJoin(MembershipInfo, 'membershipInfo', 'membership.membershipInfo = membershipInfo.id')
+      .innerJoinAndSelect(MembershipInfo, 'membershipInfo', 'membership.membershipInfo = membershipInfo.id')
       .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.id = membership.portalAccount')
       .where('membershipInfo.identifier IN (:...identifiers)', { identifiers })
       .andWhere('portalAccount.type = :portalAccountType', { portalAccountType })

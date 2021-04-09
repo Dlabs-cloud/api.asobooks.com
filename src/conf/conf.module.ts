@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { WinstonModule } from 'nest-winston';
-import * as winston from 'winston';
 import { CommonModule } from '../common/common.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,6 +11,7 @@ import { BullModule } from '@nestjs/bull';
 import { QueueDataStoreConf } from './data-source/queue-data-store.conf';
 import { PaymentConf } from './payment/payment.conf';
 import { PaymentModule } from '@dlabs/payment';
+import { Log } from './logger/Logger';
 
 
 @Module({
@@ -57,15 +56,11 @@ import { PaymentModule } from '@dlabs/payment';
       useExisting: PaymentConf,
     }),
 
-    WinstonModule.forRoot({
-      transports: [
-        new winston.transports.Console({ format: winston.format.json() }),
-      ],
-    }),
   ],
-  exports: [S3Module, BullModule, MailerModule, PaymentConf, PaymentModule],
+  exports: [S3Module, BullModule, MailerModule, PaymentConf, PaymentModule, Log],
   providers: [
     PaymentConf,
+    Log,
   ],
 })
 export class ConfModule {

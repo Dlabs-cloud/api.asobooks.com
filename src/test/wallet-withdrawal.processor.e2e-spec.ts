@@ -14,6 +14,7 @@ import { BankInfo } from '../domain/entity/bank-info.entity';
 import { Bank } from '../domain/entity/bank.entity';
 import * as faker from 'faker';
 import { FLUTTERWAVEWITHDRAWAL, PaymentModule, VerificationResponseDto, WithdrawalService } from '@dlabs/payment';
+import { Log } from '../conf/logger/Logger';
 
 describe('Wallet Withdrawal processor', () => {
   let applicationContext: INestApplication;
@@ -27,6 +28,7 @@ describe('Wallet Withdrawal processor', () => {
     const moduleRef: TestingModule = await baseTestingModule().compile();
     applicationContext = moduleRef.createNestApplication();
     applicationContext.useGlobalPipes(new ValidatorTransformPipe());
+    applicationContext.useLogger(new Log());
     await applicationContext.init();
 
     connection = getConnection();

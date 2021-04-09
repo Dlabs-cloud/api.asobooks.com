@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, InternalServerErrorException } from '@nestjs/common';
 import { Public } from '../dlabs-nest-starter/security/annotations/public';
 import { AssociationContext } from '../dlabs-nest-starter/security/annotations/association-context';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
@@ -10,7 +10,8 @@ export class TestController {
   @Get()
   @Public()
   index() {
-    return 'AsoBooks.com';
+    throw new InternalServerErrorException();
+    // return 'AsoBooks.com';
   }
 
   @Get('/association')

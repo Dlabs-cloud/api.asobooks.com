@@ -36,6 +36,7 @@ import { AssociationHandler } from './handlers/association.handler';
 import { MembershipRolesHandler } from './handlers/membership.roles.handler';
 import { PermissionController } from './permission.controller';
 import { WalletTransactionHandler } from './handlers/wallet-transaction.handler';
+import { ConfModule } from '../conf/conf.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { WalletTransactionHandler } from './handlers/wallet-transaction.handler'
     ServiceModule,
     DaoModule,
     CoreModule,
+    ConfModule,
     CommonModule],
   controllers: [
     TestController,

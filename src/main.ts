@@ -4,9 +4,41 @@ import { ValidatorTransformPipe } from './conf/validator-transform.pipe';
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
+import { Log } from './conf/logger/Logger';
+import * as Sentry from '@sentry/node';
+import * as Tracing from '@sentry/tracing';
+import { RemoteLoggerInterceptor } from './dlabs-nest-starter/logger/remote-logger.interceptor';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: false,
+  });
+  const express = app.getHttpServer();
+  const configService = app.get<ConfigService>(ConfigService);
+  const dsn = configService.get<string>('SENTRY_DSN', null);
+  console.log(dsn);
+  Sentry.init({
+    dsn,
+    integrations: [
+      // enable HTTP calls tracing
+      new Sentry.Integrations.Http({ tracing: true }),
+      // enable Express.js middleware tracing
+      new Tracing.Integrations.Express({ app: express }),
+    ],
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
+  });
+//   app.use(Sentry.Handlers.requestHandler());
+// // TracingHandler creates a trace for every incoming request
+//   app.use(Sentry.Handlers.tracingHandler());
+  app.useGlobalInterceptors(new RemoteLoggerInterceptor(new Log(), {
+    ip: true,
+    request: true,
+  }));
+  app.useLogger(new Log());
   app.setGlobalPrefix(`api/v${process.env.VERSION}`);
   globalPipes(app);
 

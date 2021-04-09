@@ -5,13 +5,14 @@ import { Wallet } from '../domain/entity/wallet.entity';
 import { PaymentTransaction } from '../domain/entity/payment-transaction.entity';
 import { WalletTransaction } from '../domain/entity/wallet-transaction.entity';
 import { InitiateTransactionDto } from '@dlabs/payment';
+import { Log } from '../conf/logger/Logger';
 
 @Injectable()
 export class WalletTransactionService {
 
+
   createWalletTransaction(entityManger: EntityManager, paymentType: PaymentType, wallet: Wallet, paymentTransaction: PaymentTransaction) {
     const initiatedBy = paymentTransaction?.paymentRequest?.initiatedBy;
-    console.log(paymentTransaction?.paymentRequest);
     if (!initiatedBy) {
       throw new InternalServerErrorException('payment request of the payment transaction does not have initiatedBy');
     }

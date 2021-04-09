@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
 import { RoleMembershipRequestDto } from '../dto/role-membership.request.dto';
 import { RequestPrincipalContext } from '../dlabs-nest-starter/security/decorators/request-principal.docorator';
 import { RequestPrincipal } from '../dlabs-nest-starter/security/request-principal.service';
@@ -14,6 +14,7 @@ import { AssociationContext } from '../dlabs-nest-starter/security/annotations/a
 import { MembershipRoleRepository } from '../dao/membership-role.repository';
 import { MembershipRoleQueryDto } from '../dto/membership-role.query.dto';
 import { MembershipRolesHandler } from './handlers/membership.roles.handler';
+import { UpdateRoleMembersDto } from '../dto/update-role-members.dto';
 
 @Controller()
 @AssociationContext()
@@ -35,7 +36,6 @@ export class RoleMembershipController {
         const res = this.membershipRoleHandler.transform(roleMembership);
         return new ApiResponseDto(res);
       });
-
   }
 
   @Post('/roles/:code/memberships')
@@ -112,6 +112,48 @@ export class RoleMembershipController {
             });
           });
       }).then(memberInfos => new ApiResponseDto(memberInfos));
+
+  }
+
+  @Patch('/roles/:code/memberships')
+  updateRole(@Param('code') code: string,
+             @Body() request: UpdateRoleMembersDto,
+             @RequestPrincipalContext()  requestPrincipal: RequestPrincipal) {
+
+    const membersReference = [...request.add, ...request.remove];
+    return this.connection
+      .getCustomRepository(RoleRepository)
+      .findOneItemByStatus({ association: requestPrincipal.association, code })
+      .then(role => {
+        if (!role) {
+          throw new NotFoundException('Role with code cannot be found');
+        }
+        return this.connection.getCustomRepository(MembershipRepository)
+          .findByAssociationAndPortalAccountTypeReferences(
+            requestPrincipal.association,
+            PortalAccountTypeConstant.EXECUTIVE_ACCOUNT,
+            GenericStatusConstant.ACTIVE,
+            ...membersReference).then(memberships => {
+            if (memberships && !memberships.length) {
+              return Promise.resolve();
+            }
+            return this.connection.transaction(em => {
+              const membersToAdd = memberships.filter(membership =>
+                !!request.add.find(identifier => identifier === membership.membershipInfo.identifier),
+              );
+              const membersToRemove = memberships.filter(membership =>
+                !!request.remove.find(identifier => identifier === membership.membershipInfo.identifier),
+              );
+              const members = membersToAdd.map(mem => {
+                return this.roleService.createRoleMember(em, mem, role);
+              });
+              const removeMemberPromise = membersToRemove.map(mem => {
+                return this.roleService.deActivateMember(em, role, mem);
+              });
+              return Promise.all([members, removeMemberPromise]).then(() => Promise.resolve());
+            });
+          }).then(() => new ApiResponseDto());
+      });
 
   }
 }
