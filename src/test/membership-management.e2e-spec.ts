@@ -26,6 +26,7 @@ import { PortalAccountRepository } from '../dao/portal-account.repository';
 import { EditMemberDto } from '../dto/edit-member.dto';
 import { response } from 'express';
 import { PortalUserDto } from '../dto/portal-user.dto';
+import { MembershipRole } from '../domain/entity/membership-role.entity';
 
 describe('Membership-management-controller ', () => {
   let applicationContext: INestApplication;
@@ -172,7 +173,15 @@ describe('Membership-management-controller ', () => {
         return membership;
       }).create();
     });
-    const memberships = await Promise.all(membershipsPromise);
+    const memberships = await Promise.all(membershipsPromise).then(memberships => {
+      const membershipRoles = memberships.map(membership => {
+        return factory().upset(MembershipRole).use(membershipRole => {
+          membershipRole.membership = membership;
+          return membershipRole;
+        }).create();
+      });
+      return Promise.all(membershipRoles).then(() => Promise.resolve(memberships));
+    });
     const url = `/membership-management?type=${PortalAccountTypeConstant.MEMBER_ACCOUNT}&offset=0&limit=20&query=${memberships[0].portalUser.firstName.toLowerCase().substr(0, 3)}`;
     let response = await request(applicationContext.getHttpServer())
       .get(url)
@@ -190,6 +199,7 @@ describe('Membership-management-controller ', () => {
     expect(item.id).toBeDefined();
     expect(item.identifier).toBeDefined();
     expect(item.dateCreated).toBeDefined();
+    expect(item.roles.length).toBeGreaterThan(0);
     expect(responseData.total).toEqual(1);
   });
 

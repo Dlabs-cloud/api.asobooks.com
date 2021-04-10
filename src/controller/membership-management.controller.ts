@@ -82,7 +82,7 @@ export class MembershipManagementController {
       .findByAssociationAndUserQuery(requestPrincipal.association, query)
       .then(membershipInfoCount => {
         const membershipInfos = membershipInfoCount[0] as MembershipInfo[];
-        return this.membershipsHandler.transform(membershipInfos).then(users => {
+        return this.membershipsHandler.transform(membershipInfos, query.type).then(users => {
           const response: PaginatedResponseDto<PortalUserDto> = {
             items: users || [],
             itemsPerPage: query.limit,
