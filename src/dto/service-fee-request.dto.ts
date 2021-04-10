@@ -2,7 +2,7 @@ import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 import { BillingCycleConstant } from '../domain/enums/billing-cycle.constant';
 import {
   ArrayNotEmpty,
-  IsArray,
+  IsArray, IsBoolean,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -59,5 +59,9 @@ export class ServiceFeeRequestDto {
   @IsOptional()
   @IsArray()
   recipients?: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  addAllMembers?: boolean;
 
 }

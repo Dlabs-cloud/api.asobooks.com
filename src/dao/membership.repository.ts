@@ -44,9 +44,16 @@ export class MembershipRepository extends BaseRepository<Membership> {
       .innerJoin(PortalAccount, 'portalAccount', 'portalAccount.id = membership.portalAccountId')
       .innerJoin(Association, 'association', 'association.id = portalAccount.associationId')
       .where('membership.status = :status', { status: status })
-      .andWhere('association.id = :association', { association: association.id })
-      .limit(query.limit)
-      .offset(query.offset);
+      .andWhere('association.id = :association', { association: association.id });
+
+    if (query.limit) {
+      queryBuilder.limit(query.limit);
+    }
+
+    if (query.offset) {
+      queryBuilder.offset(query.offset);
+    }
+
     if (query.accountType) {
       queryBuilder.andWhere('portalAccount.type =:type ', { type: query.accountType });
     }

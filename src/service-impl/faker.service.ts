@@ -37,6 +37,7 @@ import { Role } from '../domain/entity/role.entity';
 import { RolePermission } from '../domain/entity/role-permission.entity';
 import { AccountDetail } from '../domain/entity/account-detail.entity';
 import { Bank } from '../domain/entity/bank.entity';
+import { WalletTransaction } from '../domain/entity/wallet-transaction.entity';
 
 @Injectable()
 export class FakerService implements OnApplicationBootstrap {
@@ -50,9 +51,9 @@ export class FakerService implements OnApplicationBootstrap {
 
 
   onApplicationBootstrap(): any {
-    // return this.seed().catch(err => {
-    //   console.log(err);
-    // });
+    return this.seed().catch(err => {
+      console.log(err);
+    });
 
   }
 
@@ -82,22 +83,30 @@ export class FakerService implements OnApplicationBootstrap {
                       return this
                         .createAccounts(testUser.association, PortalAccountTypeConstant.EXECUTIVE_ACCOUNT)
                         .then(() => {
-                          return this.createAccounts(testUser.association, PortalAccountTypeConstant.MEMBER_ACCOUNT).then(members => {
-                            const paymentTransactions = members.map(member => {
-                              return this.createPaymentTransactions(member, testUser.association);
+                          return this.createWallet(testUser.association).then(wallet => {
+                            return this.createAccounts(testUser.association, PortalAccountTypeConstant.MEMBER_ACCOUNT).then(members => {
+                              const paymentTransactions = members.map(member => {
+                                return this.createPaymentTransactions(member, testUser.association);
+                              });
+                              return Promise.all(paymentTransactions)
+                                .then(paymentTransactions => {
+                                  const map = paymentTransactions
+                                    .map(paymentTransaction => this.seedWalletTransactions(wallet, paymentTransaction));
+                                  return Promise.all(map);
+                                });
+                            }).then(() => {
+                              return this.createRolePermissions(testUser.association);
+                            }).then(() => {
+                              return this.createWallet(testUser.association);
+                            }).then(() => {
+                              return this.seedActivityLog(testUser.association);
+                            }).then(_ => {
+                              return this.seedServiceFee(testUser.association);
+                            }).then(_ => {
+                              return this.seedAccountDetails();
                             });
-                            return Promise.all(paymentTransactions);
-                          }).then(() => {
-                            return this.createRolePermissions(testUser.association);
-                          }).then(() => {
-                            return this.createWallet(testUser.association);
-                          }).then(() => {
-                            return this.seedActivityLog(testUser.association);
-                          }).then(_ => {
-                            return this.seedServiceFee(testUser.association);
-                          }).then(_ => {
-                            return this.seedAccountDetails();
                           });
+
                         });
 
                     });
@@ -318,8 +327,16 @@ export class FakerService implements OnApplicationBootstrap {
       accountDetail.number = '1234567899';
       return accountDetail;
     }).create();
+  }
 
 
+  //AddwalletTransactionToseeders
+  seedWalletTransactions(wallet: Wallet, paymentTransaction: PaymentTransaction) {
+    return factory().upset(WalletTransaction).use(wTransaction => {
+      wTransaction.wallet = wallet;
+      wTransaction.paymentTransaction = paymentTransaction;
+      return wTransaction;
+    }).create();
   }
 
 

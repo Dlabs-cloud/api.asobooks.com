@@ -15,6 +15,8 @@ import { GroupServiceFeeService } from './group-service-fee.service';
 import { Membership } from '../domain/entity/membership.entity';
 import { ServiceTypeConstant } from '../domain/enums/service-type.constant';
 import { GenericStatusConstant } from '../domain/enums/generic-status-constant';
+import { MembershipRepository } from '../dao/membership.repository';
+import { PortalAccountTypeConstant } from '../domain/enums/portal-account-type-constant';
 
 @Injectable()
 export class ServiceFeeService {
@@ -62,7 +64,21 @@ export class ServiceFeeService {
 
       return this.groupServiceFeeService
         .createGroupForService(entityManager, group, serviceFee)
-        .then(_ => {
+        .then(() => {
+          if (serviceFeeRequestDto.addAllMembers) {
+            return entityManager.getCustomRepository(MembershipRepository)
+              .findByAssociationAndQuery(association, {
+                accountType: PortalAccountTypeConstant.MEMBER_ACCOUNT,
+              }).then(members => {
+                if (members && members.length) {
+                  return this.groupService.addMember(entityManager, group, ...recipients)
+                    .then(_ => {
+                      return Promise.resolve(serviceFee);
+                    });
+                }
+                return Promise.resolve(serviceFee);
+              });
+          }
           if (!recipients || !recipients.length) {
             return Promise.resolve(serviceFee);
           }
