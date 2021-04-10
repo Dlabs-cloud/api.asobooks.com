@@ -38,6 +38,7 @@ import { RolePermission } from '../domain/entity/role-permission.entity';
 import { AccountDetail } from '../domain/entity/account-detail.entity';
 import { Bank } from '../domain/entity/bank.entity';
 import { WalletTransaction } from '../domain/entity/wallet-transaction.entity';
+import { MembershipRole } from '../domain/entity/membership-role.entity';
 
 @Injectable()
 export class FakerService implements OnApplicationBootstrap {
@@ -95,7 +96,7 @@ export class FakerService implements OnApplicationBootstrap {
                                   return Promise.all(map);
                                 });
                             }).then(() => {
-                              return this.createRolePermissions(testUser.association);
+                              return this.createRolePermissions(testUser.association).then();
                             }).then(() => {
                               return this.createWallet(testUser.association);
                             }).then(() => {
@@ -124,6 +125,18 @@ export class FakerService implements OnApplicationBootstrap {
       role.association = association;
       return role;
     }).createMany(3);
+    await this.connection.getCustomRepository(MembershipRepository).findByAssociationAndQuery(association, {
+      accountType: PortalAccountTypeConstant.EXECUTIVE_ACCOUNT,
+    }).then(members => {
+      const membershipRole = members.map(member => {
+        return factory().upset(MembershipRole).use(membershipRole => {
+          membershipRole.membership = member;
+          membershipRole.role = roles[0];
+          return membershipRole;
+        }).create();
+      });
+      return Promise.all(membershipRole);
+    });
     const rolePromise = roles.map(role => {
       const rolePermPromise = permissions.map(permission => {
         return factory().upset(RolePermission).use(rolePermission => {
