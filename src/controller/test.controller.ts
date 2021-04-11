@@ -10,8 +10,14 @@ export class TestController {
   @Get()
   @Public()
   index() {
-    throw new InternalServerErrorException();
-    // return 'AsoBooks.com';
+    return new Promise(((resolve) => {
+      const number = Math.ceil(Math.random() * 10000 * 9);
+      console.log(number);
+      setTimeout(() => {
+        resolve({ message: `Sending a message after ${number}` });
+      }, number);
+    }));
+
   }
 
   @Get('/association')
